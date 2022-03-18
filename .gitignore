@@ -1,0 +1,8 @@
+/vendor/
+/.idea/
+.DS_Store
+mock.json
+data-tests.php
+loader.php
+.phpunit.result.cache
+/bin/view/results/

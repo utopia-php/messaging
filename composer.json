@@ -1,0 +1,20 @@
+{
+    "name": "utopia-php/push",
+    "description": "A simple service to provide push notifications for mobile devices",
+    "type": "library",
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Wess Cope",
+            "email": "wess@appwrite.io"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"UtopiaPhp\\Push\\": "src/Push"}
+    },
+    "require": {
+        "php": ">=8.0",
+        "lib-openssl": "1.1.1.13"
+    }
+}
