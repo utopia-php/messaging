@@ -10,7 +10,7 @@ use Utopia\Push\Apns\Response;
 class Request
 {
   /**
-   * @var string
+   * @var Config
    */
   private $config;
 
@@ -26,7 +26,7 @@ class Request
 
   public function send(string $deviceToken, Message $message)
   {
-    $url = $config->getURL().$deviceToken->getDeviceToken();
+    $url = $config->getURL() . $deviceToken;
 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $config->getHeaders());
