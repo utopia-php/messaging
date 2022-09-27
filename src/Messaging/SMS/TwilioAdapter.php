@@ -4,6 +4,10 @@ namespace Messaging\SMS;
 
 class Twilio extends SMSAdapter
 {
+    /**
+     * @param string $user Twilio Account SID
+     * @param string $secret Twilio Auth Token
+     */
     public function __construct(
         private string $user,
         private string $secret
