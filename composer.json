@@ -12,13 +12,26 @@
     }
   ],
   "autoload": {
-    "psr-4": {"Utopia\\": "src/"}
+    "psr-4": {
+      "Utopia\\Messaging\\": "src/Utopia/Messaging"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\E2E\\": "tests/e2e",
+      "Tests\\Unit\\": "tests/unit"
+    }
   },
   "require": {
     "php": ">=8.0.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.5.10",
+    "phpunit/phpunit": "^9.5.20",
     "vimeo/psalm": "4.13.1"
+  },
+  "config": {
+    "platform": {
+      "php": "8.0"
+    }
   }
 }
