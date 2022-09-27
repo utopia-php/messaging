@@ -2,7 +2,7 @@
 
 namespace Utopia\Messaging;
 
-abstract class Adapter implements LimitableSender
+abstract class Adapter
 {
     /**
      * Get the name of the adapter.
@@ -17,6 +17,13 @@ abstract class Adapter implements LimitableSender
      * @return string
      */
     public abstract function getType(): string;
+
+    /**
+     * Get the maximum number of messages that can be sent in a single request.
+     *
+     * @return int
+     */
+    public abstract function getMaxMessagesPerRequest(): int;
 
     /**
      * Send a message.
