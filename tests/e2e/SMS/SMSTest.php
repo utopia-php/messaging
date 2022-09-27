@@ -20,11 +20,7 @@ class SMSTest extends Base
             from: '+987654321'
         );
 
-        try {
-            $sms->send($message);
-        } catch (\Exception $error) {
-            throw new \Exception('Error sending message: ' . $error->getMessage(), 500);
-        }
+        $sms->send($message);
 
         $smsRequest = $this->getLastRequest();
 
