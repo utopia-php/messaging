@@ -1,8 +1,8 @@
 <?php
 
-namespace Messaging\Push;
+namespace Utopia\Messaging\Push;
 
-use Messaging\Message;
+use Utopia\Messaging\Message;
 
 class PushMessage implements Message
 {

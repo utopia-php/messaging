@@ -1,8 +1,8 @@
 <?php
 
-namespace Messaging\Email;
+namespace Utopia\Messaging\Email;
 
-use Messaging\Message;
+use Utopia\Messaging\Message;
 
 class EmailMessage implements Message
 {

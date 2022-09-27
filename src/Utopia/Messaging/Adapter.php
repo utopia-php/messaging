@@ -1,6 +1,6 @@
 <?php
 
-namespace Messaging;
+namespace Utopia\Messaging;
 
 abstract class Adapter implements LimitableSender
 {

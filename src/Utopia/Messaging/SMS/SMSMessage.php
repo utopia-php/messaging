@@ -1,8 +1,8 @@
 <?php
 
-namespace Messaging\SMS;
+namespace Utopia\Messaging\SMS;
 
-use Messaging\Message;
+use Utopia\Messaging\Message;
 
 class SMSMessage implements Message
 {

@@ -1,0 +1,24 @@
+{
+  "name": "utopia-php/messaging",
+  "description": "A simple, light and advanced PHP messaging library",
+  "type": "library",
+  "keywords": ["php","messaging", "upf", "utopia", "utopia-php", "library"],
+  "license": "MIT",
+  "minimum-stability": "stable",
+  "authors": [
+    {
+      "name": "Jake Barnby",
+      "email": "jake@appwrite.io"
+    }
+  ],
+  "autoload": {
+    "psr-4": {"Utopia\\": "src/"}
+  },
+  "require": {
+    "php": ">=8.0.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5.10",
+    "vimeo/psalm": "4.13.1"
+  }
+}

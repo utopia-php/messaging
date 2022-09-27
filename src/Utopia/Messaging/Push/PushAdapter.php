@@ -1,15 +1,15 @@
 <?php
 
-namespace Messaging\SMS;
+namespace Utopia\Messaging\Push;
 
-use Messaging\Message;
-use Messaging\Adapter;
+use Utopia\Messaging\Adapter;
+use Utopia\Messaging\Message;
 
-abstract class SMSAdapter extends Adapter
+abstract class PushAdapter extends Adapter
 {
     public function getType(): string
     {
-        return 'sms';
+        return 'push';
     }
 
     /**
@@ -18,7 +18,7 @@ abstract class SMSAdapter extends Adapter
      */
     public function send(Message $message): string
     {
-        if (!($message instanceof SMSMessage)) {
+        if (!($message instanceof PushMessage)) {
             throw new \Exception('Invalid message type.');
         }
         if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
@@ -27,5 +27,5 @@ abstract class SMSAdapter extends Adapter
         return $this->sendMessage($message);
     }
 
-    protected abstract function sendMessage(SMSMessage $message): string;
+    protected abstract function sendMessage(PushMessage $message): string;
 }

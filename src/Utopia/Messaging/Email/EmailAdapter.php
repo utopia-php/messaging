@@ -1,9 +1,9 @@
 <?php
 
-namespace Messaging\Email;
+namespace Utopia\Messaging\Email;
 
-use Messaging\Message;
-use Messaging\Adapter;
+use Utopia\Messaging\Message;
+use Utopia\Messaging\Adapter;
 
 abstract class EmailAdapter extends Adapter
 {

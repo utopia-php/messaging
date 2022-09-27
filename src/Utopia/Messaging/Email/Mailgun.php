@@ -1,6 +1,6 @@
 <?php
 
-namespace Messaging\Email;
+namespace Utopia\Messaging\Email;
 
 class Mailgun extends EmailAdapter
 {

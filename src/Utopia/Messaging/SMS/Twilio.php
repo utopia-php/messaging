@@ -1,6 +1,6 @@
 <?php
 
-namespace Messaging\SMS;
+namespace Utopia\Messaging\SMS;
 
 class Twilio extends SMSAdapter
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Messaging\Push;
+namespace Utopia\Messaging\Push;
 
 class FCM extends PushAdapter
 {
