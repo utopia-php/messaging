@@ -8,7 +8,7 @@ WORKDIR /usr/local/src/
 COPY composer.lock /usr/local/src/
 COPY composer.json /usr/local/src/
 
-RUN composer update \
+RUN composer install \
     --ignore-platform-reqs \
     --optimize-autoloader \
     --no-plugins  \
