@@ -2,9 +2,6 @@
 
 namespace Messaging;
 
-/**
- * Adapter interface for sending messages.
- */
 abstract class Adapter implements LimitableSender
 {
     /**
@@ -43,7 +40,7 @@ abstract class Adapter implements LimitableSender
         string $method,
         string $url,
         array $headers = [],
-        ?string $body = null,
+        mixed $body = null,
     ): string
     {
         $headers[] = 'Content-length: ' . \strlen($body);
@@ -54,7 +51,7 @@ abstract class Adapter implements LimitableSender
         \curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         \curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        \curl_setopt($ch, CURLOPT_USERAGENT, "Appwrite {$this->getName()} Sender");
+        \curl_setopt($ch, CURLOPT_USERAGENT, "Appwrite {$this->getName()} Message Sender");
 
         if (!is_null($body)) {
             \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);

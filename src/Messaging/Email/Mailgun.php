@@ -37,13 +37,13 @@ class Mailgun extends EmailAdapter
             headers: [
                 'Authorization: Basic ' . base64_encode('api:' . $this->apiKey)
             ],
-            body: \http_build_query([
+            body: [
                 'from' => $message->getFrom(),
                 'to' => \join(',', $message->getTo()),
                 'subject' => $message->getSubject(),
                 'text' => $message->isHtml() ? null : $message->getContent(),
                 'html' => $message->isHtml() ? $message->getContent() : null,
-            ]),
+            ],
         );
     }
 }
