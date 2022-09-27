@@ -9,8 +9,7 @@ class FCM extends PushAdapter
      */
     public function __construct(
         private string $serverKey,
-    )
-    {
+    ) {
     }
 
     public function getName(): string

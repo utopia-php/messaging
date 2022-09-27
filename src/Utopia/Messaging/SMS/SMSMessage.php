@@ -7,12 +7,11 @@ use Utopia\Messaging\Message;
 class SMSMessage implements Message
 {
     public function __construct(
-        private array   $to,
-        private string  $content,
+        private array $to,
+        private string $content,
         private ?string $from = null,
-        private ?array  $attachments = null,
-    )
-    {
+        private ?array $attachments = null,
+    ) {
     }
 
     /**
@@ -46,6 +45,4 @@ class SMSMessage implements Message
     {
         return $this->attachments;
     }
-
-
 }

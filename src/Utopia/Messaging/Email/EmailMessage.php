@@ -15,14 +15,13 @@ class EmailMessage implements Message
      * @param bool $html Whether the message is HTML or not.
      */
     public function __construct(
-        private array   $to,
-        private string  $subject,
-        private string  $content,
+        private array $to,
+        private string $subject,
+        private string $content,
         private ?string $from = null,
-        private ?array  $attachments = null,
-        private bool    $html = false
-    )
-    {
+        private ?array $attachments = null,
+        private bool $html = false
+    ) {
     }
 
     /**

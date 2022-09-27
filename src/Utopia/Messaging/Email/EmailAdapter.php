@@ -33,5 +33,5 @@ abstract class EmailAdapter extends Adapter
      * @param EmailMessage $message Message to send.
      * @return string The response body.
      */
-    protected abstract function sendMessage(EmailMessage $message): string;
+    abstract protected function sendMessage(EmailMessage $message): string;
 }

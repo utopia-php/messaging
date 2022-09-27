@@ -9,21 +9,21 @@ abstract class Adapter
      *
      * @return string
      */
-    public abstract function getName(): string;
+    abstract public function getName(): string;
 
     /**
      * Get the type of the adapter.
      *
      * @return string
      */
-    public abstract function getType(): string;
+    abstract public function getType(): string;
 
     /**
      * Get the maximum number of messages that can be sent in a single request.
      *
      * @return int
      */
-    public abstract function getMaxMessagesPerRequest(): int;
+    abstract public function getMaxMessagesPerRequest(): int;
 
     /**
      * Send a message.
@@ -31,7 +31,7 @@ abstract class Adapter
      * @param Message $message The message to send.
      * @return string The response body.
      */
-    public abstract function send(Message $message): string;
+    abstract public function send(Message $message): string;
 
     /**
      * Send an HTTP request.
@@ -48,8 +48,7 @@ abstract class Adapter
         string $url,
         array $headers = [],
         mixed $body = null,
-    ): string
-    {
+    ): string {
         $headers[] = 'Content-length: ' . \strlen($body);
 
         $ch = \curl_init();

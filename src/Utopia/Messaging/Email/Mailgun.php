@@ -11,8 +11,7 @@ class Mailgun extends EmailAdapter
     public function __construct(
         private string $apiKey,
         private string $domain,
-    )
-    {
+    ) {
     }
 
     public function getName(): string

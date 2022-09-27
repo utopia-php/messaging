@@ -27,5 +27,5 @@ abstract class SMSAdapter extends Adapter
         return $this->sendMessage($message);
     }
 
-    protected abstract function sendMessage(SMSMessage $message): string;
+    abstract protected function sendMessage(SMSMessage $message): string;
 }

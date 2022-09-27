@@ -19,9 +19,9 @@ class PushMessage implements Message
      * @param string|null $badge <b>iOS only</b>. The value of the badge on the home screen app icon. If not specified, the badge is not changed. If set to 0, the badge is removed.
      */
     public function __construct(
-        private array   $to,
-        private string  $title,
-        private string  $body,
+        private array $to,
+        private string $title,
+        private string $body,
         private ?array $data = null,
         private ?string $action = null,
         private ?string $sound = null,
@@ -29,9 +29,7 @@ class PushMessage implements Message
         private ?string $color = null,
         private ?string $tag = null,
         private ?string $badge = null,
-
-    )
-    {
+    ) {
     }
 
     /**

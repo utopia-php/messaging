@@ -11,8 +11,7 @@ class Mock extends SMSAdapter
     public function __construct(
         private string $user,
         private string $secret
-    )
-    {
+    ) {
     }
 
     public function getName(): string

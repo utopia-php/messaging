@@ -27,5 +27,5 @@ abstract class PushAdapter extends Adapter
         return $this->sendMessage($message);
     }
 
-    protected abstract function sendMessage(PushMessage $message): string;
+    abstract protected function sendMessage(PushMessage $message): string;
 }
