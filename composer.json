@@ -5,6 +5,11 @@
   "keywords": ["php","messaging", "upf", "utopia", "utopia-php", "library"],
   "license": "MIT",
   "minimum-stability": "stable",
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "lint": "vendor/bin/phpcs",
+    "format": "vendor/bin/phpcbf"
+  },
   "authors": [
     {
       "name": "Jake Barnby",
@@ -26,9 +31,9 @@
     "php": ">=8.0.0"
   },
   "require-dev": {
-    "phpmailer/phpmailer": "6.6.*",
     "phpunit/phpunit": "9.5.*",
-    "vimeo/psalm": "4.13.*"
+    "phpmailer/phpmailer": "6.6.*",
+    "squizlabs/php_codesniffer": "^3.6"
   },
   "config": {
     "platform": {
