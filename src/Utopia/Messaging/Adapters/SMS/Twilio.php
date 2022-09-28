@@ -40,8 +40,8 @@ class Twilio extends Base
             ],
             body: \http_build_query([
                 'Body' => $message->getContent(),
-                'From' => $message->getFrom(),
-                'To' => \implode(',', $message->getTo())
+                'From' => '+' . $message->getFrom(),
+                'To' => '+' . $message->getTo()[0]
             ]),
         );
     }
