@@ -7,8 +7,8 @@ use Utopia\Messaging\Messages\SMS;
 class Msg91 extends Base
 {
     /**
-     * @param string $user Twilio Account SID
-     * @param string $secret Twilio Auth Token
+     * @param string $user Msg91 Account User
+     * @param string $secret Msg91 API Key
      */
     public function __construct(
         private string $user,
