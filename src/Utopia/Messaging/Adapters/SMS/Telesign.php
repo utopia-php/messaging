@@ -4,15 +4,18 @@ namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
 
+// Reference Material
+// https://developer.telesign.com/enterprise/reference/sendbulksms
+
 class Telesign extends Base
 {
     /**
-     * @param string $user Telesign account username
-     * @param string $secret Telesign account password
+     * @param string $username Telesign account username
+     * @param string $password Telesign account password
      */
     public function __construct(
-        private string $user,
-        private string $secret
+        private string $username,
+        private string $password
     ) {
     }
 
@@ -32,11 +35,11 @@ class Telesign extends Base
             method: 'POST',
             url: 'https://rest-ww.telesign.com/v1/verify/bulk_sms',
             headers: [
-                'Authorization: Basic ' . base64_encode("{$this->user}:{$this->secret}")
+                'Authorization: Basic ' . base64_encode("{$this->username}:{$this->password}")
             ],
             body: [
                 'template' => $message->getContent(),
-                'recipients' => \join(',', $message->getTo())
+                'recipients' => \implode(',', $message->getTo())
             ],
         );
     }

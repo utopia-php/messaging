@@ -4,15 +4,18 @@ namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
 
+// Reference Material
+// https://docs.msg91.com/p/tf9GTextN/e/7WESqQ4RLu/MSG91
+
 class Msg91 extends Base
 {
     /**
-     * @param string $user Msg91 Account User
-     * @param string $secret Msg91 API Key
+     * @param string $senderId Msg91 Sender ID
+     * @param string $authKey Msg91 Auth Key
      */
     public function __construct(
-        private string $user,
-        private string $secret
+        private string $senderId,
+        private string $authKey
     ) {
     }
 
@@ -23,6 +26,7 @@ class Msg91 extends Base
 
     public function getMaxMessagesPerRequest(): int
     {
+        // TODO: Find real limit
         return 1000;
     }
 
@@ -37,10 +41,10 @@ class Msg91 extends Base
             url: 'https://api.msg91.com/api/v5/flow/',
             headers: [
                 "content-type: application/json",
-                "authkey: {$this->secret}",
+                "authkey: {$this->authKey}",
             ],
             body: \json_encode([
-                'sender' => $this->user,
+                'sender' => $this->senderId,
                 'otp' => $message->getContent(),
                 'flow_id' => $message->getFrom(),
                 'recipients' => [\array_map(

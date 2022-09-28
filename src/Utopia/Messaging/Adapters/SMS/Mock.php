@@ -43,7 +43,7 @@ class Mock extends Base
             body: \json_encode([
                 'message' => $message->getContent(),
                 'from' => $message->getFrom(),
-                'to' => \join(',', $message->getTo()),
+                'to' => \implode(',', $message->getTo()),
             ]),
         );
     }

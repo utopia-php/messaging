@@ -40,7 +40,7 @@ class Mailgun extends Base
             ],
             body: [
                 'from' => $message->getFrom(),
-                'to' => \join(',', $message->getTo()),
+                'to' => \implode(',', $message->getTo()),
                 'subject' => $message->getSubject(),
                 'text' => $message->isHtml() ? null : $message->getContent(),
                 'html' => $message->isHtml() ? $message->getContent() : null,
