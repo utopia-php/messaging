@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapters\Push;
 
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Message;
+use Utopia\Messaging\Messages\Push as PushMessage;
 
 abstract class Push extends Adapter
 {
@@ -12,13 +13,18 @@ abstract class Push extends Adapter
         return 'push';
     }
 
+    public function getMessageType(): string
+    {
+        return PushMessage::class;
+    }
+
     /**
      * @inheritdoc
      * @throws \Exception
      */
     public function send(Message $message): string
     {
-        if (!($message instanceof \Utopia\Messaging\Messages\Push)) {
+        if (!\is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
         if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
@@ -30,8 +36,8 @@ abstract class Push extends Adapter
     /**
      * Send a push message.
      *
-     * @param \Utopia\Messaging\Messages\Push $message Message to process.
+     * @param PushMessage $message Message to process.
      * @return string The response body.
      */
-    abstract protected function process(\Utopia\Messaging\Messages\Push $message): string;
+    abstract protected function process(PushMessage $message): string;
 }

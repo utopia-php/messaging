@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapters\Email;
 
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Message;
+use Utopia\Messaging\Messages\Email as EmailMessage;
 
 abstract class Email extends Adapter
 {
@@ -12,13 +13,18 @@ abstract class Email extends Adapter
         return 'email';
     }
 
+    public function getMessageType(): string
+    {
+        return EmailMessage::class;
+    }
+
     /**
      * @inheritdoc
      * @throws \Exception
      */
     public function send(Message $message): string
     {
-        if (!($message instanceof \Utopia\Messaging\Messages\Email)) {
+        if (!\is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
         if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
@@ -30,8 +36,8 @@ abstract class Email extends Adapter
     /**
      * Process an email message.
      *
-     * @param \Utopia\Messaging\Messages\Email $message Message to process.
+     * @param EmailMessage $message Message to process.
      * @return string The response body.
      */
-    abstract protected function process(\Utopia\Messaging\Messages\Email $message): string;
+    abstract protected function process(EmailMessage $message): string;
 }

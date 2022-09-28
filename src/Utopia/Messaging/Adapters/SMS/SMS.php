@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Message;
+use Utopia\Messaging\Messages\SMS as SMSMessage;
 
 abstract class SMS extends Adapter
 {
@@ -12,13 +13,18 @@ abstract class SMS extends Adapter
         return 'sms';
     }
 
+    public function getMessageType(): string
+    {
+        return SMSMessage::class;
+    }
+
     /**
      * @inheritdoc
      * @throws \Exception
      */
     public function send(Message $message): string
     {
-        if (!($message instanceof \Utopia\Messaging\Messages\SMS)) {
+        if (!\is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
         if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
@@ -30,8 +36,8 @@ abstract class SMS extends Adapter
     /**
      * Send an SMS message.
      *
-     * @param \Utopia\Messaging\Messages\SMS $message Message to send.
+     * @param SMSMessage $message Message to send.
      * @return string The response body.
      */
-    abstract protected function process(\Utopia\Messaging\Messages\SMS $message): string;
+    abstract protected function process(SMSMessage $message): string;
 }
