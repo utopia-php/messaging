@@ -3,6 +3,7 @@
 namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Adapters\Adapter;
+use Utopia\Messaging\Messages\Email;
 use Utopia\Messaging\Messages\Message;
 use Utopia\Messaging\Messages\SMS;
 
@@ -28,5 +29,11 @@ abstract class Base extends Adapter
         return $this->sendMessage($message);
     }
 
+    /**
+     * Send an SMS message.
+     *
+     * @param SMS $message Message to send.
+     * @return string The response body.
+     */
     abstract protected function sendMessage(SMS $message): string;
 }

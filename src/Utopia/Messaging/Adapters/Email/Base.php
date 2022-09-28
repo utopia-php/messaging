@@ -31,7 +31,7 @@ abstract class Base extends Adapter
     /**
      * Send an email message.
      *
-     * @param Base $message Message to send.
+     * @param Email $message Message to send.
      * @return string The response body.
      */
     abstract protected function sendMessage(Email $message): string;

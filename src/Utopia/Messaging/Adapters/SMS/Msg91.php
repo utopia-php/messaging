@@ -4,7 +4,7 @@ namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
 
-class Twilio extends Base
+class Msg91 extends Base
 {
     /**
      * @param string $user Twilio Account SID
@@ -18,12 +18,12 @@ class Twilio extends Base
 
     public function getName(): string
     {
-        return 'Twilio';
+        return 'Msg91';
     }
 
     public function getMaxMessagesPerRequest(): int
     {
-        return 1;
+        return 1000;
     }
 
     /**
@@ -34,14 +34,19 @@ class Twilio extends Base
     {
         return $this->request(
             method: 'POST',
-            url: "https://api.twilio.com/2010-04-01/Accounts/{$this->user}/Messages.json",
+            url: 'https://api.msg91.com/api/v5/flow/',
             headers: [
-                'Authorization: Basic ' . base64_encode("{$this->user}:{$this->secret}")
+                "content-type: application/json",
+                "authkey: {$this->secret}",
             ],
-            body: \http_build_query([
-                'Body' => $message->getContent(),
-                'From' => $message->getFrom(),
-                'To' => \join(',', $message->getTo())
+            body: \json_encode([
+                'sender' => $this->user,
+                'otp' => $message->getContent(),
+                'flow_id' => $message->getFrom(),
+                'recipients' => [\array_map(
+                    fn ($to) => ['mobiles' => $to],
+                    $message->getTo()
+                )]
             ]),
         );
     }
