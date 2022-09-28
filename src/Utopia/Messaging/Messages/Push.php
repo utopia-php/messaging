@@ -2,6 +2,8 @@
 
 namespace Utopia\Messaging\Messages;
 
+use Utopia\Messaging\Message;
+
 class Push implements Message
 {
     /**

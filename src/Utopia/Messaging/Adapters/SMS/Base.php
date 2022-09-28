@@ -2,9 +2,8 @@
 
 namespace Utopia\Messaging\Adapters\SMS;
 
-use Utopia\Messaging\Adapters\Adapter;
-use Utopia\Messaging\Messages\Email;
-use Utopia\Messaging\Messages\Message;
+use Utopia\Messaging\Adapter;
+use Utopia\Messaging\Message;
 use Utopia\Messaging\Messages\SMS;
 
 abstract class Base extends Adapter

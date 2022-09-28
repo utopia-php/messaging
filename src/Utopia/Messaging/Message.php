@@ -1,6 +1,6 @@
 <?php
 
-namespace Utopia\Messaging\Messages;
+namespace Utopia\Messaging;
 
 /**
  * Marker interface for specific message types.

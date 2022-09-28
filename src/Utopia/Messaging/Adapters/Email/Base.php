@@ -2,9 +2,10 @@
 
 namespace Utopia\Messaging\Adapters\Email;
 
-use Utopia\Messaging\Adapters\Adapter;
+
+use Utopia\Messaging\Adapter;
+use Utopia\Messaging\Message;
 use Utopia\Messaging\Messages\Email;
-use Utopia\Messaging\Messages\Message;
 
 abstract class Base extends Adapter
 {

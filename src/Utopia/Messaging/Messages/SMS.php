@@ -2,6 +2,8 @@
 
 namespace Utopia\Messaging\Messages;
 
+use Utopia\Messaging\Message;
+
 class SMS implements Message
 {
     public function __construct(
