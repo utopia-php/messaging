@@ -2,8 +2,9 @@
 
 namespace Tests\E2E;
 
-use Utopia\Messaging\SMS\Mock;
-use Utopia\Messaging\SMS\SMSMessage;
+
+use Utopia\Messaging\Adapters\SMS\Mock;
+use Utopia\Messaging\Messages\SMS;
 
 class SMSTest extends Base
 {
@@ -12,15 +13,15 @@ class SMSTest extends Base
      */
     public function testSendSMS()
     {
-        $sms = new Mock('username', 'password');
+        $sender = new Mock('username', 'password');
 
-        $message = new SMSMessage(
+        $message = new SMS(
             to: ['+123456789'],
             content: 'Test Content',
             from: '+987654321'
         );
 
-        $sms->send($message);
+        $sender->send($message);
 
         $smsRequest = $this->getLastRequest();
 

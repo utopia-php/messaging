@@ -1,15 +1,16 @@
 <?php
 
-namespace Utopia\Messaging\Email;
+namespace Utopia\Messaging\Adapters\Push;
 
-use Utopia\Messaging\Message;
-use Utopia\Messaging\Adapter;
+use Utopia\Messaging\Adapters\Adapter;
+use Utopia\Messaging\Messages\Message;
+use Utopia\Messaging\Messages\Push;
 
-abstract class EmailAdapter extends Adapter
+abstract class Base extends Adapter
 {
     public function getType(): string
     {
-        return 'email';
+        return 'push';
     }
 
     /**
@@ -18,7 +19,7 @@ abstract class EmailAdapter extends Adapter
      */
     public function send(Message $message): string
     {
-        if (!($message instanceof EmailMessage)) {
+        if (!($message instanceof Push)) {
             throw new \Exception('Invalid message type.');
         }
         if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
@@ -27,11 +28,5 @@ abstract class EmailAdapter extends Adapter
         return $this->sendMessage($message);
     }
 
-    /**
-     * Send an email message.
-     *
-     * @param EmailMessage $message Message to send.
-     * @return string The response body.
-     */
-    abstract protected function sendMessage(EmailMessage $message): string;
+    abstract protected function sendMessage(Push $message): string;
 }

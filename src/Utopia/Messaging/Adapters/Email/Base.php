@@ -1,15 +1,16 @@
 <?php
 
-namespace Utopia\Messaging\SMS;
+namespace Utopia\Messaging\Adapters\Email;
 
-use Utopia\Messaging\Message;
-use Utopia\Messaging\Adapter;
+use Utopia\Messaging\Adapters\Adapter;
+use Utopia\Messaging\Messages\Email;
+use Utopia\Messaging\Messages\Message;
 
-abstract class SMSAdapter extends Adapter
+abstract class Base extends Adapter
 {
     public function getType(): string
     {
-        return 'sms';
+        return 'email';
     }
 
     /**
@@ -18,7 +19,7 @@ abstract class SMSAdapter extends Adapter
      */
     public function send(Message $message): string
     {
-        if (!($message instanceof SMSMessage)) {
+        if (!($message instanceof Email)) {
             throw new \Exception('Invalid message type.');
         }
         if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
@@ -27,5 +28,11 @@ abstract class SMSAdapter extends Adapter
         return $this->sendMessage($message);
     }
 
-    abstract protected function sendMessage(SMSMessage $message): string;
+    /**
+     * Send an email message.
+     *
+     * @param Base $message Message to send.
+     * @return string The response body.
+     */
+    abstract protected function sendMessage(Email $message): string;
 }

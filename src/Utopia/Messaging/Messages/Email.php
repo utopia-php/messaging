@@ -1,10 +1,8 @@
 <?php
 
-namespace Utopia\Messaging\Email;
+namespace Utopia\Messaging\Messages;
 
-use Utopia\Messaging\Message;
-
-class EmailMessage implements Message
+class Email implements Message
 {
     /**
      * @param array $to The recipients of the email.

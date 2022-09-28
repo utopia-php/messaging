@@ -1,10 +1,8 @@
 <?php
 
-namespace Utopia\Messaging\Push;
+namespace Utopia\Messaging\Messages;
 
-use Utopia\Messaging\Message;
-
-class PushMessage implements Message
+class Push implements Message
 {
     /**
      * @param array $to The recipients of the push notification.

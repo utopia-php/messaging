@@ -1,6 +1,8 @@
 <?php
 
-namespace Utopia\Messaging;
+namespace Utopia\Messaging\Adapters;
+
+use Utopia\Messaging\Messages\Message;
 
 abstract class Adapter
 {

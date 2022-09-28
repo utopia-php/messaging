@@ -2,8 +2,8 @@
 
 namespace Tests\E2E;
 
-use Utopia\Messaging\Email\EmailMessage;
-use Utopia\Messaging\Email\Mock;
+use Utopia\Messaging\Adapters\Email\Mock;
+use Utopia\Messaging\Messages\Email;
 
 class EmailTest extends Base
 {
@@ -12,21 +12,21 @@ class EmailTest extends Base
      */
     public function testSendEmail()
     {
-        $mail = new Mock();
+        $sender = new Mock();
 
         $to = 'tester@localhost.test';
         $subject = 'Test Subject';
         $content = 'Test Content';
         $from = 'sender@localhost.test';
 
-        $message = new EmailMessage(
+        $message = new Email(
             to: [$to],
             subject: $subject,
             content: $content,
             from: $from
         );
 
-        $mail->send($message);
+        $sender->send($message);
 
         $lastEmail = $this->getLastEmail();
 

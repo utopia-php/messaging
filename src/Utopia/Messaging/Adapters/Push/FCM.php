@@ -1,8 +1,10 @@
 <?php
 
-namespace Utopia\Messaging\Push;
+namespace Utopia\Messaging\Adapters\Push;
 
-class FCM extends PushAdapter
+use Utopia\Messaging\Messages\Push;
+
+class FCM extends Base
 {
     /**
      * @param string $serverKey The FCM server key.
@@ -26,7 +28,7 @@ class FCM extends PushAdapter
      * @inheritdoc
      * @throws \Exception
      */
-    protected function sendMessage(PushMessage $message): string
+    protected function sendMessage(Push $message): string
     {
         return $this->request(
             method: 'POST',

@@ -1,10 +1,8 @@
 <?php
 
-namespace Utopia\Messaging\SMS;
+namespace Utopia\Messaging\Messages;
 
-use Utopia\Messaging\Message;
-
-class SMSMessage implements Message
+class SMS implements Message
 {
     public function __construct(
         private array $to,

@@ -1,8 +1,10 @@
 <?php
 
-namespace Utopia\Messaging\SMS;
+namespace Utopia\Messaging\Adapters\SMS;
 
-class Mock extends SMSAdapter
+use Utopia\Messaging\Messages\SMS;
+
+class Mock extends Base
 {
     /**
      * @param string $user User ID
@@ -24,7 +26,11 @@ class Mock extends SMSAdapter
         return 1;
     }
 
-    protected function sendMessage(SMSMessage $message): string
+    /**
+     * @inheritdoc
+     * @throws \Exception
+     */
+    protected function sendMessage(SMS $message): string
     {
         return $this->request(
             method: 'POST',

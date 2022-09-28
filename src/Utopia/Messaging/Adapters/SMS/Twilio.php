@@ -1,8 +1,10 @@
 <?php
 
-namespace Utopia\Messaging\SMS;
+namespace Utopia\Messaging\Adapters\SMS;
 
-class Twilio extends SMSAdapter
+use Utopia\Messaging\Messages\SMS;
+
+class Twilio extends Base
 {
     /**
      * @param string $user Twilio Account SID
@@ -24,7 +26,7 @@ class Twilio extends SMSAdapter
         return 1;
     }
 
-    protected function sendMessage(SMSMessage $message): string
+    protected function sendMessage(SMS $message): string
     {
         return $this->request(
             method: 'POST',
