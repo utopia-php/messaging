@@ -6,7 +6,7 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use Utopia\Messaging\Messages\Email;
 
-class Mock extends Base
+class Mock extends \Utopia\Messaging\Adapters\Email\Email
 {
     public function getName(): string
     {
@@ -24,7 +24,7 @@ class Mock extends Base
      * @throws Exception
      * @throws \Exception
      */
-    protected function sendMessage(Email $message): string
+    protected function process(Email $message): string
     {
         $mail = new PHPMailer();
         $mail->isSMTP();

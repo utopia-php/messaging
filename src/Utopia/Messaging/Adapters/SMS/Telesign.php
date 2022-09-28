@@ -7,7 +7,7 @@ use Utopia\Messaging\Messages\SMS;
 // Reference Material
 // https://developer.telesign.com/enterprise/reference/sendbulksms
 
-class Telesign extends Base
+class Telesign extends \Utopia\Messaging\Adapters\SMS\SMS
 {
     /**
      * @param string $username Telesign account username
@@ -29,7 +29,11 @@ class Telesign extends Base
         return 1000;
     }
 
-    protected function sendMessage(SMS $message): string
+    /**
+     * @inheritdoc
+     * @throws \Exception
+     */
+    protected function process(SMS $message): string
     {
         return $this->request(
             method: 'POST',

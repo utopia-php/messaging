@@ -7,7 +7,7 @@ namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
 
-class TextMagic extends Base
+class TextMagic extends \Utopia\Messaging\Adapters\SMS\SMS
 {
     /**
      * @param string $username TextMagic account username
@@ -33,7 +33,7 @@ class TextMagic extends Base
      * @inheritdoc
      * @throws \Exception
      */
-    protected function sendMessage(SMS $message): string
+    protected function process(SMS $message): string
     {
         return $this->request(
             method: 'POST',

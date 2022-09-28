@@ -4,7 +4,7 @@ namespace Utopia\Messaging\Adapters\Email;
 
 use Utopia\Messaging\Messages\Email;
 
-class Mailgun extends Base
+class Mailgun extends \Utopia\Messaging\Adapters\Email\Email
 {
     /**
      * @param string $apiKey Your Mailgun API key to authenticate with the API.
@@ -30,7 +30,7 @@ class Mailgun extends Base
      * @inheritdoc
      * @throws \Exception
      */
-    protected function sendMessage(Email $message): string
+    protected function process(Email $message): string
     {
         return $this->request(
             method: 'POST',

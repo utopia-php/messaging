@@ -7,7 +7,7 @@ use Utopia\Messaging\Messages\SMS;
 // Reference Material
 // https://docs.msg91.com/p/tf9GTextN/e/7WESqQ4RLu/MSG91
 
-class Msg91 extends Base
+class Msg91 extends \Utopia\Messaging\Adapters\SMS\SMS
 {
     /**
      * @param string $senderId Msg91 Sender ID
@@ -34,7 +34,7 @@ class Msg91 extends Base
      * @inheritdoc
      * @throws \Exception
      */
-    protected function sendMessage(SMS $message): string
+    protected function process(SMS $message): string
     {
         return $this->request(
             method: 'POST',

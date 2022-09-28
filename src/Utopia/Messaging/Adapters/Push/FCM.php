@@ -4,7 +4,7 @@ namespace Utopia\Messaging\Adapters\Push;
 
 use Utopia\Messaging\Messages\Push;
 
-class FCM extends Base
+class FCM extends \Utopia\Messaging\Adapters\Push\Push
 {
     /**
      * @param string $serverKey The FCM server key.
@@ -28,7 +28,7 @@ class FCM extends Base
      * @inheritdoc
      * @throws \Exception
      */
-    protected function sendMessage(Push $message): string
+    protected function process(Push $message): string
     {
         return $this->request(
             method: 'POST',

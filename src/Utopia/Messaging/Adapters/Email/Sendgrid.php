@@ -4,7 +4,7 @@ namespace Utopia\Messaging\Adapters\Email;
 
 use Utopia\Messaging\Messages\Email;
 
-class Sendgrid extends Base
+class Sendgrid extends \Utopia\Messaging\Adapters\Email\Email
 {
     public function __construct(
         private string $apiKey,
@@ -21,7 +21,7 @@ class Sendgrid extends Base
         return 1000;
     }
 
-    protected function sendMessage(Email $message): string
+    protected function process(Email $message): string
     {
         return $this->request(
             method: 'POST',

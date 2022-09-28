@@ -7,7 +7,7 @@ namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
 
-class Vonage extends Base
+class Vonage extends \Utopia\Messaging\Adapters\SMS\SMS
 {
     /**
      * @param string $apiKey Vonage API Key
@@ -33,7 +33,7 @@ class Vonage extends Base
      * @inheritdoc
      * @throws \Exception
      */
-    protected function sendMessage(SMS $message): string
+    protected function process(SMS $message): string
     {
         return $this->request(
             method: 'POST',

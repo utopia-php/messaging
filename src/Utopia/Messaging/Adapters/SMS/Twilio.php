@@ -4,7 +4,7 @@ namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
 
-class Twilio extends Base
+class Twilio extends \Utopia\Messaging\Adapters\SMS\SMS
 {
     /**
      * @param string $accountSid Twilio Account SID
@@ -30,7 +30,7 @@ class Twilio extends Base
      * @inheritdoc
      * @throws \Exception
      */
-    protected function sendMessage(SMS $message): string
+    protected function process(SMS $message): string
     {
         return $this->request(
             method: 'POST',
@@ -40,8 +40,8 @@ class Twilio extends Base
             ],
             body: \http_build_query([
                 'Body' => $message->getContent(),
-                'From' => '+' . $message->getFrom(),
-                'To' => '+' . $message->getTo()[0]
+                'From' => $message->getFrom(),
+                'To' => $message->getTo()[0]
             ]),
         );
     }
