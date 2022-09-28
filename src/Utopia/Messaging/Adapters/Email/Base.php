@@ -2,7 +2,6 @@
 
 namespace Utopia\Messaging\Adapters\Email;
 
-
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Message;
 use Utopia\Messaging\Messages\Email;

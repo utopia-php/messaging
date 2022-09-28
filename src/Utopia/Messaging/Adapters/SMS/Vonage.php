@@ -16,8 +16,7 @@ class Vonage extends Base
     public function __construct(
         private string $apiKey,
         private string $apiSecret
-    )
-    {
+    ) {
     }
 
     public function getName(): string
