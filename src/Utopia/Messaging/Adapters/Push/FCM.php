@@ -3,8 +3,9 @@
 namespace Utopia\Messaging\Adapters\Push;
 
 use Utopia\Messaging\Messages\Push;
+use Utopia\Messaging\Adapters\Push\Push as PushAdapter;
 
-class FCM extends \Utopia\Messaging\Adapters\Push\Push
+class FCM extends PushAdapter
 {
     /**
      * @param string $serverKey The FCM server key.

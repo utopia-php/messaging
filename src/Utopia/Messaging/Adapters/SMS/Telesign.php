@@ -3,11 +3,12 @@
 namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Adapters\SMS\SMS as SMSAdapter;
 
 // Reference Material
 // https://developer.telesign.com/enterprise/reference/sendbulksms
 
-class Telesign extends \Utopia\Messaging\Adapters\SMS\SMS
+class Telesign extends SMSAdapter
 {
     /**
      * @param string $username Telesign account username

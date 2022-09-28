@@ -6,8 +6,9 @@ namespace Utopia\Messaging\Adapters\SMS;
 // https://www.textmagic.com/docs/api/send-sms/#How-to-send-bulk-text-messages
 
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Adapters\SMS\SMS as SMSAdapter;
 
-class TextMagic extends \Utopia\Messaging\Adapters\SMS\SMS
+class TextMagic extends SMSAdapter
 {
     /**
      * @param string $username TextMagic account username

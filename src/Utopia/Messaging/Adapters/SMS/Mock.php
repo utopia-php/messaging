@@ -3,8 +3,9 @@
 namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Adapters\SMS\SMS as SMSAdapter;
 
-class Mock extends \Utopia\Messaging\Adapters\SMS\SMS
+class Mock extends SMSAdapter
 {
     /**
      * @param string $user User ID

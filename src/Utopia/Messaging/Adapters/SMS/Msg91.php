@@ -3,11 +3,12 @@
 namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Adapters\SMS\SMS as SMSAdapter;
 
 // Reference Material
 // https://docs.msg91.com/p/tf9GTextN/e/7WESqQ4RLu/MSG91
 
-class Msg91 extends \Utopia\Messaging\Adapters\SMS\SMS
+class Msg91 extends SMSAdapter
 {
     /**
      * @param string $senderId Msg91 Sender ID

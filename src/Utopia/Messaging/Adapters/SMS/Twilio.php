@@ -3,8 +3,9 @@
 namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Adapters\SMS\SMS as SMSAdapter;
 
-class Twilio extends \Utopia\Messaging\Adapters\SMS\SMS
+class Twilio extends SMSAdapter
 {
     /**
      * @param string $accountSid Twilio Account SID

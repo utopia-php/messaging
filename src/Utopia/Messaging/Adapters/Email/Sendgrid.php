@@ -3,8 +3,9 @@
 namespace Utopia\Messaging\Adapters\Email;
 
 use Utopia\Messaging\Messages\Email;
+use Utopia\Messaging\Adapters\Email\Email as EmailAdapter;
 
-class Sendgrid extends \Utopia\Messaging\Adapters\Email\Email
+class Sendgrid extends EmailAdapter
 {
     public function __construct(
         private string $apiKey,

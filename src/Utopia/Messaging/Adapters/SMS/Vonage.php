@@ -6,8 +6,9 @@ namespace Utopia\Messaging\Adapters\SMS;
 // https://www.textmagic.com/docs/api/send-sms/#How-to-send-bulk-text-messages
 
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Adapters\SMS\SMS as SMSAdapter;
 
-class Vonage extends \Utopia\Messaging\Adapters\SMS\SMS
+class Vonage extends SMSAdapter
 {
     /**
      * @param string $apiKey Vonage API Key
