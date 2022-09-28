@@ -37,6 +37,11 @@ class Msg91 extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
+        $to = \array_map(
+            fn($to) => ['mobiles' => \ltrim($to, '+')],
+            $message->getTo()
+        );
+
         return $this->request(
             method: 'POST',
             url: 'https://api.msg91.com/api/v5/flow/',
@@ -48,10 +53,7 @@ class Msg91 extends SMSAdapter
                 'sender' => $this->senderId,
                 'otp' => $message->getContent(),
                 'flow_id' => $message->getFrom(),
-                'recipients' => [\array_map(
-                    fn ($to) => ['mobiles' => $to],
-                    $message->getTo()
-                )]
+                'recipients' => [$to]
             ]),
         );
     }

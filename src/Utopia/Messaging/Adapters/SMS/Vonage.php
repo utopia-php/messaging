@@ -36,13 +36,18 @@ class Vonage extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
+        $to = \array_map(
+            fn($to) => \ltrim($to, '+'),
+            $message->getTo()
+        );
+
         return $this->request(
             method: 'POST',
             url: 'https://rest.nexmo.com/sms/json',
             body: [
                 'text' => $message->getContent(),
                 'from' => $message->getFrom(),
-                'to' => \implode(',', $message->getTo()),
+                'to' => \implode(',', $to),
                 'api_key' => $this->apiKey,
                 'api_secret' => $this->apiSecret
             ]

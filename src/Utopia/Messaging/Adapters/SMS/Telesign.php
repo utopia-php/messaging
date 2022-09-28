@@ -36,6 +36,11 @@ class Telesign extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
+        $to = \array_map(
+            fn($to) => \ltrim($to, '+'),
+            $message->getTo()
+        );
+
         return $this->request(
             method: 'POST',
             url: 'https://rest-ww.telesign.com/v1/verify/bulk_sms',
@@ -44,7 +49,7 @@ class Telesign extends SMSAdapter
             ],
             body: [
                 'template' => $message->getContent(),
-                'recipients' => \implode(',', $message->getTo())
+                'recipients' => \implode(',', $to)
             ],
         );
     }

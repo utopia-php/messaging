@@ -36,6 +36,11 @@ class TextMagic extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
+        $to = \array_map(
+            fn($to) => \ltrim($to, '+'),
+            $message->getTo()
+        );
+
         return $this->request(
             method: 'POST',
             url: 'https://rest.textmagic.com/api/v2/messages',
@@ -45,8 +50,8 @@ class TextMagic extends SMSAdapter
             ],
             body: [
                 'text' => $message->getContent(),
-                'from' => $message->getFrom(),
-                'phones' => \implode(',', $message->getTo()),
+                'from' => \ltrim($message->getFrom(), '+'),
+                'phones' => \implode(',', $to),
             ],
         );
     }
