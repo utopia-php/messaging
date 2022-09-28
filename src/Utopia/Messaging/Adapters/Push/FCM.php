@@ -3,7 +3,7 @@
 namespace Utopia\Messaging\Adapters\Push;
 
 use Utopia\Messaging\Messages\Push;
-use Utopia\Messaging\Adapters\Push\Push as PushAdapter;
+use Utopia\Messaging\Adapters\Push as PushAdapter;
 
 class FCM extends PushAdapter
 {

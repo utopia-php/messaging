@@ -5,7 +5,7 @@ namespace Utopia\Messaging\Adapters\Email;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use Utopia\Messaging\Messages\Email;
-use Utopia\Messaging\Adapters\Email\Email as EmailAdapter;
+use Utopia\Messaging\Adapters\Email as EmailAdapter;
 
 class Mock extends EmailAdapter
 {

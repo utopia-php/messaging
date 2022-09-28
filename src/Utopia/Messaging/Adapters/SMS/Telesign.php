@@ -3,7 +3,7 @@
 namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Messages\SMS;
-use Utopia\Messaging\Adapters\SMS\SMS as SMSAdapter;
+use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 
 // Reference Material
 // https://developer.telesign.com/enterprise/reference/sendbulksms

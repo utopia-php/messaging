@@ -1,6 +1,6 @@
 <?php
 
-namespace Utopia\Messaging\Adapters\SMS;
+namespace Utopia\Messaging\Adapters;
 
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Message;

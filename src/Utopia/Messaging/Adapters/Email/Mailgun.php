@@ -3,7 +3,7 @@
 namespace Utopia\Messaging\Adapters\Email;
 
 use Utopia\Messaging\Messages\Email;
-use Utopia\Messaging\Adapters\Email\Email as EmailAdapter;
+use Utopia\Messaging\Adapters\Email as EmailAdapter;
 
 class Mailgun extends EmailAdapter
 {
