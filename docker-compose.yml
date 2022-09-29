@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  tests:
+    build:
+      context: .
+    volumes:
+      - ./src:/usr/local/src/src
+      - ./tests:/usr/local/src/tests
+      - ./phpunit.xml:/usr/local/src/phpunit.xml
+
+  maildev:
+    image: appwrite/mailcatcher:1.0.0
+    ports:
+      - '10000:1080'
+
+  request-catcher:
+    image: appwrite/requestcatcher:1.0.0
+    ports:
+      - '10001:5000'
