@@ -20,7 +20,7 @@ class TwilioNotify extends SMSAdapter
 
     public function getName(): string
     {
-        return 'Twilio';
+        return 'Twilio Notify';
     }
 
     public function getMaxMessagesPerRequest(): int

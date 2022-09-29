@@ -77,6 +77,8 @@ $messaging->send($message);
 
 ## Adapters
 
+> Want to implement any of the missing adapters or have an idea for another? We would love to hear from you! Please check out our [contribution guide](./CONTRIBUTING.md) and [new adapter guide](./docs/add-new-adapter.md) for more information.
+
 ### Email
 - [x] [SendGrid](https://sendgrid.com/)
 - [x] [Mailgun](https://www.mailgun.com/)
