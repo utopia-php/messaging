@@ -10,7 +10,7 @@ class EmailTest extends Base
     /**
      * @throws \Exception
      */
-    public function testSendEmail()
+    public function testSendEmail(): void
     {
         $sender = new Mock();
 

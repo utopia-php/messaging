@@ -22,6 +22,7 @@ class Mock extends EmailAdapter
 
     /**
      * @inheritdoc
+     * @return string
      * @throws Exception
      * @throws \Exception
      */
@@ -35,7 +36,7 @@ class Mock extends EmailAdapter
         $mail->SMTPAuth = false;
         $mail->Username = '';
         $mail->Password = '';
-        $mail->SMTPSecure = false;
+        $mail->SMTPSecure = 'false';
         $mail->SMTPAutoTLS = false;
         $mail->CharSet = 'UTF-8';
         $mail->Subject = $message->getSubject();
@@ -53,6 +54,6 @@ class Mock extends EmailAdapter
             throw new \Exception($mail->ErrorInfo);
         }
 
-        return true;
+        return 'true';
     }
 }

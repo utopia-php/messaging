@@ -10,7 +10,7 @@ class SMSTest extends Base
     /**
      * @throws \Exception
      */
-    public function testSendSMS()
+    public function testSendSMS(): void
     {
         $sender = new Mock('username', 'password');
 
