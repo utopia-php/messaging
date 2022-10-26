@@ -6,7 +6,10 @@ use PHPUnit\Framework\TestCase;
 
 class Base extends TestCase
 {
-    protected function getLastRequest(): array
+    /**
+     * @return mixed
+     */
+    protected function getLastRequest(): mixed
     {
         \sleep(2);
 
@@ -15,8 +18,11 @@ class Base extends TestCase
 
         return $request;
     }
-
-    protected function getLastEmail(): array
+    
+    /**
+     * @return mixed
+     */
+    protected function getLastEmail(): mixed
     {
         sleep(3);
 

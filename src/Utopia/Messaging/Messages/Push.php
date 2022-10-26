@@ -7,10 +7,10 @@ use Utopia\Messaging\Message;
 class Push implements Message
 {
     /**
-     * @param array $to The recipients of the push notification.
+     * @param array<string> $to The recipients of the push notification.
      * @param string $title The title of the push notification.
      * @param string $body The body of the push notification.
-     * @param array|null $data This parameter specifies the custom key-value pairs of the message's payload. For example, with data:{"score":"3x1"}:<br><br>On Apple platforms, if the message is sent via APNs, it represents the custom data fields. If it is sent via FCM, it would be represented as key value dictionary in AppDelegate application:didReceiveRemoteNotification:.<br><br>On Android, this would result in an intent extra named score with the string value 3x1.<br><br>The key should not be a reserved word ("from", "message_type", or any word starting with "google" or "gcm"). Do not use any of the words defined in this table (such as collapse_key).<br><br>Values in string types are recommended. You have to convert values in objects or other non-string data types (e.g., integers or booleans) to string.
+     * @param array<string>|null $data This parameter specifies the custom key-value pairs of the message's payload. For example, with data:{"score":"3x1"}:<br><br>On Apple platforms, if the message is sent via APNs, it represents the custom data fields. If it is sent via FCM, it would be represented as key value dictionary in AppDelegate application:didReceiveRemoteNotification:.<br><br>On Android, this would result in an intent extra named score with the string value 3x1.<br><br>The key should not be a reserved word ("from", "message_type", or any word starting with "google" or "gcm"). Do not use any of the words defined in this table (such as collapse_key).<br><br>Values in string types are recommended. You have to convert values in objects or other non-string data types (e.g., integers or booleans) to string.
      * @param string|null $sound The sound to play when the device receives the notification.<br><br>On Android, sound files must reside in /res/raw/.<br><br>On iOS, sounds files must reside in the main bundle of the client app or in the Library/Sounds folder of the app's data container.
      * @param string|null $action The action associated with a user click on the notification.<br><br>On Android, this is the activity to launch.<br><br>On iOS, this is the category to launch.
      * @param string|null $icon <b>Android only</b>. The icon of the push notification. Sets the notification icon to myicon for drawable resource myicon. If you don't send this key in the request, FCM displays the launcher icon specified in your app manifest.
@@ -33,7 +33,7 @@ class Push implements Message
     }
 
     /**
-     * @return array
+     * @return array<string>
      */
     public function getTo(): array
     {
@@ -57,7 +57,7 @@ class Push implements Message
     }
 
     /**
-     * @return array|null
+     * @return array<string>|null
      */
     public function getData(): ?array
     {
