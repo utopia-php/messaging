@@ -21,6 +21,7 @@ abstract class Push extends Adapter
 
     /**
      * @inheritdoc
+     * @param PushMessage $message Message to send.
      * @throws \Exception
      */
     public function send(Message $message): string

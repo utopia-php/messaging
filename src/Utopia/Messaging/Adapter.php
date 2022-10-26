@@ -46,7 +46,6 @@ abstract class Adapter
      * @param string $method The HTTP method to use.
      * @param string $url The URL to send the request to.
      * @param array $headers An array of headers to send with the request.
-     * @param string|null $body The body of the request.
      * @return string The response body.
      * @throws \Exception If the request fails.
      */
