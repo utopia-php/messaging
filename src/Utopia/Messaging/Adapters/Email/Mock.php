@@ -42,7 +42,9 @@ class Mock extends EmailAdapter
         $mail->Subject = $message->getSubject();
         $mail->Body = $message->getContent();
         $mail->AltBody = \strip_tags($message->getContent());
+        // @phpstan-ignore-next-line
         $mail->setFrom($message->getFrom(), 'Utopia');
+        // @phpstan-ignore-next-line
         $mail->addReplyTo($message->getFrom(), 'Utopia');
         $mail->isHTML($message->isHtml());
 

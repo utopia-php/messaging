@@ -50,6 +50,7 @@ class TextMagic extends SMSAdapter
             ],
             body: [
                 'text' => $message->getContent(),
+                // @phpstan-ignore-next-line
                 'from' => \ltrim($message->getFrom(), '+'),
                 'phones' => \implode(',', $to),
             ],
