@@ -75,11 +75,12 @@ abstract class Adapter
             throw new \Exception('Error:' . \curl_error($ch));
         }
         if (\curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
+            // @phpstan-ignore-next-line
             throw new \Exception($response);
         }
 
         \curl_close($ch);
-
+        // @phpstan-ignore-next-line
         return $response;
     }
 }

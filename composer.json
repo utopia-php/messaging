@@ -9,7 +9,7 @@
     "test": "vendor/bin/phpunit",
     "lint": "vendor/bin/phpcs",
     "format": "vendor/bin/phpcbf",
-    "check": "./vendor/bin/phpstan analyse --level 6 src tests"
+    "check": "./vendor/bin/phpstan analyse --level 7 src tests"
   },
   "authors": [
     {
