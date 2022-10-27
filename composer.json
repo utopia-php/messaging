@@ -10,7 +10,12 @@
     "lint": "vendor/bin/phpcs",
     "format": "vendor/bin/phpcbf"
   },
-
+  "authors": [
+    {
+      "name": "Jake Barnby",
+      "email": "jake@appwrite.io"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "Utopia\\Messaging\\": "src/Utopia/Messaging"

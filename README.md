@@ -135,6 +135,13 @@ To run static code analysis, use the following Psalm command:
 composer lint
 ```
 
+## Authors
+
+**Jake Barnby**
+
++ [https://github.com/abnegate](https://github.com/abnegate)
++ [https://nz.linkedin.com/in/jakebarnby](https://nz.linkedin.com/in/jakebarnby)
+
 ## Copyright and license
 
 The MIT License (MIT) [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
