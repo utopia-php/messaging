@@ -46,7 +46,7 @@ abstract class Adapter
      * @param string $method The HTTP method to use.
      * @param string $url The URL to send the request to.
      * @param array<string> $headers An array of headers to send with the request.
-     * @return string The response body.
+     * @return string,bool The response body.
      * @throws \Exception If the request fails.
      */
     protected function request(
@@ -75,12 +75,10 @@ abstract class Adapter
             throw new \Exception('Error:' . \curl_error($ch));
         }
         if (\curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
-            // @phpstan-ignore-next-line
-            throw new \Exception($response);
+            throw new \Exception($this->$response);
         }
 
         \curl_close($ch);
-        // @phpstan-ignore-next-line
-        return $response;
+        return $this->$response;
     }
 }
