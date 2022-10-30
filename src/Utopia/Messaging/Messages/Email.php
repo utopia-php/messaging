@@ -7,12 +7,12 @@ use Utopia\Messaging\Message;
 class Email implements Message
 {
     /**
-     * @param array $to The recipients of the email.
-     * @param string $subject The subject of the email.
-     * @param string $content The content of the email.
-     * @param string|null $from The sender of the email.
-     * @param array|null $attachments The attachments of the email.
-     * @param bool $html Whether the message is HTML or not.
+     * @param  array  $to The recipients of the email.
+     * @param  string  $subject The subject of the email.
+     * @param  string  $content The content of the email.
+     * @param  string|null  $from The sender of the email.
+     * @param  array|null  $attachments The attachments of the email.
+     * @param  bool  $html Whether the message is HTML or not.
      */
     public function __construct(
         private array $to,
