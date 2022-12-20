@@ -5,14 +5,14 @@ namespace Utopia\Messaging\Adapters\SMS;
 // Reference Material
 // https://www.textmagic.com/docs/api/send-sms/#How-to-send-bulk-text-messages
 
-use Utopia\Messaging\Messages\SMS;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
+use Utopia\Messaging\Messages\SMS;
 
 class TextMagic extends SMSAdapter
 {
     /**
-     * @param string $username TextMagic account username
-     * @param string $apiKey TextMagic account API key
+     * @param  string  $username TextMagic account username
+     * @param  string  $apiKey TextMagic account API key
      */
     public function __construct(
         private string $username,
@@ -31,13 +31,14 @@ class TextMagic extends SMSAdapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \Exception
      */
     protected function process(SMS $message): string
     {
         $to = \array_map(
-            fn($to) => \ltrim($to, '+'),
+            fn ($to) => \ltrim($to, '+'),
             $message->getTo()
         );
 

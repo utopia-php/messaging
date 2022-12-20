@@ -19,24 +19,26 @@ abstract class SMS extends Adapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \Exception
      */
     public function send(Message $message): string
     {
-        if (!\is_a($message, $this->getMessageType())) {
+        if (! \is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
         if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
             throw new \Exception("{$this->getName()} can only send {$this->getMaxMessagesPerRequest()} messages per request.");
         }
+
         return $this->process($message);
     }
 
     /**
      * Send an SMS message.
      *
-     * @param SMSMessage $message Message to send.
+     * @param  SMSMessage  $message Message to send.
      * @return string The response body.
      */
     abstract protected function process(SMSMessage $message): string;

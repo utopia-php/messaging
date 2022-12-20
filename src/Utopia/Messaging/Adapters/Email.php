@@ -19,24 +19,26 @@ abstract class Email extends Adapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \Exception
      */
     public function send(Message $message): string
     {
-        if (!\is_a($message, $this->getMessageType())) {
+        if (! \is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
         if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
             throw new \Exception("{$this->getName()} can only send {$this->getMaxMessagesPerRequest()} messages per request.");
         }
+
         return $this->process($message);
     }
 
     /**
      * Process an email message.
      *
-     * @param EmailMessage $message Message to process.
+     * @param  EmailMessage  $message Message to process.
      * @return string The response body.
      */
     abstract protected function process(EmailMessage $message): string;

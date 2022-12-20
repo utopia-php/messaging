@@ -2,14 +2,14 @@
 
 namespace Utopia\Messaging\Adapters\SMS;
 
-use Utopia\Messaging\Messages\SMS;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
+use Utopia\Messaging\Messages\SMS;
 
 class Twilio extends SMSAdapter
 {
     /**
-     * @param string $accountSid Twilio Account SID
-     * @param string $authToken Twilio Auth Token
+     * @param  string  $accountSid Twilio Account SID
+     * @param  string  $authToken Twilio Auth Token
      */
     public function __construct(
         private string $accountSid,
@@ -28,7 +28,8 @@ class Twilio extends SMSAdapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \Exception
      */
     protected function process(SMS $message): string
@@ -37,12 +38,12 @@ class Twilio extends SMSAdapter
             method: 'POST',
             url: "https://api.twilio.com/2010-04-01/Accounts/{$this->accountSid}/Messages.json",
             headers: [
-                'Authorization: Basic ' . base64_encode("{$this->accountSid}:{$this->authToken}")
+                'Authorization: Basic '.base64_encode("{$this->accountSid}:{$this->authToken}"),
             ],
             body: \http_build_query([
                 'Body' => $message->getContent(),
                 'From' => $message->getFrom(),
-                'To' => $message->getTo()[0]
+                'To' => $message->getTo()[0],
             ]),
         );
     }
