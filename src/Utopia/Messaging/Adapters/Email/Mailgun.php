@@ -38,7 +38,7 @@ class Mailgun extends EmailAdapter
             method: 'POST',
             url: "https://api.mailgun.net/v3/{$this->domain}/messages",
             headers: [
-                'Authorization: Basic ' . base64_encode('api:'.$this->apiKey),
+                'Authorization: Basic '.base64_encode('api:'.$this->apiKey),
             ],
             body: \http_build_query([
                 'from' => $message->getFrom(),
