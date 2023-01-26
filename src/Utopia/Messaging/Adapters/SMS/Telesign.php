@@ -48,10 +48,10 @@ class Telesign extends SMSAdapter
             headers: [
                 'Authorization: Basic '.base64_encode("{$this->username}:{$this->password}"),
             ],
-            body: [
+            body: \http_build_query([
                 'template' => $message->getContent(),
                 'recipients' => \implode(',', $to),
-            ],
+            ]),
         );
     }
 }

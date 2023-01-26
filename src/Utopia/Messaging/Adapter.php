@@ -55,9 +55,9 @@ abstract class Adapter
         string $method,
         string $url,
         array $headers = [],
-        mixed $body = null,
+        ?string $body = null,
     ): string {
-        $headers[] = 'Content-length: '.\strlen($body);
+        $headers[] = 'Content-length: ' . \strlen($body);
 
         $ch = \curl_init();
 
@@ -74,7 +74,7 @@ abstract class Adapter
         $response = \curl_exec($ch);
 
         if (\curl_errno($ch)) {
-            throw new \Exception('Error:'.\curl_error($ch));
+            throw new \Exception('Error:' . \curl_error($ch));
         }
         if (\curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
             throw new \Exception($response);
