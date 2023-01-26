@@ -37,7 +37,7 @@ class Telnyx extends SMSAdapter
             method: 'POST',
             url: "https://api.telnyx.com/v2/messages",
             headers: [
-                'Authorization: Bearer '.base64_encode($this->apiKey),
+                'Authorization: Bearer '.$this->apiKey,
                 'Content-Type: application/json'
             ],
             body: \json_encode([
