@@ -11,12 +11,6 @@
     "format": "vendor/bin/phpcbf",
     "check": "./vendor/bin/phpstan analyse --level 8 src tests"
   },
-  "authors": [
-    {
-      "name": "Jake Barnby",
-      "email": "jake@appwrite.io"
-    }
-  ],
   "autoload": {
     "psr-4": {
       "Utopia\\Messaging\\": "src/Utopia/Messaging"

@@ -4,8 +4,8 @@ namespace Utopia\Messaging\Adapters\Email;
 
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
-use Utopia\Messaging\Messages\Email;
 use Utopia\Messaging\Adapters\Email as EmailAdapter;
+use Utopia\Messaging\Messages\Email;
 
 class Mock extends EmailAdapter
 {
@@ -50,7 +50,7 @@ class Mock extends EmailAdapter
             $mail->addAddress($to);
         }
 
-        if (!$mail->send()) {
+        if (! $mail->send()) {
             throw new \Exception($mail->ErrorInfo);
         }
 

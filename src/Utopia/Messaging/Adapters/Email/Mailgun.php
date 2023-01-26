@@ -2,14 +2,14 @@
 
 namespace Utopia\Messaging\Adapters\Email;
 
-use Utopia\Messaging\Messages\Email;
 use Utopia\Messaging\Adapters\Email as EmailAdapter;
+use Utopia\Messaging\Messages\Email;
 
 class Mailgun extends EmailAdapter
 {
     /**
-     * @param string $apiKey Your Mailgun API key to authenticate with the API.
-     * @param string $domain Your Mailgun domain to send messages from.
+     * @param  string  $apiKey Your Mailgun API key to authenticate with the API.
+     * @param  string  $domain Your Mailgun domain to send messages from.
      */
     public function __construct(
         private string $apiKey,
@@ -28,7 +28,8 @@ class Mailgun extends EmailAdapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \Exception
      */
     protected function process(Email $message): string
@@ -37,7 +38,7 @@ class Mailgun extends EmailAdapter
             method: 'POST',
             url: "https://api.mailgun.net/v3/{$this->domain}/messages",
             headers: [
-                'Authorization: Basic ' . base64_encode('api:' . $this->apiKey)
+                'Authorization: Basic '.base64_encode('api:'.$this->apiKey),
             ],
             body: [
                 'from' => $message->getFrom(),

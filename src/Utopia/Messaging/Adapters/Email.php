@@ -25,12 +25,13 @@ abstract class Email extends Adapter
      */
     public function send(Message $message): string
     {
-        if (!\is_a($message, $this->getMessageType())) {
+        if (! \is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
         if (\count($message->$this->getTo()) > $this->getMaxMessagesPerRequest()) {
             throw new \Exception("{$this->getName()} can only send {$this->getMaxMessagesPerRequest()} messages per request.");
         }
+
         return $this->process($message);
     }
 
