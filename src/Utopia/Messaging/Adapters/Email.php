@@ -21,7 +21,7 @@ abstract class Email extends Adapter
     /**
      * {@inheritdoc}
      *
-     * @param  EmailMessage  $message Message to send.
+     * @param  Message $message Message to send.
      *
      * @throws \Exception
      */
@@ -30,7 +30,7 @@ abstract class Email extends Adapter
         if (! \is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
-        if (\count($message->$this->getTo()) > $this->getMaxMessagesPerRequest()) {
+        if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
             throw new \Exception("{$this->getName()} can only send {$this->getMaxMessagesPerRequest()} messages per request.");
         }
 
