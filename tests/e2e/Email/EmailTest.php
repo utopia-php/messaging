@@ -6,7 +6,6 @@ use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\Email\Mock;
 use Utopia\Messaging\Messages\Email;
 
-
 class EmailTest extends Base
 {
     /**
