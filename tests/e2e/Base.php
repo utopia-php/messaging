@@ -14,7 +14,6 @@ class Base extends TestCase
     protected function getLastRequest(): mixed
     {
         \sleep(2);
-        // @phpstan-ignore-next-line
         $request = \json_decode(\file_get_contents('http://request-catcher:5000/__last_request__'), true);
         $request['data'] = \json_decode($request['data'], true);
 
