@@ -38,14 +38,14 @@ class Mock extends EmailAdapter
         $mail->SMTPAuth = false;
         $mail->Username = '';
         $mail->Password = '';
-        $mail->SMTPSecure = 'false';
+        $mail->SMTPSecure = false;
         $mail->SMTPAutoTLS = false;
         $mail->CharSet = 'UTF-8';
         $mail->Subject = $message->getSubject();
         $mail->Body = $message->getContent();
         $mail->AltBody = \strip_tags($message->getContent());
-        $mail->setFrom($this->$message->getFrom(), 'Utopia');
-        $mail->addReplyTo($this->$message->getFrom(), 'Utopia');
+        $mail->setFrom($this->getFrom(), 'Utopia');
+        $mail->addReplyTo($this->getFrom(), 'Utopia');
         $mail->isHTML($message->isHtml());
 
         foreach ($message->getTo() as $to) {
@@ -56,6 +56,6 @@ class Mock extends EmailAdapter
             throw new \Exception($mail->ErrorInfo);
         }
 
-        return 'true';
+        return true;
     }
 }
