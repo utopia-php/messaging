@@ -76,7 +76,7 @@ abstract class Adapter
             throw new \Exception('Error:'.\curl_error($ch));
         }
         if (\curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
-            throw new \Exception($this->$response);
+            throw new \Exception($response);
         }
 
         \curl_close($ch);
