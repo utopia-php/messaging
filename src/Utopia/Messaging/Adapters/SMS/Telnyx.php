@@ -8,8 +8,7 @@ use Utopia\Messaging\Messages\SMS;
 class Telnyx extends SMSAdapter
 {
     /**
-     * @param  string  $accountSid Twilio Account SID
-     * @param  string  $authToken Twilio Auth Token
+     * @param  string  $apiKey Telnyx APIv2 Key
      */
     public function __construct(
         private string $apiKey,
@@ -35,7 +34,7 @@ class Telnyx extends SMSAdapter
     {
         return $this->request(
             method: 'POST',
-            url: "https://api.telnyx.com/v2/messages",
+            url: 'https://api.telnyx.com/v2/messages',
             headers: [
                 'Authorization: Bearer '.$this->apiKey,
                 'Content-Type: application/json',
