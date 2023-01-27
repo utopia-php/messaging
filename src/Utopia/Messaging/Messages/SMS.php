@@ -7,8 +7,8 @@ use Utopia\Messaging\Message;
 class SMS implements Message
 {
     /**
-     * @param array<string> $to The recipients of the push notification.
-     * @param array<string> $attachments The recipients of the push notification.
+     * @param  array<string>  $to The recipients of the push notification.
+     * @param  array<string>  $attachments The recipients of the push notification.
      */
     public function __construct(
         private array $to,

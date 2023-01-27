@@ -19,8 +19,10 @@ abstract class Email extends Adapter
     }
 
     /**
-     * @inheritdoc
-     * @param EmailMessage $message Message to send.
+     * {@inheritdoc}
+     *
+     * @param  EmailMessage  $message Message to send.
+     *
      * @throws \Exception
      */
     public function send(Message $message): string
@@ -37,7 +39,8 @@ abstract class Email extends Adapter
 
     /**
      * Process an email message.
-     * @param EmailMessage $message Message to process.
+     *
+     * @param  EmailMessage  $message Message to process.
      * @return string The response body.
      */
     abstract protected function process(EmailMessage $message): string;

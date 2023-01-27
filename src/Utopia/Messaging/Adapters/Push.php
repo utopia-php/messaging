@@ -5,7 +5,6 @@ namespace Utopia\Messaging\Adapters;
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Message;
 use Utopia\Messaging\Messages\Push as PushMessage;
-use PHPStan\Type\VerbosityLevel;
 
 abstract class Push extends Adapter
 {
@@ -20,8 +19,10 @@ abstract class Push extends Adapter
     }
 
     /**
-     * @inheritdoc
-     * @param PushMessage $message Message to send.
+     * {@inheritdoc}
+     *
+     * @param  PushMessage  $message Message to send.
+     *
      * @throws \Exception
      */
     public function send(Message $message): string

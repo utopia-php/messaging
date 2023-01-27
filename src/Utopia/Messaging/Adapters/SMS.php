@@ -19,8 +19,10 @@ abstract class SMS extends Adapter
     }
 
     /**
-     * @inheritdoc
-     * @param SMSMessage $message Message to send.
+     * {@inheritdoc}
+     *
+     * @param  SMSMessage  $message Message to send.
+     *
      * @throws \Exception
      */
     public function send(Message $message): string

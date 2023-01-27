@@ -8,6 +8,7 @@ class Base extends TestCase
 {
     /**
      * @return mixed
+     *
      * @throws \Exception If the request fails.
      */
     protected function getLastRequest(): mixed
@@ -19,7 +20,7 @@ class Base extends TestCase
 
         return $request;
     }
-    
+
     /**
      * @return mixed
      */

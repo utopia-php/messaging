@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\Email;
 
 use Utopia\Messaging\Adapters\Email\Mock;
 use Utopia\Messaging\Messages\Email;

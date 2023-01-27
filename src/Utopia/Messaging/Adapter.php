@@ -43,10 +43,11 @@ abstract class Adapter
     /**
      * Send an HTTP request.
      *
-     * @param string $method The HTTP method to use.
-     * @param string $url The URL to send the request to.
-     * @param array<string> $headers An array of headers to send with the request.
+     * @param  string  $method The HTTP method to use.
+     * @param  string  $url The URL to send the request to.
+     * @param  array<string>  $headers An array of headers to send with the request.
      * @return string,bool The response body.
+     *
      * @throws \Exception If the request fails.
      */
     protected function request(
@@ -79,6 +80,7 @@ abstract class Adapter
         }
 
         \curl_close($ch);
+
         return $this->$response;
     }
 }

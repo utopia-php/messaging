@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\SMS;
 
 use Utopia\Messaging\Adapters\SMS\Mock;
 use Utopia\Messaging\Messages\SMS;

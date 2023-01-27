@@ -21,8 +21,10 @@ class Mock extends EmailAdapter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @return string
+     *
      * @throws Exception
      * @throws \Exception
      */
