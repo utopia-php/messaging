@@ -2,6 +2,7 @@
 
 namespace Tests\E2E\SMS;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\SMS\Mock;
 use Utopia\Messaging\Messages\SMS;
 
