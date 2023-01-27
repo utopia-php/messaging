@@ -26,7 +26,6 @@ class Base extends TestCase
     protected function getLastEmail(): mixed
     {
         sleep(3);
-        // @phpstan-ignore-next-line
         $emails = \json_decode(\file_get_contents('http://maildev:1080/email'), true);
 
         if ($emails && \is_array($emails)) {
