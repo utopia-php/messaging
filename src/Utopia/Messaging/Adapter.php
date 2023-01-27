@@ -81,6 +81,6 @@ abstract class Adapter
 
         \curl_close($ch);
 
-        return $this->$response;
+        return $response;
     }
 }
