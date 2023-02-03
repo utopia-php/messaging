@@ -59,8 +59,8 @@ abstract class Adapter
     ): string {
         $ch = \curl_init();
 
-        if (!\is_null($body)) {
-            $headers[] = 'Content-Length: ' . \strlen($body);
+        if (! \is_null($body)) {
+            $headers[] = 'Content-Length: '.\strlen($body);
             \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         }
 
