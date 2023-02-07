@@ -55,11 +55,14 @@ abstract class Adapter
         string $method,
         string $url,
         array $headers = [],
-        mixed $body = null,
+        ?string $body = null,
     ): string {
-        $headers[] = 'Content-length: '.\strlen($body);
-
         $ch = \curl_init();
+
+        if (! \is_null($body)) {
+            $headers[] = 'Content-Length: '.\strlen($body);
+            \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        }
 
         \curl_setopt($ch, CURLOPT_URL, $url);
         \curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
@@ -67,14 +70,10 @@ abstract class Adapter
         \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         \curl_setopt($ch, CURLOPT_USERAGENT, "Appwrite {$this->getName()} Message Sender");
 
-        if (! is_null($body)) {
-            \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-        }
-
         $response = \curl_exec($ch);
 
         if (\curl_errno($ch)) {
-            throw new \Exception('Error:'.\curl_error($ch));
+            throw new \Exception('Error: '.\curl_error($ch));
         }
         if (\curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
             throw new \Exception($response);

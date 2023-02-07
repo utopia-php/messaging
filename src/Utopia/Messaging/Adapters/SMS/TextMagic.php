@@ -49,11 +49,11 @@ class TextMagic extends SMSAdapter
                 "X-TM-Username: {$this->username}",
                 "X-TM-Key: {$this->apiKey}",
             ],
-            body: [
+            body: \http_build_query([
                 'text' => $message->getContent(),
                 'from' => \ltrim($message->getFrom(), '+'),
                 'phones' => \implode(',', $to),
-            ],
+            ]),
         );
     }
 }
