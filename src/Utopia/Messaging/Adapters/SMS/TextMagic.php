@@ -51,7 +51,7 @@ class TextMagic extends SMSAdapter
             ],
             body: [
                 'text' => $message->getContent(),
-                'from' => \ltrim($message->getFrom(), '+'),
+                'from' => \ltrim($message->getFrom() ?? '', '+'),
                 'phones' => \implode(',', $to),
             ],
         );

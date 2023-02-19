@@ -46,7 +46,7 @@ abstract class Adapter
      * @param  string  $method The HTTP method to use.
      * @param  string  $url The URL to send the request to.
      * @param  array<string>  $headers An array of headers to send with the request.
-     * @return string,bool The response body.
+     * @return string The response body.
      *
      * @throws \Exception If the request fails.
      */
@@ -70,11 +70,12 @@ abstract class Adapter
             \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         }
 
-        $response = \curl_exec($ch);
+        $response = strval(\curl_exec($ch));
 
         if (\curl_errno($ch)) {
             throw new \Exception('Error:'.\curl_error($ch));
         }
+
         if (\curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
             throw new \Exception($response);
         }
