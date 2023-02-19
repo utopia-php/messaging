@@ -40,17 +40,11 @@ class Push implements Message
         return $this->to;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @return string
-     */
     public function getBody(): string
     {
         return $this->body;
@@ -64,49 +58,31 @@ class Push implements Message
         return $this->data;
     }
 
-    /**
-     * @return string|null
-     */
     public function getAction(): ?string
     {
         return $this->action;
     }
 
-    /**
-     * @return string|null
-     */
     public function getSound(): ?string
     {
         return $this->sound;
     }
 
-    /**
-     * @return string|null
-     */
     public function getIcon(): ?string
     {
         return $this->icon;
     }
 
-    /**
-     * @return string|null
-     */
     public function getColor(): ?string
     {
         return $this->color;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTag(): ?string
     {
         return $this->tag;
     }
 
-    /**
-     * @return string|null
-     */
     public function getBadge(): ?string
     {
         return $this->badge;

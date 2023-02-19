@@ -26,17 +26,11 @@ class SMS implements Message
         return $this->to;
     }
 
-    /**
-     * @return string
-     */
     public function getContent(): string
     {
         return $this->content;
     }
 
-    /**
-     * @return string|null
-     */
     public function getFrom(): ?string
     {
         return $this->from;

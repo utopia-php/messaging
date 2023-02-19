@@ -7,8 +7,6 @@ use PHPUnit\Framework\TestCase;
 class Base extends TestCase
 {
     /**
-     * @return mixed
-     *
      * @throws \Exception If the request fails.
      */
     protected function getLastRequest(): mixed
@@ -20,9 +18,6 @@ class Base extends TestCase
         return $request;
     }
 
-    /**
-     * @return mixed
-     */
     protected function getLastEmail(): mixed
     {
         sleep(3);

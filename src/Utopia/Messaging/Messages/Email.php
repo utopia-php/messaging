@@ -32,25 +32,16 @@ class Email implements Message
         return $this->to;
     }
 
-    /**
-     * @return string
-     */
     public function getSubject(): string
     {
         return $this->subject;
     }
 
-    /**
-     * @return string
-     */
     public function getContent(): string
     {
         return $this->content;
     }
 
-    /**
-     * @return string|null
-     */
     public function getFrom(): ?string
     {
         return $this->from;
@@ -64,9 +55,6 @@ class Email implements Message
         return $this->attachments;
     }
 
-    /**
-     * @return bool
-     */
     public function isHtml(): bool
     {
         return $this->html;
