@@ -52,7 +52,7 @@ class FCM extends PushAdapter
                     'tag' => $message->getTag(),
                 ],
                 'data' => $message->getData(),
-            ])
+            ]) ?: null
         );
     }
 }

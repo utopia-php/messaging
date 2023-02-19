@@ -55,7 +55,7 @@ class Msg91 extends SMSAdapter
                 'otp' => $message->getContent(),
                 'flow_id' => $message->getFrom(),
                 'recipients' => [$to],
-            ]),
+            ]) ?: null,
         );
     }
 }

@@ -38,6 +38,8 @@ abstract class Adapter
      * @param  string  $method The HTTP method to use.
      * @param  string  $url The URL to send the request to.
      * @param  array<string>  $headers An array of headers to send with the request.
+     * @param  ?string $body The body of the request
+     * 
      * @return string The response body.
      *
      * @throws \Exception If the request fails.
@@ -61,7 +63,7 @@ abstract class Adapter
         \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         \curl_setopt($ch, CURLOPT_USERAGENT, "Appwrite {$this->getName()} Message Sender");
 
-        $response = \curl_exec($ch);
+        $response = strval(\curl_exec($ch));
 
         if (\curl_errno($ch)) {
             throw new \Exception('Error: '.\curl_error($ch));

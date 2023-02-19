@@ -46,7 +46,7 @@ class Mock extends SMSAdapter
                 'message' => $message->getContent(),
                 'from' => $message->getFrom(),
                 'to' => \implode(',', $message->getTo()),
-            ]),
+            ]) ?: null,
         );
     }
 }

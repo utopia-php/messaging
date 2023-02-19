@@ -50,7 +50,7 @@ class Sendgrid extends EmailAdapter
                         'value' => $message->getContent(),
                     ],
                 ],
-            ]),
+            ])?: null,
         );
     }
 }

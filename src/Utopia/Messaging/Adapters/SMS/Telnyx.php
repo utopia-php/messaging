@@ -43,7 +43,7 @@ class Telnyx extends SMSAdapter
                 'text' => $message->getContent(),
                 'from' => $message->getFrom(),
                 'to' => $message->getTo()[0],
-            ]),
+            ]) ?: null,
         );
     }
 }
