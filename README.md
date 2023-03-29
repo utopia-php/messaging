@@ -102,7 +102,7 @@ $messaging->send($message);
 - [x] [Infobip](https://www.infobip.com/)
 - [x] [Clickatell](https://www.clickatell.com/)
 - [ ] [AfricasTalking](https://africastalking.com/)
-- [ ] [Sinch](https://www.sinch.com/)
+- [x] [Sinch](https://www.sinch.com/)
 - [ ] [Sms77](https://www.sms77.io/)
 - [ ] [SmsGlobal](https://www.smsglobal.com/)
 
