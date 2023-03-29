@@ -7,7 +7,7 @@ use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 
 // Reference Material
-// https://developers.sinch.com/docs/sms/api-reference/
+// https://www.seven.io/en/docs/gateway/http-api/sms-dispatch/
 class Seven extends SMSAdapter {
  /**
   * @param string $apiKey Seven API token
