@@ -99,7 +99,7 @@ $messaging->send($message);
 - [x] [Msg91](https://msg91.com/)
 - [x] [Vonage](https://www.vonage.com/)
 - [x] [Plivo](https://www.plivo.com/)
-- [ ] [Infobip](https://www.infobip.com/)
+- [x] [Infobip](https://www.infobip.com/)
 - [x] [Clickatell](https://www.clickatell.com/)
 - [ ] [AfricasTalking](https://africastalking.com/)
 - [ ] [Sinch](https://www.sinch.com/)
