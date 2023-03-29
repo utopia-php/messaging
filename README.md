@@ -100,7 +100,7 @@ $messaging->send($message);
 - [x] [Vonage](https://www.vonage.com/)
 - [x] [Plivo](https://www.plivo.com/)
 - [ ] [Infobip](https://www.infobip.com/)
-- [ ] [Clickatell](https://www.clickatell.com/)
+- [x] [Clickatell](https://www.clickatell.com/)
 - [ ] [AfricasTalking](https://africastalking.com/)
 - [ ] [Sinch](https://www.sinch.com/)
 - [ ] [Sms77](https://www.sms77.io/)
