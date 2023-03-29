@@ -42,7 +42,7 @@ _In most providers when you're sending SMS to US numbers you must own a US phone
 | Plivo      | 0.0560     | 560    $ |
 | Infobip    | n/a        |          |
 | Clickatell | 0.0426     | 426.2  $ |
-| Seven      | 0.0800     | 81 $     |
+| Seven      | 0.0810     | 810 $    |
 | Sinch      | n/a        |          |
 | Telnyx     | 0.0490     | 490 $    |
 
@@ -58,6 +58,6 @@ _In most providers when you're sending SMS to US numbers you must own a US phone
 | Plivo      | 0.101      | 1010 $   |
 | Infobip    | 0.106      | 1060 $   |
 | Clickatell | 0.13144    | 1314.4 $ |
-| Seven      | 0.08       | 81 $     |
+| Seven      | 0.0810     | 810 $    |
 | Sinch      | n/a        |          |
 | Telnyx     | 0.1100     | 1100 $   |
