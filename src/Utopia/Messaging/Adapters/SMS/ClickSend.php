@@ -7,7 +7,6 @@ use Utopia\Messaging\Messages\SMS;
 
 // Reference Material
 // https://developers.clicksend.com/docs/rest/v3/#send-sms
-
 class ClickSend extends SMSAdapter
 {
     /**
@@ -37,18 +36,17 @@ class ClickSend extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
-        $to = \array_map(
+        $toList = \array_map(
             fn ($to) => \ltrim($to, '+'),
             $message->getTo()
         );
-        $body = array();
-        foreach ($to as $t) {
-            array_push($body, [
+        $body = [];
+        foreach ($toList as $to) {
+            $body[] = [
                 'body' => $message->getContent(),
                 'from' => $message->getFrom(),
-                'to' => $t,
-                'source' => 'appwrite'
-            ]);
+                'to' => $to
+            ];
         }
 
         return $this->request(
