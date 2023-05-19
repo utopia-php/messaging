@@ -2,11 +2,11 @@
 
 namespace Utopia\Messaging\Adapters\SMS;
 
-// Reference Material
-// https://developers.clicksend.com/docs/rest/v3/#send-sms
-
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
+
+// Reference Material
+// https://developers.clicksend.com/docs/rest/v3/#send-sms
 
 class ClickSend extends SMSAdapter
 {
@@ -27,7 +27,7 @@ class ClickSend extends SMSAdapter
 
     public function getMaxMessagesPerRequest(): int
     {
-        return 1;
+        return 1000;
     }
 
     /**
@@ -41,6 +41,15 @@ class ClickSend extends SMSAdapter
             fn ($to) => \ltrim($to, '+'),
             $message->getTo()
         );
+        $body = array();
+        foreach ($to as $t) {
+            array_push($body, [
+                'body' => $message->getContent(),
+                'from' => $message->getFrom(),
+                'to' => $t,
+                'source' => 'appwrite'
+            ]);
+        }
 
         return $this->request(
             method: 'POST',
@@ -50,14 +59,7 @@ class ClickSend extends SMSAdapter
                 'Authorization: Basic ' . base64_encode("{$this->username}:{$this->apiKey}"),
             ],
             body: \json_encode([
-                'messages' => [
-                    [
-                        'body' => $message->getContent(),
-                        'from' => $message->getFrom(),
-                        'to' => \implode(',', $to),
-                        'source' => 'appwrite'
-                    ]
-                ]
+                'messages' => $body
             ]),
         );
     }

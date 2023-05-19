@@ -98,6 +98,7 @@ $messaging->send($message);
 - [x] [TextMagic](https://www.textmagic.com/)
 - [x] [Msg91](https://msg91.com/)
 - [x] [Vonage](https://www.vonage.com/)
+- [x] [ClickSend](https://www.clicksend.com/)
 - [ ] [Plivo](https://www.plivo.com/)
 - [ ] [Infobip](https://www.infobip.com/)
 - [ ] [Clickatell](https://www.clickatell.com/)
