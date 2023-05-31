@@ -24,7 +24,7 @@ class Clickatell extends SMSAdapter
 
     public function getMaxMessagesPerRequest(): int
     {
-        return 1000;
+        return 500;
     }
 
     /**
