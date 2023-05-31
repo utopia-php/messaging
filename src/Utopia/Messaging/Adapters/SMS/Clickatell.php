@@ -13,8 +13,8 @@ class Clickatell extends SMSAdapter
      * @param  string  $apiKey Clickatell API Key
      */
     public function __construct(
-  private string $apiKey,
- ) {
+        private string $apiKey,
+    ) {
     }
 
     public function getName(): string

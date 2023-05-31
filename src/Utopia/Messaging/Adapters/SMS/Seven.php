@@ -13,8 +13,8 @@ class Seven extends SMSAdapter
      * @param  string  $apiKey Seven API token
      */
     public function __construct(
-  private string $apiKey
- ) {
+        private string $apiKey
+    ) {
     }
 
     public function getName(): string

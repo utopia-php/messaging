@@ -11,12 +11,12 @@ class Sinch extends SMSAdapter
 {
     /**
      * @param  string  $servicePlanId Sinch Service plan ID
-     * @param  string  $apiToken      Sinch API token
+     * @param  string  $apiToken Sinch API token
      */
     public function __construct(
-  private string $servicePlanId,
-  private string $apiToken
- ) {
+        private string $servicePlanId,
+        private string $apiToken
+    ) {
     }
 
     public function getName(): string

@@ -10,13 +10,13 @@ use Utopia\Messaging\Messages\SMS;
 class Plivo extends SMSAdapter
 {
     /**
-     * @param  string  $authId    Plivo Auth ID
+     * @param  string  $authId Plivo Auth ID
      * @param  string  $authToken Plivo Auth Token
      */
     public function __construct(
-  private string $authId,
-  private string $authToken
- ) {
+        private string $authId,
+        private string $authToken
+    ) {
     }
 
     public function getName(): string
@@ -44,7 +44,7 @@ class Plivo extends SMSAdapter
             ],
             body: \http_build_query([
                 'text' => $message->getContent(),
-                'src' => $message->getFrom(),
+                'src' => $message->getFrom() ?? 'Plivo',
                 'dst' => \implode('<', $message->getTo()),
             ]),
         );

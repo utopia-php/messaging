@@ -11,12 +11,12 @@ class Infobip extends SMSAdapter
 {
     /**
      * @param  string  $apiBaseUrl Infobip API Base Url
-     * @param  string  $apiKey     Infobip API Key
+     * @param  string  $apiKey Infobip API Key
      */
     public function __construct(
-  private string $apiBaseUrl,
-  private string $apiKey
- ) {
+        private string $apiBaseUrl,
+        private string $apiKey
+    ) {
     }
 
     public function getName(): string
