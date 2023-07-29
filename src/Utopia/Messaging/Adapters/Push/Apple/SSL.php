@@ -1,5 +1,7 @@
 <?php
 
+namespace Utopia\Messaging\Adapters\Push\Apple;
+
 use Utopia\Messaging\Adapters\Push as PushAdapter;
 use Utopia\Messaging\Apple\Notification as ApplePushNotification;
 use Utopia\Messaging\Messages\Push;
