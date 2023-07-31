@@ -7,5 +7,6 @@ namespace Utopia\Messaging;
  */
 interface Message
 {
-    function getTo():string;
+    function getTo():array;
+    function getFrom():?string;
 }
