@@ -2,7 +2,6 @@
 
 namespace Utopia\Messaging\Adapters\Push\Entities;
 
-use DateTime;
 use Utopia\Messaging\Adapters\Push\Entities\Entity;
 
 class Target extends Entity {

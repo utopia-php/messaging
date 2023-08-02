@@ -34,19 +34,21 @@ class Mailgun extends EmailAdapter
      */
     protected function process(Email $message): string
     {
-        return $this->request(
+        $response = $this->request(
             method: 'POST',
             url: "https://api.mailgun.net/v3/{$this->domain}/messages",
             headers: [
                 'Authorization: Basic '.base64_encode('api:'.$this->apiKey),
             ],
             body: \http_build_query([
-                'from' => $message->getFrom(),
                 'to' => \implode(',', $message->getTo()),
+                'from' => $message->getFrom(),
                 'subject' => $message->getSubject(),
                 'text' => $message->isHtml() ? null : $message->getContent(),
                 'html' => $message->isHtml() ? $message->getContent() : null,
             ]),
         );
+
+        return $response;
     }
 }

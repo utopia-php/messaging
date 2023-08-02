@@ -7,9 +7,7 @@ use Utopia\Messaging\Messages\Email;
 
 class Sendgrid extends EmailAdapter
 {
-    public function __construct(
-        private string $apiKey,
-    ) {
+    public function __construct(private string $apiKey) {
     }
 
     public function getName(): string

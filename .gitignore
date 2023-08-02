@@ -2,3 +2,5 @@
 vendor
 .phpunit.result.cache
 Makefile
+.envrc
+.env
