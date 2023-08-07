@@ -44,7 +44,7 @@ class Push implements Message
     {
         return null;
     }
-    
+
     /**
      * @return string
      */

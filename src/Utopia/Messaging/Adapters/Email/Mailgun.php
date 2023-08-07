@@ -17,11 +17,21 @@ class Mailgun extends EmailAdapter
     ) {
     }
 
+    /**
+     * Get adapter name.
+     *
+     * @return string
+     */
     public function getName(): string
     {
         return 'Mailgun';
     }
 
+    /**
+     * Get adapter description.
+     *
+     * @return int
+     */
     public function getMaxMessagesPerRequest(): int
     {
         return 1000;

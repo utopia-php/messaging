@@ -9,7 +9,7 @@ class APNSTest extends Base
 {
     public function testSend(): void
     {
-        $authKey = __DIR__ . '/AuthKey_8KVVCLA3HL.p8';
+        $authKey = __DIR__.'/AuthKey_8KVVCLA3HL.p8';
         $authKeyId = '8KVVCLA3HL';
         $teamId = 'ZZJ8NM59TE';
         $bundleId = 'io.wess.appwritetest';

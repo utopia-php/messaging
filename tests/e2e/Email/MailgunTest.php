@@ -12,19 +12,18 @@ class MailgunTest extends Base
      */
     public function testSendEmail()
     {
-      
         $key = getenv('MAILGUN_API_KEY');
         $domain = getenv('MAILGUN_DOMAIN');
 
         $sender = new Mailgun(
-          $key,
-          $domain
+            $key,
+            $domain
         );
 
         $to = 'wcope@me.com';
         $subject = 'Test Subject';
         $content = 'Test Content';
-        $from = 'sender@' . $domain;
+        $from = 'sender@'.$domain;
 
         $message = new Email(
             to: [$to],
