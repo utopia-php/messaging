@@ -8,9 +8,7 @@ services:
       - ./src:/usr/local/src/src
       - ./tests:/usr/local/src/tests
       - ./phpunit.xml:/usr/local/src/phpunit.xml
-    env_file:
-      - .env
-
+      
   maildev:
     image: appwrite/mailcatcher:1.0.0
     ports:
