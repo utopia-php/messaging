@@ -102,13 +102,13 @@ class APNS extends PushAdapter
         $base64UrlHeader = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
         $base64UrlClaims = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($claims));
 
-        $privateKeyResource = openssl_pkey_get_private(file_get_contents($this->authKey));
-        if (! $privateKeyResource) {
+        if (! $this->authKey) {
+          var_dump($this->authKey);
             throw new \Exception('Invalid private key');
         }
 
         $signature = '';
-        $success = openssl_sign("$base64UrlHeader.$base64UrlClaims", $signature, $privateKeyResource, OPENSSL_ALGO_SHA256);
+        $success = openssl_sign("$base64UrlHeader.$base64UrlClaims", $signature, $this->authKey, OPENSSL_ALGO_SHA256);
 
         if (! $success) {
             throw new \Exception('Failed to sign JWT');

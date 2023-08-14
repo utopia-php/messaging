@@ -9,7 +9,7 @@ class APNSTest extends Base
 {
     public function testSend(): void
     {
-        $authKey = getenv('AuthKey_8KVVCLA3HL.p8');
+        $authKey = getenv('AUTHKEY_8KVVCLA3HL');
         $authKeyId = '8KVVCLA3HL';
         $teamId = 'ZZJ8NM59TE';
         $bundleId = 'io.wess.appwritetest';
