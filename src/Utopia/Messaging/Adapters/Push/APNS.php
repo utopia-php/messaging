@@ -103,7 +103,7 @@ class APNS extends PushAdapter
         $base64UrlClaims = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($claims));
 
         if (! $this->authKey) {
-          var_dump($this->authKey);
+            var_dump($this->authKey);
             throw new \Exception('Invalid private key');
         }
 
