@@ -44,9 +44,12 @@ class Mailgun extends EmailAdapter
      */
     protected function process(Email $message): string
     {
+        var_dump($this->domain);
+        exit;
+
         $response = $this->request(
             method: 'POST',
-            url: "https://api.mailgun.net/v3/{$this->domain}/messages",
+            url: "https://api.eu.mailgun.net/v3/{$this->domain}/messages",
             headers: [
                 'Authorization: Basic '.base64_encode('api:'.$this->apiKey),
             ],
