@@ -20,7 +20,7 @@ class MailgunTest extends Base
             $domain
         );
 
-        $to = 'wcope@me.com';
+        $to = getenv('TEST_EMAIL');
         $subject = 'Test Subject';
         $content = 'Test Content';
         $from = 'sender@'.$domain;

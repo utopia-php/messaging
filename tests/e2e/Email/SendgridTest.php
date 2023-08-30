@@ -15,10 +15,10 @@ class SendgridTest extends Base
         $key = getenv('SENDGRID_API_KEY');
         $sender = new Sendgrid($key);
 
-        $to = 'wcope@me.com';
+        $to = getenv('TEST_EMAIL');
         $subject = 'Test Subject';
         $content = 'Test Content';
-        $from = 'devpipe@wess.io';
+        $from = getenv('TEST_FROM_EMAIL');
 
         $message = new Email(
             to: [$to],
