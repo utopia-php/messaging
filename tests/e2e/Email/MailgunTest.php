@@ -32,8 +32,8 @@ class MailgunTest extends Base
             content: $content,
         );
 
-        $result = (array)\json_decode($sender->send($message));
-       
+        $result = (array) \json_decode($sender->send($message));
+
         $this->assertArrayHasKey('id', $result);
         $this->assertArrayHasKey('message', $result);
         $this->assertTrue(str_contains(strtolower($result['message']), 'queued'));

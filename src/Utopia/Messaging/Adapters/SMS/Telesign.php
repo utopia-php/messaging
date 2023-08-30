@@ -58,10 +58,10 @@ class Telesign extends SMSAdapter
     private function formatNumbers(array $numbers): string
     {
         $formatted = \array_map(
-            fn ($number) => $number . ':' . \uniqid(),
+            fn ($number) => $number.':'.\uniqid(),
             $numbers
         );
 
         return implode(',', $formatted);
-    } 
+    }
 }

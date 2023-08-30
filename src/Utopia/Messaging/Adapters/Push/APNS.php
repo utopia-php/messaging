@@ -68,7 +68,7 @@ class APNS extends PushAdapter
         ];
 
         // Assuming the 'to' array contains device tokens for the push notification recipients.
-        
+
         // $url = $this->endpoint.'/3/device';
         // $response = $this->request('POST', $url, $headers, \json_encode($payloads));
         // // This example simply returns the last response, adjust as needed
@@ -77,63 +77,64 @@ class APNS extends PushAdapter
         return \json_encode($this->notify($message->getTo(), $payload));
     }
 
-    private function notify(array $to, array $payload):array
+    private function notify(array $to, array $payload): array
     {
-      $headers = [
-        'authorization: bearer '.$this->generateJwt(),
-        'apns-topic: '.$this->bundleId,
-    ];
+        $headers = [
+            'authorization: bearer '.$this->generateJwt(),
+            'apns-topic: '.$this->bundleId,
+        ];
 
-      $ch = curl_init();
+        $ch = curl_init();
 
-      curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 
-      curl_setopt_array($ch, array(
-        CURLOPT_PORT => 443,
-        CURLOPT_HTTPHEADER => $headers,
-        CURLOPT_POST => TRUE,
-        CURLOPT_POSTFIELDS => \json_encode($payload),
-        CURLOPT_RETURNTRANSFER => TRUE,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HEADER => TRUE
-      ));
+        curl_setopt_array($ch, [
+            CURLOPT_PORT => 443,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => \json_encode($payload),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HEADER => true,
+        ]);
 
-      $response = '';
+        $response = '';
 
-      foreach($to as $token) {
-        curl_setopt($ch, CURLOPT_URL, $this->endpoint.'/3/device/'.$token);
+        foreach ($to as $token) {
+            curl_setopt($ch, CURLOPT_URL, $this->endpoint.'/3/device/'.$token);
 
-        $response = curl_exec($ch);
-      }
+            $response = curl_exec($ch);
+        }
 
-      curl_close($ch);
+        curl_close($ch);
 
-      return $this->formatResponse($response);
+        return $this->formatResponse($response);
     }
 
-    private function formatResponse(string $response):array
+    private function formatResponse(string $response): array
     {
-      $filtered = array_filter(
-        explode("\r\n", $response),
-        function($value) {
-          return !empty($value);
+        $filtered = array_filter(
+            explode("\r\n", $response),
+            function ($value) {
+                return ! empty($value);
+            }
+        );
+
+        $result = [];
+
+        foreach ($filtered as $value) {
+            if (str_contains($value, 'HTTP')) {
+                $result['status'] = trim(str_replace('HTTP/2 ', '', $value));
+
+                continue;
+            }
+
+            $parts = explode(':', trim($value));
+
+            $result[$parts[0]] = $parts[1];
         }
-      );
 
-      $result = [];
-
-      foreach($filtered as $value) {
-        if(str_contains($value, 'HTTP')) {
-          $result['status'] = trim(str_replace('HTTP/2 ', '', $value));
-          continue;
-        }
-
-        $parts = explode(':', trim($value));
-
-        $result[$parts[0]] = $parts[1];
-      }
-
-      return $result;
+        return $result;
     }
 
     /**

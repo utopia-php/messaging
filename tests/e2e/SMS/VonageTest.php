@@ -12,8 +12,8 @@ class VonageTest extends Base
      */
     public function testSendSMS()
     {
-        $apiKey = "9bae1fbc";
-        $apiSecret = "thVmE4JpL4sPu4f6";
+        $apiKey = '9bae1fbc';
+        $apiSecret = 'thVmE4JpL4sPu4f6';
 
         $sender = new Vonage($apiKey, $apiSecret);
 
@@ -25,8 +25,8 @@ class VonageTest extends Base
 
         $result = \json_decode($sender->send($message), true);
 
-        $this->assertArrayHasKey("messages", $result);
+        $this->assertArrayHasKey('messages', $result);
         $this->assertEquals(1, count($result['messages']));
-        $this->assertEquals("1", $result['message-count']);
+        $this->assertEquals('1', $result['message-count']);
     }
 }

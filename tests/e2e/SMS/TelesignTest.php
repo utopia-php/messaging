@@ -2,9 +2,6 @@
 
 namespace Tests\E2E;
 
-use Utopia\Messaging\Adapters\SMS\Telesign;
-use Utopia\Messaging\Messages\SMS;
-
 class TelesignTest extends Base
 {
     /**

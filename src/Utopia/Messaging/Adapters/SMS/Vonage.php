@@ -37,12 +37,11 @@ class Vonage extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
-
         $to = \array_map(
             fn ($to) => \ltrim($to, '+'),
             $message->getTo()
         );
-        
+
         return $this->request(
             method: 'POST',
             url: 'https://rest.nexmo.com/sms/json',

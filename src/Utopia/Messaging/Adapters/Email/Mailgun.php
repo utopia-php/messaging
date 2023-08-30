@@ -48,7 +48,7 @@ class Mailgun extends EmailAdapter
         $euDomain = 'api.eu.mailgun.net';
 
         $domain = $isUS ? $usDomain : $euDomain;
-      
+
         $response = $this->request(
             method: 'POST',
             url: "https://$domain/v3/{$this->domain}/messages",
