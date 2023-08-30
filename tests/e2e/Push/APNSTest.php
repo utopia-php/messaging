@@ -30,8 +30,10 @@ class APNSTest extends Base
             badge: '1'
         );
 
-        $response = $adapter->send($message);
+        $response = (array)\json_decode($adapter->send($message));
 
-        $this->assertEquals('', $response);
+        $this->assertEquals("200", $response['status']);
+        $this->assertArrayHasKey('apns-id', $response);
+        $this->assertArrayHasKey('apns-unique-id', $response);
     }
 }

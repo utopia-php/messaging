@@ -74,10 +74,10 @@ class APNS extends PushAdapter
         // // This example simply returns the last response, adjust as needed
         // return $response;
 
-        return $this->notify($message->getTo(), $payload);
+        return \json_encode($this->notify($message->getTo(), $payload));
     }
 
-    private function notify(array $to, array $payload)
+    private function notify(array $to, array $payload):array
     {
       $headers = [
         'authorization: bearer '.$this->generateJwt(),
@@ -108,11 +108,7 @@ class APNS extends PushAdapter
 
       curl_close($ch);
 
-      $response = $this->formatResponse($response);
-
-      var_dump($response);
-      die;
-      return $response;
+      return $this->formatResponse($response);
     }
 
     private function formatResponse(string $response):array
@@ -136,9 +132,6 @@ class APNS extends PushAdapter
 
         $result[$parts[0]] = $parts[1];
       }
-
-      var_dump($result);
-      die;
 
       return $result;
     }
