@@ -14,20 +14,22 @@ class FCMTest extends Base
         $adapter = new FCMAdapter($serverKey);
 
         $message = new Push(
-            ['eJa9AhokQUudfBPJwRx2OX:APA91bE0KbMkXU7a4eCyq1CyN1nR9TwOD5NQIaHADJBMBV1GjOjTfyPywOXKVeKVvvjz6nvB2jASGtRxGJHsM4Z4osoHnTx5IrnxCNUDEH11wsm4vMBiKW0zbugVis1MdtusTu9admrk'],
-            'TestTitle',
-            'TestBody',
-            null,
-            null,
-            'default',
-            null,
-            null,
-            null,
-            '1'
+            to: ['eJa9AhokQUudfBPJwRx2OX:APA91bE0KbMkXU7a4eCyq1CyN1nR9TwOD5NQIaHADJBMBV1GjOjTfyPywOXKVeKVvvjz6nvB2jASGtRxGJHsM4Z4osoHnTx5IrnxCNUDEH11wsm4vMBiKW0zbugVis1MdtusTu9admrk'],
+            title: 'TestTitle',
+            body: 'TestBody',
+            data: null,
+            action: null,
+            sound: 'default',
+            icon: null,
+            color: null,
+            tag: null,
+            badge: '1'
         );
 
-        $response = $adapter->send($message);
+        $response = \json_decode($adapter->send($message));
 
         $this->assertNotEmpty($response);
+        $this->assertEquals(1, $response->success);
+        $this->assertEquals(0, $response->failure);
     }
 }

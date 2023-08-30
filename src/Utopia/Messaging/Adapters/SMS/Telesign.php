@@ -37,10 +37,10 @@ class Telesign extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
-        $to = \array_map(
-            fn ($to) => \ltrim($to, '+'),
+        $to = $this->formatNumbers(\array_map(
+            fn ($to) => $to,
             $message->getTo()
-        );
+        ));
 
         return $this->request(
             method: 'POST',
@@ -50,8 +50,18 @@ class Telesign extends SMSAdapter
             ],
             body: \http_build_query([
                 'template' => $message->getContent(),
-                'recipients' => \implode(',', $to),
+                'recipients' => $to,
             ]),
         );
     }
+
+    private function formatNumbers(array $numbers): string
+    {
+        $formatted = \array_map(
+            fn ($number) => $number . ':' . \uniqid(),
+            $numbers
+        );
+
+        return implode(',', $formatted);
+    } 
 }

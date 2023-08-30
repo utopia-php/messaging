@@ -15,10 +15,6 @@ class MailgunTest extends Base
         $key = getenv('MAILGUN_API_KEY');
         $domain = getenv('MAILGUN_DOMAIN');
 
-        var_dump($key);
-        var_dump($domain);
-        exit;
-
         $sender = new Mailgun(
             $key,
             $domain
@@ -36,8 +32,10 @@ class MailgunTest extends Base
             content: $content,
         );
 
-        $sender->send($message);
-
-        $this->assertEquals(true, true);
+        $result = (array)\json_decode($sender->send($message));
+       
+        $this->assertArrayHasKey('id', $result);
+        $this->assertArrayHasKey('message', $result);
+        $this->assertTrue(str_contains(strtolower($result['message']), 'queued'));
     }
 }

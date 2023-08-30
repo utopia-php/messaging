@@ -4,16 +4,8 @@ services:
   tests:
     build:
       context: .
-    environment:
-      - MAILGUN_API_KEY
-      - MAILGUN_DOMAIN
-      - SENDGRID_API_KEY
-      - FCM_SERVER_KEY
-      - TWILIO_ACCOUNT_SID
-      - TWILIO_AUTH_TOKEN
-      - TELNYX_API_KEY
-      - TELNYX_PUBLIC_KEY
-      - AUTHKEY_8KVVCLA3HL
+    env_file:
+      - .env
     volumes:
       - ./src:/usr/local/src/src
       - ./tests:/usr/local/src/tests

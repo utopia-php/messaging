@@ -55,12 +55,7 @@ class APNS extends PushAdapter
      */
     public function process(Push $message): string
     {
-        $headers = [
-            'authorization: bearer '.$this->generateJwt(),
-            'apns-topic: '.$this->bundleId,
-        ];
-
-        $payload = json_encode([
+        $payload = [
             'aps' => [
                 'alert' => [
                     'title' => $message->getTitle(),
@@ -70,18 +65,82 @@ class APNS extends PushAdapter
                 'sound' => $message->getSound(),
                 'data' => $message->getData(),
             ],
-        ]);
+        ];
 
         // Assuming the 'to' array contains device tokens for the push notification recipients.
-        foreach ($message->getTo() as $to) {
-            $url = $this->endpoint.'/3/device/'.$to;
-            $response = $this->request('POST', $url, $headers, $payload);
+        
+        // $url = $this->endpoint.'/3/device';
+        // $response = $this->request('POST', $url, $headers, \json_encode($payloads));
+        // // This example simply returns the last response, adjust as needed
+        // return $response;
 
-            // You might want to handle each response here, for instance, logging failures
+        return $this->notify($message->getTo(), $payload);
+    }
+
+    private function notify(array $to, array $payload)
+    {
+      $headers = [
+        'authorization: bearer '.$this->generateJwt(),
+        'apns-topic: '.$this->bundleId,
+    ];
+
+      $ch = curl_init();
+
+      curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+
+      curl_setopt_array($ch, array(
+        CURLOPT_PORT => 443,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_POST => TRUE,
+        CURLOPT_POSTFIELDS => \json_encode($payload),
+        CURLOPT_RETURNTRANSFER => TRUE,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HEADER => TRUE
+      ));
+
+      $response = '';
+
+      foreach($to as $token) {
+        curl_setopt($ch, CURLOPT_URL, $this->endpoint.'/3/device/'.$token);
+
+        $response = curl_exec($ch);
+      }
+
+      curl_close($ch);
+
+      $response = $this->formatResponse($response);
+
+      var_dump($response);
+      die;
+      return $response;
+    }
+
+    private function formatResponse(string $response):array
+    {
+      $filtered = array_filter(
+        explode("\r\n", $response),
+        function($value) {
+          return !empty($value);
+        }
+      );
+
+      $result = [];
+
+      foreach($filtered as $value) {
+        if(str_contains($value, 'HTTP')) {
+          $result['status'] = trim(str_replace('HTTP/2 ', '', $value));
+          continue;
         }
 
-        // This example simply returns the last response, adjust as needed
-        return $response;
+        $parts = explode(':', trim($value));
+
+        $result[$parts[0]] = $parts[1];
+      }
+
+      var_dump($result);
+      die;
+
+      return $result;
     }
 
     /**
@@ -99,11 +158,12 @@ class APNS extends PushAdapter
             'iat' => time(),
         ]);
 
+        // Replaces URL sensitive characters that could be the result of base64 encoding.
+        // Replace to _ to avoid any special handling.
         $base64UrlHeader = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
         $base64UrlClaims = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($claims));
 
         if (! $this->authKey) {
-            var_dump($this->authKey);
             throw new \Exception('Invalid private key');
         }
 

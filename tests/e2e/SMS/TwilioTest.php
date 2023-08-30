@@ -13,15 +13,20 @@ class TwilioTest extends Base
     public function testSendSMS()
     {
         $sender = new Twilio(getenv('TWILIO_ACCOUNT_SID'), getenv('TWILIO_AUTH_TOKEN'));
+        $to = ['+18034041123'];
+        $from = '+15005550006';
 
         $message = new SMS(
-            to: ['+18034041123'],
+            to: $to,
             content: 'Test Content',
-            from: '+15005550006'
+            from: $from
         );
 
-        $result = $sender->send($message);
+        $result = \json_decode($sender->send($message));
 
         $this->assertNotEmpty($result);
+        $this->assertEquals($to[0], $result->to);
+        $this->assertEquals($from, $result->from);
+        $this->assertNull($result->error_message);
     }
 }

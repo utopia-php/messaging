@@ -12,21 +12,6 @@ class TelesignTest extends Base
      */
     public function testSendSMS()
     {
-    //     $username = '';
-    //     $password = '';
-
-    //     $sender = new Telesign($username, $password);
-
-    //     $message = new SMS(
-    //         to: ['+18034041123'],
-    //         content: 'Test Content',
-    //         from: '+15005550006'
-    //     );
-
-    //     $result = \json_decode($sender->send($message), true);
-
-    //     $this->assertEquals('success', $result["type"]);
-
-        $this->markTestSkipped('Telesign requires sales calls and such to setup an account');
+        $this->markTestSkipped('Telesign requires support/sales call in order to enable bulk SMS');
     }
 }
