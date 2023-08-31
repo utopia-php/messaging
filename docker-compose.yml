@@ -4,8 +4,6 @@ services:
   tests:
     build:
       context: .
-    env_file:
-      - .env
     volumes:
       - ./src:/usr/local/src/src
       - ./tests:/usr/local/src/tests
