@@ -14,6 +14,7 @@ class Mailgun extends EmailAdapter
     public function __construct(
         private string $apiKey,
         private string $domain,
+        private bool $isUS = true
     ) {
     }
 
@@ -42,12 +43,12 @@ class Mailgun extends EmailAdapter
      *
      * @throws \Exception
      */
-    protected function process(Email $message, bool $isUS = true): string
+    protected function process(Email $message): string
     {
         $usDomain = 'api.mailgun.net';
         $euDomain = 'api.eu.mailgun.net';
 
-        $domain = $isUS ? $usDomain : $euDomain;
+        $domain = $this->isUS ? $usDomain : $euDomain;
 
         $response = $this->request(
             method: 'POST',
