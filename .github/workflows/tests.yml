@@ -13,6 +13,23 @@ jobs:
         fetch-depth: 2
     - run: git checkout HEAD^2
     - name: Run Tests
+      env:
+        MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
+        MAILGUN_DOMAIN: ${{ secrets.MAILGUN_DOMAIN }}
+        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+        FCM_SERVER_KEY: ${{ secrets.FCM_SERVER_KEY }}
+        TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+        TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+        TELNYX_API_KEY: ${{ secrets.TELNYX_API_KEY }}
+        TELNYX_PUBLIC_KEY: ${{ secrets.TELNYX_PUBLIC_KEY }}
+        APNS_AUTHKEY_8KVVCLA3HL: ${{ secrets.APNS_AUTHKEY_8KVVCLA3HL }}
+        APNS_AUTH_ID: ${{ secrets.APNS_AUTH_ID }}
+        APNS_TEAM_ID: ${{ secrets.APNS_TEAM_ID }}
+        APNS_BUNDLE_ID: ${{ secrets.APN_BUNDLE_ID }}
+        MSG_91_SENDER_ID: ${{ secrets.MSG_91_SENDER_ID }}
+        MSG_91_AUTH_KEY: ${{ secrets.MSG_91_AUTH_KEY }}
+        TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
+        TEST_FROM_EMAIL: ${{ secrets.TEST_FROM_EMAIL }}
       run: |
         docker compose up -d --build
         sleep 5
