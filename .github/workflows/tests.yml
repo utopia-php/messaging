@@ -25,7 +25,7 @@ jobs:
         APNS_AUTHKEY_8KVVCLA3HL: ${{ secrets.APNS_AUTHKEY_8KVVCLA3HL }}
         APNS_AUTH_ID: ${{ secrets.APNS_AUTH_ID }}
         APNS_TEAM_ID: ${{ secrets.APNS_TEAM_ID }}
-        APNS_BUNDLE_ID: ${{ secrets.APN_BUNDLE_ID }}
+        APNS_BUNDLE_ID: ${{ secrets.APNS_BUNDLE_ID }}
         MSG_91_SENDER_ID: ${{ secrets.MSG_91_SENDER_ID }}
         MSG_91_AUTH_KEY: ${{ secrets.MSG_91_AUTH_KEY }}
         TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
