@@ -2,6 +2,23 @@ version: '3.9'
 
 services:
   tests:
+    environment:
+      - MAILGUN_API_KEY
+      - MAILGUN_DOMAIN
+      - SENDGRID_API_KEY
+      - FCM_SERVER_KEY
+      - TWILIO_ACCOUNT_SID
+      - TWILIO_AUTH_TOKEN
+      - TELNYX_API_KEY
+      - TELNYX_PUBLIC_KEY
+      - APNS_AUTHKEY_8KVVCLA3HL
+      - APNS_AUTH_ID
+      - APNS_TEAM_ID
+      - APNS_BUNDLE_ID
+      - MSG_91_SENDER_ID
+      - MSG_91_AUTH_KEY
+      - TEST_EMAIL
+      - TEST_FROM_EMAIL
     build:
       context: .
     volumes:
