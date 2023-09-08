@@ -12,12 +12,12 @@ class Msg91Test extends Base
      */
     public function testSendSMS()
     {
-        $sender = new Msg91('12345', '402985Ajm8DXo3EG4964cd3c10P1');
+        $sender = new Msg91(getenv("MSG_91_SENDER_ID"), getenv("MSG_91_AUTH_KEY"));
 
         $message = new SMS(
-            to: ['+18034041123'],
+            to: [getenv("MSG_91_TO")],
             content: 'Test Content',
-            from: '+15005550006'
+            from: getenv("MSG_91_FROM")
         );
 
         $result = \json_decode($sender->send($message), true);

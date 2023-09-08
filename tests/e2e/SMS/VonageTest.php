@@ -12,15 +12,15 @@ class VonageTest extends Base
      */
     public function testSendSMS()
     {
-        $apiKey = '9bae1fbc';
-        $apiSecret = 'thVmE4JpL4sPu4f6';
+        $apiKey = getenv("VONAGE_API_KEY");
+        $apiSecret = getenv("VONAGE_API_SECRET");
 
         $sender = new Vonage($apiKey, $apiSecret);
 
         $message = new SMS(
-            to: ['+18034041123'],
+            to: [getenv("VONAGE_TO")],
             content: 'Test Content',
-            from: '+12082740872'
+            from: getenv("VONAGE_FROM")
         );
 
         $result = \json_decode($sender->send($message), true);
