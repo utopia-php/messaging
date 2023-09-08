@@ -67,13 +67,6 @@ class APNS extends PushAdapter
             ],
         ];
 
-        // Assuming the 'to' array contains device tokens for the push notification recipients.
-
-        // $url = $this->endpoint.'/3/device';
-        // $response = $this->request('POST', $url, $headers, \json_encode($payloads));
-        // // This example simply returns the last response, adjust as needed
-        // return $response;
-
         return \json_encode($this->notify($message->getTo(), $payload));
     }
 
