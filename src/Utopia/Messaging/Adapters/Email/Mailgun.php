@@ -14,7 +14,7 @@ class Mailgun extends EmailAdapter
     public function __construct(
         private string $apiKey,
         private string $domain,
-        private bool $isUS = true
+        private bool $isEU = false
     ) {
     }
 
@@ -48,7 +48,7 @@ class Mailgun extends EmailAdapter
         $usDomain = 'api.mailgun.net';
         $euDomain = 'api.eu.mailgun.net';
 
-        $domain = $this->isUS ? $usDomain : $euDomain;
+        $domain = $this->isEU ? $euDomain : $usDomain;
 
         $response = $this->request(
             method: 'POST',

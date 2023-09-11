@@ -75,10 +75,16 @@ class APNS extends PushAdapter
         $headers = [
             'authorization: bearer '.$this->generateJwt(),
             'apns-topic: '.$this->bundleId,
+            'apns-push-type: alert',
         ];
+
+        $sh = curl_share_init();
+
+        curl_share_setopt($sh, CURLSHOPT_SHARE, CURL_LOCK_DATA_CONNECT);
 
         $ch = curl_init();
 
+        curl_setopt($ch, CURLOPT_SHARE, $sh);
         curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 
         curl_setopt_array($ch, [

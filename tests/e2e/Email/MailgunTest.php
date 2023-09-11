@@ -18,7 +18,7 @@ class MailgunTest extends Base
         $sender = new Mailgun(
             apiKey: $key,
             domain: $domain,
-            isUS: true
+            isEU: false
         );
 
         $to = getenv('TEST_EMAIL');
