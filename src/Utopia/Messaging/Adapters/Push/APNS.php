@@ -42,7 +42,7 @@ class APNS extends PushAdapter
      */
     public function getMaxMessagesPerRequest(): int
     {
-        return 1000;
+        return 5000;
     }
 
     /**
