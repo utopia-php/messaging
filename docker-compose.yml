@@ -7,6 +7,7 @@ services:
       - MAILGUN_DOMAIN
       - SENDGRID_API_KEY
       - FCM_SERVER_KEY
+      - FCM_SERVER_TO
       - TWILIO_ACCOUNT_SID
       - TWILIO_AUTH_TOKEN
       - TELNYX_API_KEY
