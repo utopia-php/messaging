@@ -58,4 +58,22 @@ class Msg91 extends SMSAdapter
             ]),
         );
     }
+
+    private function addTemplate(string $content, string $senderId, string $templateName, string $smsType = 'NORMAL')
+    {
+        return $this->request(
+            method: 'POST',
+            url: 'https://control.msg91.com/api/v5/sms/addTemplate',
+            headers: [
+                'content-type: application/json',
+                "authkey: {$this->authKey}",
+            ],
+            body: \json_encode([
+                'template' => $content,
+                'sender_id' => $senderId,
+                'template_name' => $templateName,
+                'smsType' => 'NORMAL',
+            ])
+        );
+    }
 }

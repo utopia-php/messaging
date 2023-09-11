@@ -29,6 +29,6 @@ class SendgridTest extends Base
 
         $response = $sender->send($message);
 
-        $this->assertEquals($response, "");
+        $this->assertEquals($response, '');
     }
 }

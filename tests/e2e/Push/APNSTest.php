@@ -18,7 +18,7 @@ class APNSTest extends Base
         $adapter = new APNSAdapter($authKey, $authKeyId, $teamId, $bundleId, $endpoint);
 
         $message = new Push(
-            to: [getenv("APNS_TO")],
+            to: [getenv('APNS_TO')],
             title: 'TestTitle',
             body: 'TestBody',
             data: null,

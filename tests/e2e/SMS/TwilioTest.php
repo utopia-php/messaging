@@ -13,8 +13,8 @@ class TwilioTest extends Base
     public function testSendSMS()
     {
         $sender = new Twilio(getenv('TWILIO_ACCOUNT_SID'), getenv('TWILIO_AUTH_TOKEN'));
-        $to = [getenv("TWILIO_TO")];
-        $from = getenv("TWILIO_FROM");
+        $to = [getenv('TWILIO_TO')];
+        $from = getenv('TWILIO_FROM');
 
         $message = new SMS(
             to: $to,
