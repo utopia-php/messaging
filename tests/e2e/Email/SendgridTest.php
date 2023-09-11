@@ -27,8 +27,8 @@ class SendgridTest extends Base
             content: $content,
         );
 
-        $sender->send($message);
+        $response = $sender->send($message);
 
-        $this->assertEquals(true, true);
+        $this->assertEquals($response, "");
     }
 }
