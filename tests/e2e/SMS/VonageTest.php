@@ -23,7 +23,9 @@ class VonageTest extends Base
             from: getenv('VONAGE_FROM')
         );
 
-        $result = \json_decode($sender->send($message), true);
+        $response = $sender->send($message);
+
+        $result = \json_decode($response, true);
 
         $this->assertArrayHasKey('messages', $result);
         $this->assertEquals(1, count($result['messages']));
