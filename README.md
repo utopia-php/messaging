@@ -15,7 +15,7 @@ Install using composer:
 composer require utopia-php/messaging
 ```
 
-## Email
+## Email 
 
 ```php
 <?php
