@@ -45,7 +45,7 @@ class ClickSend extends SMSAdapter
             $body[] = [
                 'body' => $message->getContent(),
                 'from' => $message->getFrom(),
-                'to' => $to
+                'to' => $to,
             ];
         }
 
@@ -54,10 +54,10 @@ class ClickSend extends SMSAdapter
             url: 'https://rest.clicksend.com/v3/sms/send',
             headers: [
                 'Content-Type: application/json',
-                'Authorization: Basic ' . base64_encode("{$this->username}:{$this->apiKey}"),
+                'Authorization: Basic '.base64_encode("{$this->username}:{$this->apiKey}"),
             ],
             body: \json_encode([
-                'messages' => $body
+                'messages' => $body,
             ]),
         );
     }
