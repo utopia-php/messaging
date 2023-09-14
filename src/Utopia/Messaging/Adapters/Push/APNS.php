@@ -99,15 +99,55 @@ class APNS extends PushAdapter
 
         $response = '';
 
+        $mh = curl_multi_init();
+        $handles = [];
+
+        // Create a handle for each request
         foreach ($to as $token) {
             curl_setopt($ch, CURLOPT_URL, $this->endpoint.'/3/device/'.$token);
 
-            $response = curl_exec($ch);
+            $handle = curl_copy_handle($ch);
+            curl_multi_add_handle($mh, $handle);
+
+            $handles[] = $handle;
         }
 
-        curl_close($ch);
+        $active = null;
+        $status = CURLM_OK;
 
-        return $this->formatResponse($response);
+        // Execute the handles
+        while ($active && $status == CURLM_OK) {
+            $status = curl_multi_exec($mh, $active);
+        }
+
+        // Check each handle's result
+        $responses = [];
+        foreach ($handles as $ch) {
+            $urlInfo = curl_getinfo($ch);
+            $device = basename($urlInfo['url']); // Extracts deviceToken from the URL
+
+            if (! curl_errno($ch)) {
+                $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $responses[] = [
+                    'device' => $device,
+                    'status' => 'success',
+                    'statusCode' => $statusCode,
+                ];
+            } else {
+                $responses[$device] = [
+                    'status' => 'error',
+                    'error' => curl_error($ch),
+                ];
+            }
+
+            curl_multi_remove_handle($mh, $ch);
+            curl_close($ch);
+        }
+
+        curl_multi_close($mh);
+        curl_share_close($sh);
+
+        return $responses;
     }
 
     private function formatResponse(string $response): array
