@@ -98,12 +98,12 @@ $messaging->send($message);
 - [x] [TextMagic](https://www.textmagic.com/)
 - [x] [Msg91](https://msg91.com/)
 - [x] [Vonage](https://www.vonage.com/)
-- [ ] [Plivo](https://www.plivo.com/)
-- [ ] [Infobip](https://www.infobip.com/)
-- [ ] [Clickatell](https://www.clickatell.com/)
+- [x] [Plivo](https://www.plivo.com/)
+- [x] [Infobip](https://www.infobip.com/)
+- [x] [Clickatell](https://www.clickatell.com/)
 - [ ] [AfricasTalking](https://africastalking.com/)
-- [ ] [Sinch](https://www.sinch.com/)
-- [ ] [Sms77](https://www.sms77.io/)
+- [x] [Sinch](https://www.sinch.com/)
+- [x] [Seven](https://www.seven.io/)
 - [ ] [SmsGlobal](https://www.smsglobal.com/)
 
 ### Push
