@@ -48,7 +48,7 @@ class Vonage extends SMSAdapter
             body: \http_build_query([
                 'text' => $message->getContent(),
                 'from' => $message->getFrom(),
-                'to' => \implode(',', $to),
+                'to' => $to[0], //\implode(',', $to),
                 'api_key' => $this->apiKey,
                 'api_secret' => $this->apiSecret,
             ]),

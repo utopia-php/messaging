@@ -15,7 +15,7 @@ Install using composer:
 composer require utopia-php/messaging
 ```
 
-## Email
+## Email 
 
 ```php
 <?php
@@ -99,17 +99,17 @@ $messaging->send($message);
 - [x] [Msg91](https://msg91.com/)
 - [x] [Vonage](https://www.vonage.com/)
 - [x] [ClickSend](https://www.clicksend.com/)
-- [ ] [Plivo](https://www.plivo.com/)
-- [ ] [Infobip](https://www.infobip.com/)
-- [ ] [Clickatell](https://www.clickatell.com/)
+- [x] [Plivo](https://www.plivo.com/)
+- [x] [Infobip](https://www.infobip.com/)
+- [x] [Clickatell](https://www.clickatell.com/)
 - [ ] [AfricasTalking](https://africastalking.com/)
-- [ ] [Sinch](https://www.sinch.com/)
-- [ ] [Sms77](https://www.sms77.io/)
+- [x] [Sinch](https://www.sinch.com/)
+- [x] [Seven](https://www.seven.io/)
 - [ ] [SmsGlobal](https://www.smsglobal.com/)
 
 ### Push
 - [x] [FCM](https://firebase.google.com/docs/cloud-messaging)
-- [ ] [APNS](https://developer.apple.com/documentation/usernotifications)
+- [x] [APNS](https://developer.apple.com/documentation/usernotifications)
 - [ ] [OneSignal](https://onesignal.com/)
 - [ ] [Pusher](https://pusher.com/)
 - [ ] [WebPush](https://developer.mozilla.org/en-US/docs/Web/API/Push_API)

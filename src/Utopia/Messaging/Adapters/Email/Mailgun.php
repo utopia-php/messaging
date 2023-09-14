@@ -14,14 +14,25 @@ class Mailgun extends EmailAdapter
     public function __construct(
         private string $apiKey,
         private string $domain,
+        private bool $isEU = false
     ) {
     }
 
+    /**
+     * Get adapter name.
+     *
+     * @return string
+     */
     public function getName(): string
     {
         return 'Mailgun';
     }
 
+    /**
+     * Get adapter description.
+     *
+     * @return int
+     */
     public function getMaxMessagesPerRequest(): int
     {
         return 1000;
@@ -34,19 +45,26 @@ class Mailgun extends EmailAdapter
      */
     protected function process(Email $message): string
     {
-        return $this->request(
+        $usDomain = 'api.mailgun.net';
+        $euDomain = 'api.eu.mailgun.net';
+
+        $domain = $this->isEU ? $euDomain : $usDomain;
+
+        $response = $this->request(
             method: 'POST',
-            url: "https://api.mailgun.net/v3/{$this->domain}/messages",
+            url: "https://$domain/v3/{$this->domain}/messages",
             headers: [
                 'Authorization: Basic '.base64_encode('api:'.$this->apiKey),
             ],
             body: \http_build_query([
-                'from' => $message->getFrom(),
                 'to' => \implode(',', $message->getTo()),
+                'from' => $message->getFrom(),
                 'subject' => $message->getSubject(),
                 'text' => $message->isHtml() ? null : $message->getContent(),
                 'html' => $message->isHtml() ? $message->getContent() : null,
             ]),
         );
+
+        return $response;
     }
 }
