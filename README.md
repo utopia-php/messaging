@@ -98,6 +98,7 @@ $messaging->send($message);
 - [x] [TextMagic](https://www.textmagic.com/)
 - [x] [Msg91](https://msg91.com/)
 - [x] [Vonage](https://www.vonage.com/)
+- [x] [ClickSend](https://www.clicksend.com/)
 - [x] [Plivo](https://www.plivo.com/)
 - [x] [Infobip](https://www.infobip.com/)
 - [x] [Clickatell](https://www.clickatell.com/)
@@ -108,7 +109,7 @@ $messaging->send($message);
 
 ### Push
 - [x] [FCM](https://firebase.google.com/docs/cloud-messaging)
-- [ ] [APNS](https://developer.apple.com/documentation/usernotifications)
+- [x] [APNS](https://developer.apple.com/documentation/usernotifications)
 - [ ] [OneSignal](https://onesignal.com/)
 - [ ] [Pusher](https://pusher.com/)
 - [ ] [WebPush](https://developer.mozilla.org/en-US/docs/Web/API/Push_API)
