@@ -12,7 +12,34 @@ jobs:
       with:
         fetch-depth: 2
     - run: git checkout HEAD^2
-    - name: Run Tests
+    - name: Run Tests 
+      env:
+        MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
+        MAILGUN_DOMAIN: ${{ secrets.MAILGUN_DOMAIN }}
+        SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+        FCM_SERVER_KEY: ${{ secrets.FCM_SERVER_KEY }}
+        FCM_SERVER_TO: ${{ secrets.FCM_SERVER_TO }}
+        TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+        TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+        TWILIO_TO: ${{ secrets.TWILIO_TO }}
+        TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+        TELNYX_API_KEY: ${{ secrets.TELNYX_API_KEY }}
+        TELNYX_PUBLIC_KEY: ${{ secrets.TELNYX_PUBLIC_KEY }}
+        APNS_AUTHKEY_8KVVCLA3HL: ${{ secrets.APNS_AUTHKEY_8KVVCLA3HL }}
+        APNS_AUTH_ID: ${{ secrets.APNS_AUTH_ID }}
+        APNS_TEAM_ID: ${{ secrets.APNS_TEAM_ID }}
+        APNS_BUNDLE_ID: ${{ secrets.APNS_BUNDLE_ID }}
+        APNS_TO: ${{ secrets.APNS_TO }}
+        MSG_91_SENDER_ID: ${{ secrets.MSG_91_SENDER_ID }}
+        MSG_91_AUTH_KEY: ${{ secrets.MSG_91_AUTH_KEY }}
+        MSG_91_TO: ${{ secrets.MSG_91_TO }}
+        MSG_91_FROM: ${{ secrets.MSG_91_FROM }}
+        TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
+        TEST_FROM_EMAIL: ${{ secrets.TEST_FROM_EMAIL }}
+        VONAGE_API_KEY: ${{ secrets.VONAGE_API_KEY }}
+        VONAGE_API_SECRET: ${{ secrets.VONAGE_API_SECRET }}
+        VONAGE_TO: ${{ secrets.VONAGE_TO }}
+        VONAGE_FROM: ${{ secrets.VONAGE_FROM }}
       run: |
         docker compose up -d --build
         sleep 5

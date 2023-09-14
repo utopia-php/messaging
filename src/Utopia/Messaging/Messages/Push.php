@@ -40,6 +40,11 @@ class Push implements Message
         return $this->to;
     }
 
+    public function getFrom(): ?string
+    {
+        return null;
+    }
+
     /**
      * @return string
      */
