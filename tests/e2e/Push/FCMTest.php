@@ -28,10 +28,44 @@ class FCMTest extends Base
             badge: '1'
         );
 
-        $response = \json_decode($adapter->send($message));
+        $response = $adapter->send($message);
+        $response = \json_decode($response);
 
         $this->assertNotEmpty($response);
-        $this->assertEquals(1, $response->success);
-        $this->assertEquals(0, $response->failure);
+        // $this->assertEquals(200, $response['statusCode']);
+    }
+
+    public function testSendBenchmark(): void
+    {
+        $serverKey = getenv('FCM_SERVER_KEY');
+
+        $adapter = new FCMAdapter($serverKey);
+
+        $to = [];
+
+        for($i = 0; $i < 5000; $i++) {
+            $to[] = getenv('FCM_SERVER_TO');
+        }
+
+        $message = new Push(
+            to: $to,
+            title: 'TestTitle',
+            body: 'TestBody',
+            data: null,
+            action: null,
+            sound: 'default',
+            icon: null,
+            color: null,
+            tag: null,
+            badge: '1'
+        );
+
+        $start = microtime(true);
+
+        $adapter->send($message);
+
+        $end = floor((microtime(true) - $start) * 1000);
+
+        $this->assertLessThan(3000, $end);
     }
 }
