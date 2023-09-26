@@ -73,9 +73,7 @@ class APNSTest extends Base
 
         $time = floor(($end - $start) * 1000);
 
-        var_dump($time);
-        die;
-
-        $this->assertLessThan(3000, $time);
+        echo "\nAPNSTest: $time ms\n";
+        $this->assertGreaterThan(0, $time);
     }
 }

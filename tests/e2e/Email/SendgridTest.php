@@ -31,4 +31,35 @@ class SendgridTest extends Base
 
         $this->assertEquals($response, '');
     }
+
+    public function testSendEmailBenchmark()
+    {
+        $key = getenv('SENDGRID_API_KEY');
+        $sender = new Sendgrid($key);
+
+        $to = getenv('TEST_EMAIL');
+        $subject = 'Test Subject';
+        $content = 'Test Content';
+        $from = getenv('TEST_FROM_EMAIL');
+
+        $message = new Email(
+            to: [$to],
+            from: $from,
+            subject: $subject,
+            content: $content,
+        );
+
+        $start = microtime(true);
+
+        for ($i = 0; $i < 1000; $i++) {
+            $sender->send($message);
+        }
+
+        $end = microtime(true);
+
+        $time = floor(($end - $start) * 1000);
+
+        echo "\nSendgrid: $time ms\n";
+        $this->assertGreaterThan(0, $time);
+    }
 }

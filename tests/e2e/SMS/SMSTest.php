@@ -32,4 +32,29 @@ class SMSTest extends Base
         $this->assertEquals('+987654321', $smsRequest['data']['from']);
         $this->assertEquals('+123456789', $smsRequest['data']['to']);
     }
+
+    public function testSendSMSBenchmark()
+    {
+        $sender = new Mock('username', 'password');
+
+        $message = new SMS(
+            to: ['+123456789'],
+            content: 'Test Content',
+            from: '+987654321'
+        );
+
+        $start = microtime(true);
+
+        for ($i = 0; $i < 1000; $i++) {
+            $sender->send($message);
+        }
+
+        $end = microtime(true);
+
+        $time = floor(($end - $start) * 1000);
+
+        echo "\nSMSTest: $time ms\n";
+        $this->assertGreaterThan(0, $time);
+
+    }
 }
