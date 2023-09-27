@@ -40,7 +40,7 @@ class VonageTest extends Base
         $sender = new Vonage($apiKey, $apiSecret);
 
         $message = new SMS(
-            to: [getenv('VONAGE_TO')],
+            to: ['447700900000'],
             content: 'Test Content',
             from: getenv('VONAGE_FROM')
         );

@@ -33,11 +33,11 @@ class TwilioTest extends Base
     public function testSendSMSBenchmark()
     {
         $sender = new Twilio(getenv('TWILIO_ACCOUNT_SID'), getenv('TWILIO_AUTH_TOKEN'));
-        $to = [getenv('TWILIO_TO')];
+        $to = '+15005550006';
         $from = getenv('TWILIO_FROM');
 
         $message = new SMS(
-            to: $to,
+            to: [$to],
             content: 'Test Content',
             from: $from
         );
