@@ -57,29 +57,6 @@ class FCM extends PushAdapter
       ];
       
       return \json_encode($this->notify($message->getTo(), $payload));
-      
-        // return $this->request(
-        //     method: 'POST',
-        //     url: 'https://fcm.googleapis.com/fcm/send',
-        //     headers: [
-        //         'Content-Type: application/json',
-        //         "Authorization: key={$this->serverKey}",
-        //     ],
-        //     body: \json_encode([
-        //         'registration_ids' => $message->getTo(),
-        //         'notification' => [
-        //             'title' => $message->getTitle(),
-        //             'body' => $message->getBody(),
-        //             'click_action' => $message->getAction(),
-        //             'icon' => $message->getIcon(),
-        //             'badge' => $message->getBadge(),
-        //             'color' => $message->getColor(),
-        //             'sound' => $message->getSound(),
-        //             'tag' => $message->getTag(),
-        //         ],
-        //         'data' => $message->getData(),
-        //     ])
-        // );
     }
 
     private function notify(array $to, array $payload): array
