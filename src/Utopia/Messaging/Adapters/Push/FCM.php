@@ -42,21 +42,21 @@ class FCM extends PushAdapter
      */
     protected function process(Push $message): string
     {
-      $payload = [
-        'notification' => [
-            'title' => $message->getTitle(),
-            'body' => $message->getBody(),
-            'click_action' => $message->getAction(),
-            'icon' => $message->getIcon(),
-            'badge' => $message->getBadge(),
-            'color' => $message->getColor(),
-            'sound' => $message->getSound(),
-            'tag' => $message->getTag(),
-        ],
-        'data' => $message->getData(),
-      ];
-      
-      return \json_encode($this->notify($message->getTo(), $payload));
+        $payload = [
+            'notification' => [
+                'title' => $message->getTitle(),
+                'body' => $message->getBody(),
+                'click_action' => $message->getAction(),
+                'icon' => $message->getIcon(),
+                'badge' => $message->getBadge(),
+                'color' => $message->getColor(),
+                'sound' => $message->getSound(),
+                'tag' => $message->getTag(),
+            ],
+            'data' => $message->getData(),
+        ];
+
+        return \json_encode($this->notify($message->getTo(), $payload));
     }
 
     private function notify(array $to, array $payload): array
@@ -64,8 +64,8 @@ class FCM extends PushAdapter
         $url = 'https://fcm.googleapis.com/fcm/send';
 
         $headers = [
-          'Content-Type: application/json',
-          "Authorization: key={$this->serverKey}",
+            'Content-Type: application/json',
+            "Authorization: key={$this->serverKey}",
         ];
 
         $tokenChunks = array_chunk($to, 1000);
@@ -78,42 +78,42 @@ class FCM extends PushAdapter
         $channels = [];
 
         foreach ($tokenChunks as $tokens) {
-          $ch = curl_init();
-      
-          $payload['registration_ids'] = $tokens;
+            $ch = curl_init();
 
-          curl_setopt($ch, CURLOPT_URL, $url);
-          curl_setopt($ch, CURLOPT_POST, true);
-          curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-          curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-          curl_setopt($ch, CURLOPT_SHARE, $sh);
-      
-          curl_multi_add_handle($mh, $ch);
-      
-          $channels[] = $ch;
-      }
+            $payload['registration_ids'] = $tokens;
 
-      $running = null;
-      do {
-          curl_multi_exec($mh, $running);
-          curl_multi_select($mh);
-      } while ($running > 0);
-      
-      $results = [];
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+            curl_setopt($ch, CURLOPT_SHARE, $sh);
 
-      foreach ($channels as $ch) {
-        $results[] = [
-          'statusCode' => curl_getinfo($ch, CURLINFO_HTTP_CODE),
-          'response'   => json_decode(curl_multi_getcontent($ch), true)  // Decoding JSON response to an associative array
-        ];
-        
-        curl_multi_remove_handle($mh, $ch);
-      }
-      
-      curl_multi_close($mh);
-      curl_share_close($sh);
+            curl_multi_add_handle($mh, $ch);
 
-      return $results;
-  }
+            $channels[] = $ch;
+        }
+
+        $running = null;
+        do {
+            curl_multi_exec($mh, $running);
+            curl_multi_select($mh);
+        } while ($running > 0);
+
+        $results = [];
+
+        foreach ($channels as $ch) {
+            $results[] = [
+                'statusCode' => curl_getinfo($ch, CURLINFO_HTTP_CODE),
+                'response' => json_decode(curl_multi_getcontent($ch), true),  // Decoding JSON response to an associative array
+            ];
+
+            curl_multi_remove_handle($mh, $ch);
+        }
+
+        curl_multi_close($mh);
+        curl_share_close($sh);
+
+        return $results;
+    }
 }

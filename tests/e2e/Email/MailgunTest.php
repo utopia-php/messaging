@@ -75,6 +75,5 @@ class MailgunTest extends Base
 
         echo "\nMailgun: $time ms\n";
         $this->assertGreaterThan(0, $time);
-
     }
 }

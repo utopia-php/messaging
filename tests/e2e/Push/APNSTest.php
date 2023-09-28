@@ -2,9 +2,6 @@
 
 namespace Tests\E2E;
 
-use Exception;
-use SebastianBergmann\RecursionContext\InvalidArgumentException;
-use PHPUnit\Framework\ExpectationFailedException;
 use Utopia\Messaging\Adapters\Push\APNS as APNSAdapter;
 use Utopia\Messaging\Messages\Push;
 

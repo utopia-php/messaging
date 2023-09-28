@@ -43,7 +43,7 @@ class FCMTest extends Base
 
         $to = [];
 
-        for($i = 0; $i < 5000; $i++) {
+        for ($i = 0; $i < 5000; $i++) {
             $to[] = getenv('FCM_SERVER_TO');
         }
 

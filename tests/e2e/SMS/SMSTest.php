@@ -55,6 +55,5 @@ class SMSTest extends Base
 
         echo "\nSMSTest: $time ms\n";
         $this->assertGreaterThan(0, $time);
-
     }
 }

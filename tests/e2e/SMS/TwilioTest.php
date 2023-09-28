@@ -54,6 +54,5 @@ class TwilioTest extends Base
 
         echo "\nTwilioTest: $time ms\n";
         $this->assertGreaterThan(0, $time);
-
     }
 }
