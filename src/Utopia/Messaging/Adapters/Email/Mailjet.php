@@ -34,8 +34,7 @@ class Mailjet extends EmailAdapter
      */
     public function getMaxMessagesPerRequest(): int
     {
-        //TODO - Check if this is correct
-        return 1000;
+        return 50;
     }
 
     /**
