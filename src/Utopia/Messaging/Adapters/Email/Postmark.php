@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Utopia\Messaging\Adapters\Email;
 
 use Utopia\Messaging\Adapters\Email as EmailAdapter;
