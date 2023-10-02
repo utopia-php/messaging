@@ -34,9 +34,7 @@ class MailSlurp extends EmailAdapter
      */
     public function getMaxMessagesPerRequest(): int
     {
-		// TODO: Find out the actual limit.
-		// The docs say "limit varies from plan to plan", but I sent them an email asking for clarification and
-		// will update this when I get a response.
+		// TODO: Find out the actual limit. The docs say "limit varies from plan to plan" without exact numbers.
         return 1000;
     }
 
