@@ -37,19 +37,20 @@ class AfricasTalking extends SMSAdapter
      * @throws \Exception
      */
     protected function process(SMS $message): string
-    {
+    {   
         return $this->request(
             method: 'POST',
-            url: "https://api.africastalking.com/version1/messaging",
+            url: "https://api.sandbox.africastalking.com/version1/messaging",
+            // live endpoint: url: "https://api.africastalking.com/version1/messaging ",
             headers: [
                 'apiKey: '.$this->apiKey,
-                'Content-Type: application/json',
+                'Content-Type: application/x-www-form-urlencoded',
+                'Accept: application/json',
             ],
-            body: \json_encode([
+            body: \http_build_query([
                 'username' => $this->username,
-                'to' => $message->getTo(),
+                'to' => $message->getTo()[0],
                 'message' => $message->getContent(),
-                'from' => $message->getFrom(),
             ]),
         );
     }
