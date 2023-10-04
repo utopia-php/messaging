@@ -115,7 +115,7 @@ $messaging->send($message);
 - [ ] [UrbanAirship](https://www.urbanairship.com/)
 - [ ] [Pushwoosh](https://www.pushwoosh.com/)
 - [ ] [PushBullet](https://www.pushbullet.com/)
-- [ ] [Pushy](https://pushy.me/)
+- [x] [Pushy](https://pushy.me/)
 
 ## System Requirements
 
