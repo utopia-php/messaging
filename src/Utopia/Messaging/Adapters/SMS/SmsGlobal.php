@@ -50,9 +50,9 @@ class SmsGlobal extends SMSAdapter
 
         return $this->request(
             method: 'POST',
-            url: "https://api.smsglobal.com/v2/sms/",
+            url: 'https://api.smsglobal.com/v2/sms/',
             headers: [
-                'Authorization: ' . $authorizationHeader,
+                'Authorization: '.$authorizationHeader,
                 'Content-Type: application/json',
             ],
             body: \json_encode(
@@ -68,16 +68,20 @@ class SmsGlobal extends SMSAdapter
     /**
      * Get the value to use for the Authorization header
      *
-     * @param string $method HTTP method (e.g. POST)
-     * @param string $requestUri Request URI (e.g. /v2/sms/)
-     * @param string $host Hostname
-     * @return string
+     * @param  string  $method HTTP method (e.g. POST)
+     * @param  string  $requestUri Request URI (e.g. /v2/sms/)
+     * @param  string  $host Hostname
      */
-    public function getAuthorizationHeader(string $method, string $requestUri, string $host): string
-    {
-        // Server or computer time should match with the current Unix timestamp otherwise authentication will fail
+    public function getAuthorizationHeader(
+        string $method,
+        string $requestUri,
+        string $host
+    ): string {
+        // Server or computer time should match with the
+        //current Unix timestamp otherwise authentication will fail
+
         $timestamp = time();
-        $nonce = md5(microtime() . mt_rand());
+        $nonce = md5(microtime().mt_rand());
 
         $hash = $this->getRequestHash(
             timestamp: $timestamp,
@@ -89,19 +93,19 @@ class SmsGlobal extends SMSAdapter
 
         $headerFormat = 'MAC id="%s", ts="%s", nonce="%s", mac="%s"';
         $header = sprintf($headerFormat, $this->apiKey, $timestamp, $nonce, $hash);
+
         return $header;
     }
 
     /**
      * Hashes a request using the API secret, to use in the Authorization header
      *
-     * @param int $timestamp Unix timestamp of request time
-     * @param string $nonce Random unique string
-     * @param string $method HTTP method (e.g. POST)
-     * @param string $requestUri Request URI (e.g. /v1/sms/)
-     * @param string $host Hostname
-     * @param int $port Port (e.g. 443)
-     * @return string
+     * @param  int  $timestamp Unix timestamp of request time
+     * @param  string  $nonce Random unique string
+     * @param  string  $method HTTP method (e.g. POST)
+     * @param  string  $requestUri Request URI (e.g. /v1/sms/)
+     * @param  string  $host Hostname
+     * @param  int  $port Port (e.g. 443)
      */
     private function getRequestHash(
         int $timestamp,
@@ -111,35 +115,35 @@ class SmsGlobal extends SMSAdapter
         string $host,
         int $port = 443
     ) {
-        $string = array($timestamp, $nonce, $method, $requestUri, $host, $port, '');
+        $string = [$timestamp, $nonce, $method, $requestUri, $host, $port, ''];
         $string = sprintf("%s\n", implode("\n", $string));
         $hash = hash_hmac(self::HASH_ALGO, $string, $this->apiSecret, true);
         $hash = base64_encode($hash);
+
         return $hash;
     }
 
     /**
      * Get the request body
-     * 
-     * @param array $to
-     * @param string $text
-     * @param string|null $from
-     * @return array
+     *
+     * @param  array  $to  Phone number
+     * @param  string  $text  Message to send
+     * @param  string|null  $from Origin of the message
      */
     private function getRequestBody(array $to, string $text, string $from = null): array
     {
-        $origin = !empty($from) ? $from : '';
+        $origin = ! empty($from) ? $from : '';
         if (count($to) == 1) {
             return [
-                "destination" => $to[0],
-                "message" => $text,
-                "origin" => $origin,
+                'destination' => $to[0],
+                'message' => $text,
+                'origin' => $origin,
             ];
         } else {
             return [
-                "destinations" => $to,
-                "message" => $text,
-                "origin" => $origin,
+                'destinations' => $to,
+                'message' => $text,
+                'origin' => $origin,
             ];
         }
     }

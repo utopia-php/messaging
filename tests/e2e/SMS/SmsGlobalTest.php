@@ -17,7 +17,7 @@ class SmsGlobalTest extends Base
 
         $to = [getenv('SMS_GLOBAL_TO')];
         $from = getenv('SMS_GLOBAL_FROM');
-        
+
         $sender = new SmsGlobal($apiKey, $apiSecret);
         $message = new SMS(
             to: $to,
@@ -30,7 +30,5 @@ class SmsGlobalTest extends Base
 
         $this->assertArrayHasKey('messages', $result);
         $this->assertEquals(count($to), count($result['messages']));
-
-        // $dummyResponseStructure = '{"messages":[{"id":"154","outgoing_id":1,"origin":"origin","destination":"destination","message":"Test Content","status":"sent","dateTime":""}]}';
     }
 }
