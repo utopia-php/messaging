@@ -32,6 +32,6 @@ class PostmarkTest extends Base
         $result = (array) \json_decode($sender->send($message));
 
         $this->assertEquals($to, $result['To']);
-        $this->assertEquals("OK", $result['Message']);
+        $this->assertEquals('OK', $result['Message']);
     }
 }

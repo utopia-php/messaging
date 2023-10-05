@@ -46,7 +46,7 @@ class Postmark extends EmailAdapter
 
         $response = $this->request(
             method: 'POST',
-            url: "https://api.postmarkapp.com/email",
+            url: 'https://api.postmarkapp.com/email',
             headers: [
                 'Accept: application/json',
                 'Content-Type: application/json',
