@@ -26,10 +26,10 @@ class Smtp2goTest extends Base
         
 
         // Email details
-        $to = 'ayaansive25@gmail.com';
+        $to = 'Receivers email';
         $subject = 'Test Subject';
         $content = 'Test Content';
-        $from = 'ayaanbordoloi25@devfun.cloud';
+        $from = 'Senders Email';
 
         // Create an email message
         $message = new Email(
