@@ -4,11 +4,11 @@ services:
   tests:
     image: my-php-app
     environment:
-    - SMTP2GO_API_KEY=api-B87723D062A711EEAC22F23C91C88F4E
-    - SMTP2GO_USERNAME=ayaan49
-    - SMTP2GO_PASSWORD=Ayaan@666
-    - SMTP2GO_SERVER=mail.smtp2go.com
-    - SMTP2GO_PORT=2525
+    - SMTP2GO_API_KEY
+    - SMTP2GO_USERNAME
+    - SMTP2GO_PASSWORD
+    - SMTP2GO_SERVER
+    - SMTP2GO_PORT
 
     build:
       context: .
