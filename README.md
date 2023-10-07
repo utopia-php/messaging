@@ -105,6 +105,7 @@ $messaging->send($message);
 - [x] [Sinch](https://www.sinch.com/)
 - [x] [Seven](https://www.seven.io/)
 - [ ] [SmsGlobal](https://www.smsglobal.com/)
+- [x] [SMSApi](https://www.smsapi.com/)
 
 ### Push
 - [x] [FCM](https://firebase.google.com/docs/cloud-messaging)
