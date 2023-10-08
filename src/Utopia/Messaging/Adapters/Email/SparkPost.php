@@ -27,19 +27,33 @@ class SparkPost extends EmailAdapter{
 
         $domain = $this->isEu ? $euDomain : $usDomain;
 
+        $requestBody = [
+            'recipients' => [
+                [
+                    'address' => [
+                        'email' => $message->getTo()[0], // Assuming you have only one recipient
+                    ],
+                ],
+            ],
+            'content' => [
+                'from' => [
+                    'email' => $message->getFrom(),
+                ],
+                'subject' => $message->getSubject(),
+                'html' => $message->isHtml() ? $message->getContent() : null,
+                'text' => $message->isHtml() ? null : $message->getContent(),
+            ],
+        ];
+        
+        $json_body = json_encode($requestBody);
+
         $response = $this->request(
             method: 'POST',
             url: "https://$domain/api/v1/transmissions",
             headers :[
                 'Authorization: Basic '.$this->apiKey,
             ],
-            body: \http_build_query([
-                'to' => \implode(',', $message->getTo()),
-                'from' => $message->getFrom(),
-                'subject' => $message->getSubject(),
-                'text' => $message->isHtml() ? null : $message->getContent(),
-                'html' => $message->isHtml() ? $message->getContent() : null,
-            ]),
+            body: $json_body,
         );
 
         return $response;
