@@ -18,10 +18,10 @@ class MailchimpTest extends Base
             apiKey: $key,
         );
 
-        $to = getenv('TEST_RECIPIENT_EMAIL');
+        $to = getenv('TEST_EMAIL');
         $subject = 'Test Subject';
         $content = 'Test Content';
-        $from = getenv('TEST_SENDER_EMAIL');
+        $from = getenv('TEST_FROM_EMAIL');
 
         $message = new Email(
             to: [$to],
