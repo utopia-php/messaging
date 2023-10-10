@@ -7,7 +7,7 @@ use Utopia\Messaging\Messages\Email;
 
 class SparkPost extends EmailAdapter{
 
-    public function __construct(private string $apiKey, private string $senderDomain,
+    public function __construct(private string $apiKey,
     private bool $isEu = false){
     }
 
@@ -41,8 +41,8 @@ class SparkPost extends EmailAdapter{
             ],
             'content' => [
                 'from' => [
-                    //sender domain should be registered and verified at sparkpost.com 
-                    'email' => $this->senderDomain,
+                    //sender domain should be registered and verified at sparkpost
+                    'email' => $message->getFrom(),
                 ],
                 'subject' => $message->getSubject(),
                 'html' => $message->isHtml() ? $message->getContent() : null,
