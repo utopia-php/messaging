@@ -23,13 +23,12 @@ class Smtp2goTest extends Base
 
         // Instantiate the SMTP2GO adapter
         $sender = new Smtp2go($smtp2goServer, $smtp2goPort, $smtp2goUsername, $smtp2goPassword);
-        
 
         // Email details
-        $to = 'ayaansive25@gmail.com';
+        $to = 'Receivers-email';
         $subject = 'Test Subject';
         $content = 'Test Content';
-        $from = 'ayaanbordoloi25@devfun.cloud';
+        $from = 'Senders-email';
 
         // Create an email message
         $message = new Email(
@@ -38,11 +37,11 @@ class Smtp2goTest extends Base
             content: $content,
             from: $from
         );
-        
+
         // Send the email using SMTP2GO
         $result = $sender->send($message);
 
-        // Assert that the email was sent successfully
-        $this->assertTrue($result, 'Email sending failed');
+        // Check if the email was sent successfully
+        $this->assertEquals('Email sent successfully', $result);
     }
 }

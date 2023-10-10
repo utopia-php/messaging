@@ -8,21 +8,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 class Smtp2go extends EmailAdapter
 {
-    private string $smtpServer;
-    private string $smtpUsername;
-    private string $smtpPassword;
-    private int $smtpPort;
-
-    public function __construct() 
-    {
-        // Retrieve SMTP server details from environment variables
-        $this->smtpServer = getenv('SMTP2GO_SERVER');
-        $this->smtpUsername = getenv('SMTP2GO_USERNAME');
-        $this->smtpPassword = getenv('SMTP2GO_PASSWORD');
-        $this->smtpPort = getenv('SMTP2GO_PORT');
-        
-    }
-
     public function getName(): string
     {
         return 'SMTP2GO';
@@ -35,20 +20,26 @@ class Smtp2go extends EmailAdapter
 
     protected function process(Email $message): string
     {
+        // Retrieve SMTP server details from environment variables
+        $smtpUsername = getenv('SMTP2GO_USERNAME');
+        $smtpPassword = getenv('SMTP2GO_PASSWORD');
+        $smtpServer = getenv('SMTP2GO_SERVER');
+        $smtpPort = getenv('SMTP2GO_PORT');
+
         // Create a PHPMailer instance
         $mailer = new PHPMailer();
 
         // Configure SMTP settings
         $mailer->isSMTP();
-        $mailer->Host = $this->smtpServer;
+        $mailer->Username = $smtpUsername;
+        $mailer->Password = $smtpPassword;
+        $mailer->Host = $smtpServer;
+        $mailer->Port = $smtpPort;
         $mailer->SMTPAuth = true;
-        $mailer->Username = $this->smtpUsername;
-        $mailer->Password = $this->smtpPassword;
-        $mailer->Port = $this->smtpPort;
 
         // Set email content
-        $mailer->setFrom('ayaanbordoloi25@devfun.cloud', 'Ayaan');
-        $mailer->addAddress('ayaansive25@gmail.com', 'Rohan');
+        $mailer->setFrom('Senders-email', 'Name');
+        $mailer->addAddress('Receivers-email', 'Name');
         $mailer->Subject = 'Test Subject';
         $mailer->Body = 'Test mail';
 
