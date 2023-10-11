@@ -19,7 +19,6 @@ class SparkPost extends EmailAdapter{
         //TODO: real value for this
         return 1000;
     }
-
     protected function process(Email $message) : string{
         
         $usDomain = 'api.sparkpost.com';
@@ -40,10 +39,13 @@ class SparkPost extends EmailAdapter{
                 ],
             ],
             'content' => [
+                // for testing with sandbox template id should be 'my-first-email' , so uncomment below line
+                // 'template_id' => 'my-first-email', 
                 'from' => [
                     //sender domain should be registered and verified at sparkpost
                     'email' => $message->getFrom(),
                 ],
+                //when testing with sandbox comment out below three lines
                 'subject' => $message->getSubject(),
                 'html' => $message->isHtml() ? $message->getContent() : null,
                 'text' => $message->isHtml() ? null : $message->getContent(),
@@ -56,7 +58,8 @@ class SparkPost extends EmailAdapter{
             method: 'POST',
             url: "https://$domain/api/v1/transmissions",
             headers :[
-                'Authorization: Basic '.$this->apiKey,
+                'Authorization: '.$this->apiKey,
+                'Content-Type: application/json',
             ],
             body: $json_body,
         );

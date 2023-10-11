@@ -42,7 +42,7 @@ jobs:
         VONAGE_FROM: ${{ secrets.VONAGE_FROM }}
         SPARKPOST_API_KEY: ${{ secrets.SPARKPOST_API_KEY }}
         SPARKPOST_TO: ${{ secrets.SPARKPOST_TO }}
-        SPARKPOST_FROM: ${{ secrets.SPARKPOST_FROM}}
+        SPARKPOST_FROM: ${{ secrets.SPARKPOST_FROM }}
       run: |
         docker compose up -d --build
         sleep 5

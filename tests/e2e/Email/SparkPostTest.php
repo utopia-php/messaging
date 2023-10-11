@@ -1,5 +1,8 @@
 <?php
 
+namespace Tests\E2E;
+
+
 use Utopia\Messaging\Adapters\Email\SparkPost;
 use Utopia\Messaging\Messages\Email;
 
@@ -18,9 +21,6 @@ class SparkPostTest extends Base{
         $from = getenv('SPARKPOST_FROM');
 
         $sparkPost = new SparkPost($apiKey);
-
-        
-
         $message = new Email(
             to: [$to],
             from: $from,
@@ -29,8 +29,7 @@ class SparkPostTest extends Base{
         );
 
         $response = $sparkPost->send($message);
-
-        $this->assertEquals($response, '');
+        $this->assertNotEmpty($response);
     }
 }
 ?>
