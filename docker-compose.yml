@@ -6,7 +6,7 @@ services:
     - MAILGUN_API_KEY
     - MAILGUN_DOMAIN
     - SENDGRID_API_KEY
-    - ElasticEmail_API_KEY
+    - ELASTICEMAIL_API_KEY
     - FCM_SERVER_KEY
     - FCM_SERVER_TO
     - TWILIO_ACCOUNT_SID
