@@ -12,7 +12,7 @@ class ElasticEmail extends Base
      */
     public function testSendEmail()
     {
-        $key = getenv('ElasticEmail_API_KEY');
+        $key = getenv('ELASTICEMAIL_API_KEY');
 
         $sender = new ElasticEmail(
             apiKey: $key,
