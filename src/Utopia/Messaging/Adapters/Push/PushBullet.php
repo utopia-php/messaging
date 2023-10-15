@@ -3,19 +3,17 @@
 namespace Utopia\Messaging\Adapters\Push;
 
 use Exception;
-
+use GuzzleHttp\Client;
 use Utopia\Messaging\Adapters\Push as PushAdapter;
 use Utopia\Messaging\Messages\Push;
-use GuzzleHttp\Client;
 
 class PushBullet extends PushAdapter
 {
     /**
      * @param  string  $apiKey The PushBullet API key.
      */
-    public function __construct(string $apiKey)
+    public function __construct(private string $apiKey)
     {
-        private string $apiKey;
     }
 
     /**
@@ -35,6 +33,7 @@ class PushBullet extends PushAdapter
      */
     public function getMaxMessagesPerRequest(): int
     {
+        //TODO:: Didn't find the limit in PushBullet documentation
         return 1000;
     }
 
@@ -57,7 +56,7 @@ class PushBullet extends PushAdapter
                 'json' => $payload,
             ]);
 
-            return $response->getStatusCode() === 200;
+            return $response;
         } catch (Exception $e) {
             return false;
         }
