@@ -8,7 +8,7 @@ use Utopia\Messaging\Messages\SMS;
 class Gupshup extends SMSAdapter
 {
     /**
-     * @param string $apiKey Gupshup API Key
+     * @param  string  $apiKey Gupshup API Key
      */
     private string $apiKey;
 
@@ -37,7 +37,7 @@ class Gupshup extends SMSAdapter
         $url = 'https://api.gupshup.io/sm/api/v1/msg';
 
         $headers = [
-            'Authorization: Bearer ' . $this->apiKey,
+            'Authorization: Bearer '.$this->apiKey,
             'Content-Type: application/json',
         ];
 
@@ -52,7 +52,7 @@ class Gupshup extends SMSAdapter
             method: 'POST',
             url: $url,
             headers: $headers,
-            body: json_encode($data),
+            body: json_encode($data)
         );
     }
 }
