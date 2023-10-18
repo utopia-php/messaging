@@ -10,7 +10,7 @@ class GupshupTest extends Base
     public function testSendSMS()
     {
         $apiKey = getenv('GUPSHUP_API_KEY');
-        $to = getenv('GUPSHUP_TO');
+        $to = [getenv('GUPSHUP_TO')];
         $from = getenv('GUPSHUP_FROM');
 
         $gupshup = new Gupshup($apiKey);
