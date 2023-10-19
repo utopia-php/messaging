@@ -27,8 +27,12 @@ class MandrillTest extends Base
             content: $content,
         );
 
-        $response = $sender->send($message);
+        $response =json_decode($sender->send($message))[0];
 
-        $this->assertEquals($response, '');
+        $this->assertArrayHasKey('_id',$response);
+        $this->assertArrayHasKey('email',$response);
+        $this->assertArrayHasKey('status',$response);
+        $this->assertArrayHasKey('reject_reason',$response);
+        $this->assertArrayHasKey('queued_reason',$response);
     }
 }
