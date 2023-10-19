@@ -5,14 +5,14 @@ namespace Tests\E2E;
 use Utopia\Messaging\Adapters\Email\ElasticEmail;
 use Utopia\Messaging\Messages\Email;
 
-class ElasticEmail extends Base
+class ElasticEmailTest extends Base
 {
     /**
      * @throws \Exception
      */
     public function testSendEmail()
     {
-        $key = getenv('ELASTICEMAIL_API_KEY');
+        $key = getenv('ElasticEmail_API_KEY');
 
         $sender = new ElasticEmail(
             apiKey: $key,
