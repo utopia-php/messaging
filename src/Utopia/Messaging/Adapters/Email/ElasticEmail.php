@@ -41,7 +41,7 @@ class ElasticEmail extends EmailAdapter
     /**
      * {@inheritdoc}
      *
-     * @param Email $message
+     * @param  Email  $message
      * @return string
      *
      * @throws \Exception
