@@ -45,16 +45,13 @@ class Mailchimp extends EmailAdapter
      */
     protected function process(Email $message): string
     {
-        // $body = 
-        // );
-        // var_dump($body);
         return $this->request(
             method: 'POST',
             url: 'https://mandrillapp.com/api/1.0/messages/send',
             headers: [
                 'Content-Type: application/json',
             ],
-            body: \json_encode(array(
+            body: \json_encode([
                 'key' => $this->apiKey,
                 'message' => [
                     'html' => $message->isHtml() ? $message->getContent() : null,
@@ -67,17 +64,15 @@ class Mailchimp extends EmailAdapter
                     ),
                     'attachments' => $message->getAttachments() ? \array_map(
                         fn ($attachement) => [
-                            "type" => $attachement['type'], 
-                            "name" => $attachement['name'], 
-                            "content" => $attachement['content']
+                            'type' => $attachement['type'],
+                            'name' => $attachement['name'],
+                            'content' => $attachement['content'],
                         ],
                         $message->getAttachments()
-                        ) : null,
-                    ],
-                )
+                    ) : null,
+                ],
+            ]
             )
         );
     }
 }
-
-?>
