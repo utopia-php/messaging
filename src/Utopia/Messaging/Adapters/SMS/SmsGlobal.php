@@ -132,7 +132,7 @@ class SmsGlobal extends SMSAdapter
      */
     private function getRequestBody(array $to, string $text, string $from = null): array
     {
-        $origin = ! empty($from) ? $from : '';
+        $origin = $from ?? '';
         if (count($to) == 1) {
             return [
                 'destination' => $to[0],
