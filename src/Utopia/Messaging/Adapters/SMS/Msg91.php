@@ -38,10 +38,12 @@ class Msg91 extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
-        $to = \array_map(
-            fn ($to) => ['mobiles' => \ltrim($to, '+')],
-            $message->getTo()
-        );
+        // $to = \array_map(
+        //     fn ($to) => ['mobiles' => \ltrim($to, '+')],
+        //     $message->getTo()
+        // );
+
+        $to = ['mobiles' => $message->getTo()];
 
         return $this->request(
             method: 'POST',
