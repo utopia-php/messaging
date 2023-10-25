@@ -38,7 +38,7 @@ class Msg91 extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
-        $to = ['mobiles' => \implode($message->getTo())];
+        $to = ['mobiles' => \implode(",", $message->getTo())];
 
         return $this->request(
             method: 'POST',
@@ -69,7 +69,7 @@ class Msg91 extends SMSAdapter
                 'template' => $content,
                 'sender_id' => $senderId,
                 'template_name' => $templateName,
-                'smsType' => 'NORMAL',
+                'smsType' => $smsType,
             ])
         );
     }

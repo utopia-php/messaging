@@ -23,6 +23,9 @@ class Msg91Test extends Base
         $response = $sender->send($message);
         $result = \json_decode($response, true);
 
+        var_dump($result);
+        die;
+        
         $this->assertEquals('success', $result['type']);
 
         // $this->markTestSkipped('Msg91 requires business verification to use template and SMS api.');
