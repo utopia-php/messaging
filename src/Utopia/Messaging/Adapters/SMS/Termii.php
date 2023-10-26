@@ -60,9 +60,7 @@ class Termii extends SMSAdapter
      */
     private function getRequestBody(array $to, string $text, string $from = null): array
     {
-        if (empty($from)) {
-            $from = '';
-        }
+        $from = $from ?? '';
 
         // removing + from numbers if exists
         $to = \array_map(
