@@ -36,7 +36,7 @@ class SMSApi extends SMSAdapter
     {
         return $this->request(
             method: 'POST',
-            url: "https://api.smsapi.com/sms.do",
+            url: 'https://api.smsapi.com/sms.do',
             headers: [
                 'Authorization: Bearer '.$this->apiToken,
                 'content-type: application/json',
