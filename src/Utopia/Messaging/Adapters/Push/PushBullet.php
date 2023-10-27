@@ -7,7 +7,7 @@ use GuzzleHttp\Client;
 use Utopia\Messaging\Adapters\Push as PushAdapter;
 use Utopia\Messaging\Messages\Push;
 
-class PushBullet extends PushAdapter
+class Pushbullet extends PushAdapter
 {
     /**
      * @param  string  $apiKey The PushBullet API key.
