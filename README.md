@@ -93,7 +93,6 @@ $messaging->send($message);
 
 ### SMS
 - [x] [Twilio](https://www.twilio.com/)
-- [x] [Twilio Notify](https://www.twilio.com/notify)
 - [x] [Telesign](https://www.telesign.com/)
 - [x] [TextMagic](https://www.textmagic.com/)
 - [x] [Msg91](https://msg91.com/)
@@ -101,14 +100,14 @@ $messaging->send($message);
 - [x] [Plivo](https://www.plivo.com/)
 - [x] [Infobip](https://www.infobip.com/)
 - [x] [Clickatell](https://www.clickatell.com/)
-- [ ] [AfricasTalking](https://africastalking.com/)
 - [x] [Sinch](https://www.sinch.com/)
 - [x] [Seven](https://www.seven.io/)
+- [ ] [AfricasTalking](https://africastalking.com/)
 - [ ] [SmsGlobal](https://www.smsglobal.com/)
 
 ### Push
 - [x] [FCM](https://firebase.google.com/docs/cloud-messaging)
-- [ ] [APNS](https://developer.apple.com/documentation/usernotifications)
+- [x] [APNS](https://developer.apple.com/documentation/usernotifications)
 - [ ] [OneSignal](https://onesignal.com/)
 - [ ] [Pusher](https://pusher.com/)
 - [ ] [WebPush](https://developer.mozilla.org/en-US/docs/Web/API/Push_API)
