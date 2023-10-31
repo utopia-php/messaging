@@ -7,15 +7,9 @@
   "minimum-stability": "stable",
   "scripts": {
     "test": "vendor/bin/phpunit",
-    "lint": "vendor/bin/phpcs",
-    "format": "vendor/bin/phpcbf"
+    "lint": "./vendor/bin/pint --test",
+    "format": "./vendor/bin/pint"
   },
-  "authors": [
-    {
-      "name": "Jake Barnby",
-      "email": "jake@appwrite.io"
-    }
-  ],
   "autoload": {
     "psr-4": {
       "Utopia\\Messaging\\": "src/Utopia/Messaging"
@@ -32,9 +26,9 @@
     "ext-curl": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "9.5.*",
-    "phpmailer/phpmailer": "6.6.*",
-    "squizlabs/php_codesniffer": "^3.6"
+    "phpunit/phpunit": "9.6.*",
+    "phpmailer/phpmailer": "6.8.*",
+    "laravel/pint": "^1.2"
   },
   "config": {
     "platform": {

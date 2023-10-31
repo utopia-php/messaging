@@ -2,27 +2,22 @@
 
 namespace Utopia\Messaging\Adapters\SMS;
 
-// Reference Material
-// https://www.textmagic.com/docs/api/send-sms/#How-to-send-bulk-text-messages
-
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 
-class Vonage extends SMSAdapter
+class Telnyx extends SMSAdapter
 {
     /**
-     * @param  string  $apiKey Vonage API Key
-     * @param  string  $apiSecret Vonage API Secret
+     * @param  string  $apiKey Telnyx APIv2 Key
      */
     public function __construct(
         private string $apiKey,
-        private string $apiSecret
     ) {
     }
 
     public function getName(): string
     {
-        return 'Vonage';
+        return 'Telnyx';
     }
 
     public function getMaxMessagesPerRequest(): int
@@ -37,20 +32,17 @@ class Vonage extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
-        $to = \array_map(
-            fn ($to) => \ltrim($to, '+'),
-            $message->getTo()
-        );
-
         return $this->request(
             method: 'POST',
-            url: 'https://rest.nexmo.com/sms/json',
-            body: \http_build_query([
+            url: 'https://api.telnyx.com/v2/messages',
+            headers: [
+                'Authorization: Bearer '.$this->apiKey,
+                'Content-Type: application/json',
+            ],
+            body: \json_encode([
                 'text' => $message->getContent(),
                 'from' => $message->getFrom(),
-                'to' => $to[0], //\implode(',', $to),
-                'api_key' => $this->apiKey,
-                'api_secret' => $this->apiSecret,
+                'to' => $message->getTo()[0],
             ]),
         );
     }

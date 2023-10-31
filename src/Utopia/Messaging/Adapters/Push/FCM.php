@@ -2,31 +2,42 @@
 
 namespace Utopia\Messaging\Adapters\Push;
 
-use Utopia\Messaging\Messages\Push;
 use Utopia\Messaging\Adapters\Push as PushAdapter;
+use Utopia\Messaging\Messages\Push;
 
 class FCM extends PushAdapter
 {
     /**
-     * @param string $serverKey The FCM server key.
+     * @param  string  $serverKey The FCM server key.
      */
     public function __construct(
         private string $serverKey,
     ) {
     }
 
+    /**
+     * Get adapter name.
+     *
+     * @return string
+     */
     public function getName(): string
     {
         return 'FCM';
     }
 
+    /**
+     * Get max messages per request.
+     *
+     * @return int
+     */
     public function getMaxMessagesPerRequest(): int
     {
         return 1000;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
      * @throws \Exception
      */
     protected function process(Push $message): string
@@ -35,7 +46,7 @@ class FCM extends PushAdapter
             method: 'POST',
             url: 'https://fcm.googleapis.com/fcm/send',
             headers: [
-                "Content-Type: application/json",
+                'Content-Type: application/json',
                 "Authorization: key={$this->serverKey}",
             ],
             body: \json_encode([

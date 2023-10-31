@@ -5,26 +5,26 @@ namespace Utopia\Messaging\Adapters\SMS;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 
-class Mock extends SMSAdapter
+// Reference Material
+// https://www.seven.io/en/docs/gateway/http-api/sms-dispatch/
+class Seven extends SMSAdapter
 {
     /**
-     * @param  string  $user User ID
-     * @param  string  $secret User secret
+     * @param  string  $apiKey Seven API token
      */
     public function __construct(
-        private string $user,
-        private string $secret
+        private string $apiKey
     ) {
     }
 
     public function getName(): string
     {
-        return 'Mock';
+        return 'Seven';
     }
 
     public function getMaxMessagesPerRequest(): int
     {
-        return 1;
+        return 1000;
     }
 
     /**
@@ -36,16 +36,15 @@ class Mock extends SMSAdapter
     {
         return $this->request(
             method: 'POST',
-            url: 'http://request-catcher:5000/mock-sms',
+            url: 'https://gateway.sms77.io/api/sms',
             headers: [
+                'Authorization: Basic '.$this->apiKey,
                 'content-type: application/json',
-                "x-username: {$this->user}",
-                "x-key: {$this->secret}",
             ],
             body: \json_encode([
-                'message' => $message->getContent(),
                 'from' => $message->getFrom(),
                 'to' => \implode(',', $message->getTo()),
+                'text' => $message->getContent(),
             ]),
         );
     }

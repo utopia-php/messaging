@@ -5,26 +5,26 @@ namespace Utopia\Messaging\Adapters\SMS;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 
-class Mock extends SMSAdapter
+// Reference Material
+// https://docs.clickatell.com/channels/sms-channels/sms-api-reference/#tag/SMS-API/operation/sendMessageREST_1
+class Clickatell extends SMSAdapter
 {
     /**
-     * @param  string  $user User ID
-     * @param  string  $secret User secret
+     * @param  string  $apiKey Clickatell API Key
      */
     public function __construct(
-        private string $user,
-        private string $secret
+        private string $apiKey,
     ) {
     }
 
     public function getName(): string
     {
-        return 'Mock';
+        return 'Clickatell';
     }
 
     public function getMaxMessagesPerRequest(): int
     {
-        return 1;
+        return 500;
     }
 
     /**
@@ -36,16 +36,15 @@ class Mock extends SMSAdapter
     {
         return $this->request(
             method: 'POST',
-            url: 'http://request-catcher:5000/mock-sms',
+            url: 'https://platform.clickatell.com/messages',
             headers: [
                 'content-type: application/json',
-                "x-username: {$this->user}",
-                "x-key: {$this->secret}",
+                'Authorization: '.$this->apiKey,
             ],
             body: \json_encode([
-                'message' => $message->getContent(),
+                'content' => $message->getContent(),
                 'from' => $message->getFrom(),
-                'to' => \implode(',', $message->getTo()),
+                'to' => $message->getTo(),
             ]),
         );
     }

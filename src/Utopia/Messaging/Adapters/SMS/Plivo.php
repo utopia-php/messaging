@@ -5,26 +5,28 @@ namespace Utopia\Messaging\Adapters\SMS;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 
-class Twilio extends SMSAdapter
+// Reference Material
+// https://www.plivo.com/docs/sms/api/message#send-a-message
+class Plivo extends SMSAdapter
 {
     /**
-     * @param  string  $accountSid Twilio Account SID
-     * @param  string  $authToken Twilio Auth Token
+     * @param  string  $authId Plivo Auth ID
+     * @param  string  $authToken Plivo Auth Token
      */
     public function __construct(
-        private string $accountSid,
+        private string $authId,
         private string $authToken
     ) {
     }
 
     public function getName(): string
     {
-        return 'Twilio';
+        return 'Plivo';
     }
 
     public function getMaxMessagesPerRequest(): int
     {
-        return 1;
+        return 1000;
     }
 
     /**
@@ -36,14 +38,14 @@ class Twilio extends SMSAdapter
     {
         return $this->request(
             method: 'POST',
-            url: "https://api.twilio.com/2010-04-01/Accounts/{$this->accountSid}/Messages.json",
+            url: "https://api.plivo.com/v1/Account/{$this->authId}/Message/",
             headers: [
-                'Authorization: Basic '.base64_encode("{$this->accountSid}:{$this->authToken}"),
+                'Authorization: Basic '.base64_encode("{$this->authId}:{$this->authToken}"),
             ],
             body: \http_build_query([
-                'Body' => $message->getContent(),
-                'From' => $message->getFrom(),
-                'To' => $message->getTo()[0],
+                'text' => $message->getContent(),
+                'src' => $message->getFrom() ?? 'Plivo',
+                'dst' => \implode('<', $message->getTo()),
             ]),
         );
     }

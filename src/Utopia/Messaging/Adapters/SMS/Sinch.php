@@ -5,26 +5,28 @@ namespace Utopia\Messaging\Adapters\SMS;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 
-class Mock extends SMSAdapter
+// Reference Material
+// https://developers.sinch.com/docs/sms/api-reference/
+class Sinch extends SMSAdapter
 {
     /**
-     * @param  string  $user User ID
-     * @param  string  $secret User secret
+     * @param  string  $servicePlanId Sinch Service plan ID
+     * @param  string  $apiToken Sinch API token
      */
     public function __construct(
-        private string $user,
-        private string $secret
+        private string $servicePlanId,
+        private string $apiToken
     ) {
     }
 
     public function getName(): string
     {
-        return 'Mock';
+        return 'Sinch';
     }
 
     public function getMaxMessagesPerRequest(): int
     {
-        return 1;
+        return 1000;
     }
 
     /**
@@ -34,18 +36,19 @@ class Mock extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
+        $to = \array_map(fn ($number) => \ltrim($number, '+'), $message->getTo());
+
         return $this->request(
             method: 'POST',
-            url: 'http://request-catcher:5000/mock-sms',
+            url: "https://sms.api.sinch.com/xms/v1/{$this->servicePlanId}/batches",
             headers: [
+                'Authorization: Bearer '.$this->apiToken,
                 'content-type: application/json',
-                "x-username: {$this->user}",
-                "x-key: {$this->secret}",
             ],
             body: \json_encode([
-                'message' => $message->getContent(),
                 'from' => $message->getFrom(),
-                'to' => \implode(',', $message->getTo()),
+                'to' => $to,
+                'body' => $message->getContent(),
             ]),
         );
     }
