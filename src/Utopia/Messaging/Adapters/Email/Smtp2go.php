@@ -2,9 +2,9 @@
 
 namespace Utopia\Messaging\Adapters\Email;
 
-use Utopia\Messaging\Messages\Email;
-use Utopia\Messaging\Adapters\Email as EmailAdapter;
 use PHPMailer\PHPMailer\PHPMailer;
+use Utopia\Messaging\Adapters\Email as EmailAdapter;
+use Utopia\Messaging\Messages\Email;
 
 class Smtp2go extends EmailAdapter
 {
@@ -47,7 +47,7 @@ class Smtp2go extends EmailAdapter
         if ($mailer->send()) {
             return 'Email sent successfully';
         } else {
-            return 'Failed to send email: ' . $mailer->ErrorInfo;
+            return 'Failed to send email: '.$mailer->ErrorInfo;
         }
     }
 }
