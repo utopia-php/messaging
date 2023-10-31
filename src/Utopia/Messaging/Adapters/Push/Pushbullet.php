@@ -23,7 +23,7 @@ class Pushbullet extends PushAdapter
      */
     public function getName(): string
     {
-        return 'PushBullet';
+        return 'Pushbullet';
     }
 
     /**

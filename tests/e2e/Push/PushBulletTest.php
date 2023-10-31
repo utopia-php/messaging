@@ -5,7 +5,7 @@ namespace Tests\E2E;
 use Utopia\Messaging\Adapters\Push\Pushbullet as PushbulletAdapter;
 use Utopia\Messaging\Messages\Push;
 
-class PushBulletTest extends Base
+class PushbulletTest extends Base
 {
     public function testSend(): void
     {
