@@ -30,7 +30,7 @@ class MailchimpTest extends Base
             content: $content,
         );
 
-        $result = (array) \json_decode($sender->send($message));
+        $result = (array) \json_decode($sender->send($message))[0];
 
         $this->assertArrayHasKey('_id', $result);
         $this->assertArrayHasKey('status', $result);
