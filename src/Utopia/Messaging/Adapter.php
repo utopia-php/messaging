@@ -6,29 +6,21 @@ abstract class Adapter
 {
     /**
      * Get the name of the adapter.
-     *
-     * @return string
      */
     abstract public function getName(): string;
 
     /**
      * Get the type of the adapter.
-     *
-     * @return string
      */
     abstract public function getType(): string;
 
     /**
      * Get the type of the message the adapter can send.
-     *
-     * @return string
      */
     abstract public function getMessageType(): string;
 
     /**
      * Get the maximum number of messages that can be sent in a single request.
-     *
-     * @return int
      */
     abstract public function getMaxMessagesPerRequest(): int;
 
@@ -37,16 +29,21 @@ abstract class Adapter
      *
      * @param  Message  $message The message to send.
      * @return string The response body.
+     *
      * @throws \Exception
      */
     public function send(Message $message): string
     {
-        if (!\is_a($message, $this->getMessageType())) {
+        if (! \is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
-        if (\count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
+        if (\method_exists($message, 'getTo') && \count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
             throw new \Exception("{$this->getName()} can only send {$this->getMaxMessagesPerRequest()} messages per request.");
         }
+        if (! \method_exists($this, 'process')) {
+            throw new \Exception('Adapter does not implement process method.');
+        }
+
         return $this->process($message);
     }
 
@@ -55,7 +52,7 @@ abstract class Adapter
      *
      * @param  string  $method The HTTP method to use.
      * @param  string  $url The URL to send the request to.
-     * @param  array  $headers An array of headers to send with the request.
+     * @param  array<string>  $headers An array of headers to send with the request.
      * @param  string|null  $body The body of the request.
      * @return string The response body.
      *
@@ -65,7 +62,7 @@ abstract class Adapter
         string $method,
         string $url,
         array $headers = [],
-        ?string $body = null,
+        string $body = null,
     ): string {
         $ch = \curl_init();
 
