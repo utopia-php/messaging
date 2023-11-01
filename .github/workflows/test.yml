@@ -40,6 +40,8 @@ jobs:
         VONAGE_API_SECRET: ${{ secrets.VONAGE_API_SECRET }}
         VONAGE_TO: ${{ secrets.VONAGE_TO }}
         VONAGE_FROM: ${{ secrets.VONAGE_FROM }}
+        DISCORD_WEBHOOK_ID: ${{ secrets.DISCORD_WEBHOOK_ID }}
+        DISCORD_WEBHOOK_TOKEN: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
       run: |
         docker compose up -d --build
         sleep 5
