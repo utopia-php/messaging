@@ -28,6 +28,8 @@ class Postmark extends EmailAdapter
     /**
      * Get adapter description.
      *
+     * @see https://postmarkapp.com/developer/api/email-api#send-batch-emails For information about batch email limit.
+     * 
      * @return int
      */
     public function getMaxMessagesPerRequest(): int
