@@ -28,7 +28,7 @@ class MobivateTest extends Base
 
         $this->assertNotEmpty($result);
         $this->assertCount(\count($to),$result->recipients);
-        $this->assertEquals($result->routeId, getenv('MOBIVATE_ROUTE_ID'))
+        $this->assertEquals($result->routeId, getenv('MOBIVATE_ROUTE_ID'));
 
     }
 }
