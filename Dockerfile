@@ -24,9 +24,6 @@ WORKDIR /usr/local/src/
 COPY --from=composer /usr/local/src/vendor /usr/local/src/vendor
 COPY . /usr/local/src/
 
-# Install PHPUnit
-RUN wget -O phpunit https://phar.phpunit.de/phpunit-9.phar && \
-    chmod +x phpunit && \
-    mv phpunit /usr/local/bin/phpunit
+
 
 CMD [ "tail", "-f", "/dev/null" ]
