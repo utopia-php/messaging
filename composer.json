@@ -6,7 +6,7 @@
   "license": "MIT",
   "minimum-stability": "stable",
   "scripts": {
-    "test": "vendor/bin/phpunit",
+    "test": "./vendor/bin/phpunit",
     "lint": "./vendor/bin/pint --test",
     "format": "./vendor/bin/pint",
     "analyse": "./vendor/bin/phpstan analyse --memory-limit=2G --level=6 src tests"

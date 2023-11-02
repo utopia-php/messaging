@@ -60,9 +60,10 @@ class APNS extends PushAdapter
     }
 
     /**
-     * @param array<string> $to
-     * @param array<string, mixed> $payload
+     * @param  array<string>  $to
+     * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
+     *
      * @throws Exception
      */
     private function notify(array $to, array $payload): array

@@ -2,9 +2,9 @@
 
 namespace Utopia\Tests\Adapter\Push;
 
-use Utopia\Tests\Adapter\Base;
 use Utopia\Messaging\Adapter\Push\APNS as APNSAdapter;
 use Utopia\Messaging\Messages\Push;
+use Utopia\Tests\Adapter\Base;
 
 class APNSTest extends Base
 {

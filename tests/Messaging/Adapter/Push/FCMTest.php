@@ -2,9 +2,9 @@
 
 namespace Utopia\Tests\Adapter\Push;
 
-use Utopia\Tests\Adapter\Base;
 use Utopia\Messaging\Adapter\Push\FCM as FCMAdapter;
 use Utopia\Messaging\Messages\Push;
+use Utopia\Tests\Adapter\Base;
 
 class FCMTest extends Base
 {

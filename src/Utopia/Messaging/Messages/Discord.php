@@ -7,18 +7,10 @@ use Utopia\Messaging\Message;
 class Discord implements Message
 {
     /**
-     * @param string $content
-     * @param string|null $username
-     * @param string|null $avatarUrl
-     * @param bool|null $tts
-     * @param array<string, mixed>|null $embeds
-     * @param array<string, mixed>|null $allowedMentions
-     * @param array<string, mixed>|null $components
-     * @param array<string, mixed>|null $attachments
-     * @param string|null $flags
-     * @param string|null $threadName
-     * @param bool|null $wait
-     * @param string|null $threadId
+     * @param  array<string, mixed>|null  $embeds
+     * @param  array<string, mixed>|null  $allowedMentions
+     * @param  array<string, mixed>|null  $components
+     * @param  array<string, mixed>|null  $attachments
      */
     public function __construct(
         private string $content,

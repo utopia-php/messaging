@@ -2,9 +2,9 @@
 
 namespace Utopia\Tests\Adapter\SMS;
 
-use Utopia\Tests\Adapter\Base;
 use Utopia\Messaging\Adapter\SMS\Vonage;
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Tests\Adapter\Base;
 
 class VonageTest extends Base
 {

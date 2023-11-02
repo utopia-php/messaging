@@ -6,7 +6,6 @@ use Utopia\Messaging\Message;
 
 class Email implements Message
 {
-
     /**
      * @param  array<string>  $to The recipients of the email.
      * @param  string  $subject The subject of the email.

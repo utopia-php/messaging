@@ -56,8 +56,7 @@ class Telesign extends SMSAdapter
     }
 
     /**
-     * @param array<string> $numbers
-     * @return string
+     * @param  array<string>  $numbers
      */
     private function formatNumbers(array $numbers): string
     {

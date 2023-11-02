@@ -2,9 +2,9 @@
 
 namespace Utopia\Tests\Adapter\SMS;
 
-use Utopia\Tests\Adapter\Base;
 use Utopia\Messaging\Adapter\SMS\Twilio;
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Tests\Adapter\Base;
 
 class TwilioTest extends Base
 {

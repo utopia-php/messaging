@@ -2,9 +2,9 @@
 
 namespace Utopia\Tests\Adapter\Email;
 
-use Utopia\Tests\Adapter\Base;
 use Utopia\Messaging\Adapter\Email\Mailgun;
 use Utopia\Messaging\Messages\Email;
+use Utopia\Tests\Adapter\Base;
 
 class MailgunTest extends Base
 {

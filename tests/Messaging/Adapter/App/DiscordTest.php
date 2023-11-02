@@ -2,9 +2,9 @@
 
 namespace Utopia\Tests\Adapter\App;
 
-use Utopia\Tests\Adapter\Base;
 use Utopia\Messaging\Adapter\App\Discord;
 use Utopia\Messaging\Messages\Discord as DiscordMessage;
+use Utopia\Tests\Adapter\Base;
 
 class DiscordTest extends Base
 {

@@ -7,10 +7,8 @@ use Utopia\Messaging\Message;
 class SMS implements Message
 {
     /**
-     * @param array<string> $to
-     * @param string $content
-     * @param string|null $from
-     * @param array<string>|null $attachments
+     * @param  array<string>  $to
+     * @param  array<string>|null  $attachments
      */
     public function __construct(
         private array $to,
