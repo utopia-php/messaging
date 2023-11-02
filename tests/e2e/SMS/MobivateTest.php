@@ -12,7 +12,6 @@ class MobivateTest extends Base
      */
     public function testSendSMS()
     {
-
         $sender = new Mobivate(getenv('MOBIVATE_API_KEY'), getenv('MOBIVATE_ROUTE_ID'));
         $to = [getenv('MOBIVATE_TO')];
         $from = getenv('MOBIVATE_FROM');
@@ -22,13 +21,11 @@ class MobivateTest extends Base
             content: 'Test Content',
             from: $from
         );
-    
 
         $result = \json_decode($sender->send($message));
 
         $this->assertNotEmpty($result);
-        $this->assertCount(\count($to),$result->recipients);
+        $this->assertCount(\count($to), $result->recipients);
         $this->assertEquals($result->routeId, getenv('MOBIVATE_ROUTE_ID'));
-
     }
 }

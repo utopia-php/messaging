@@ -36,28 +36,26 @@ class Mobivate extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
-        
-        $messages = array();
-
-        foreach($message->getTo() as $to){
-            $temp = array(
-                "originator" => $message->getFrom(),
-                "recipient" => \ltrim($to, '+'),
-                "text" => $message->getContent()
-            );
-            array_push($messages,$temp);
+        $messages = [];
+        foreach ($message->getTo() as $to) {
+            $temp = [
+                'originator' => $message->getFrom(),
+                'recipient' => \ltrim($to, '+'),
+                'text' => $message->getContent(),
+            ];
+            array_push($messages, $temp);
         }
 
         return $this->request(
             method: 'POST',
-            url: "https://api.mobivatebulksms.com/send/batch",
+            url: 'https://api.mobivatebulksms.com/send/batch',
             headers: [
                 'content-type: application/json',
                 'Authorization: Bearer '.$this->apiKey,
             ],
             body: \json_encode([
-                "routeId" => $this->routeId,
-                "messages" => $messages
+                'routeId' => $this->routeId,
+                'messages' => $messages,
             ]),
         );
     }
