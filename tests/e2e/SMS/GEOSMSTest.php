@@ -11,6 +11,8 @@ class GEOSMSTest extends Base
     public function testSendSMSUsingDefaultAdapter()
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock->method('getMaxMessagesPerRequest')
+            ->willReturn(1);
         $defaultAdapterMock->method('send')
             ->willReturn(json_encode(['status' => 'success']));
 
@@ -33,6 +35,8 @@ class GEOSMSTest extends Base
     public function testSendSMSUsingLocalAdapter()
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock->method('getMaxMessagesPerRequest')
+            ->willReturn(1);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock->method('send')
             ->willReturn(json_encode(['status' => 'success', 'adapter' => 'local']));
