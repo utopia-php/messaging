@@ -1,6 +1,6 @@
 <?php
 
-namespace Utopia\Messaging\Adapters;
+namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
@@ -261,7 +261,7 @@ class GEOSMS extends SMSAdapter
     {
         foreach ($message->getTo() as $recipient) {
             $prefix = $this->extractPrefix($recipient);
-            if (! empty($prefix) && array_key_exists($prefix, $this->localAdapters)) {
+            if (!empty($prefix) && array_key_exists($prefix, $this->localAdapters)) {
                 return $this->localAdapters[$prefix];
             }
         }
@@ -275,7 +275,7 @@ class GEOSMS extends SMSAdapter
         foreach ([3, 2, 1] as $length) {
             $prefix = substr($digits, 0, $length);
             if (isset(self::COUNTRY_CODES[$prefix])) {
-                return '+'.$prefix;
+                return '+' . $prefix;
             }
         }
 
