@@ -245,6 +245,7 @@ class GEOSMS extends SMSAdapter
 
     public function setLocal(string $prefix, SMSAdapter $adapter): self
     {
+        $prefix = preg_replace('/\+/', '', $prefix);
         $this->localAdapters[$prefix] = $adapter;
 
         return $this;
@@ -275,7 +276,7 @@ class GEOSMS extends SMSAdapter
         foreach ([3, 2, 1] as $length) {
             $prefix = substr($digits, 0, $length);
             if (isset(self::COUNTRY_CODES[$prefix])) {
-                return '+'.$prefix;
+                return $prefix;
             }
         }
 
