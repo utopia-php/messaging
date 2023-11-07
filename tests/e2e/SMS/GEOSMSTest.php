@@ -2,8 +2,8 @@
 
 namespace Tests\E2E;
 
-use Utopia\Messaging\Adapters\SMS\GEOSMS;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
+use Utopia\Messaging\Adapters\SMS\GEOSMS;
 use Utopia\Messaging\Messages\SMS;
 
 class GEOSMSTest extends Base
