@@ -228,9 +228,12 @@ class GEOSMS extends SMSAdapter
 
     protected $localAdapters = [];
 
+    protected $maxMessagesPerRequest;
+
     public function __construct(SMSAdapter $defaultAdapter)
     {
         $this->defaultAdapter = $defaultAdapter;
+        $this->maxMessagesPerRequest = $defaultAdapter->getMaxMessagesPerRequest();
     }
 
     public function getName(): string
@@ -240,13 +243,14 @@ class GEOSMS extends SMSAdapter
 
     public function getMaxMessagesPerRequest(): int
     {
-        return $this->defaultAdapter->getMaxMessagesPerRequest();
+        return $this->maxMessagesPerRequest;
     }
 
     public function setLocal(string $prefix, SMSAdapter $adapter): self
     {
         $prefix = preg_replace('/\+/', '', $prefix);
         $this->localAdapters[$prefix] = $adapter;
+        $this->maxMessagesPerRequest = min($this->maxMessagesPerRequest, $adapter->getMaxMessagesPerRequest());
 
         return $this;
     }

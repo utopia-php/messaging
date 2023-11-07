@@ -38,6 +38,8 @@ class GEOSMSTest extends Base
         $defaultAdapterMock->method('getMaxMessagesPerRequest')
             ->willReturn(1);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
+        $localAdapterMock->method('getMaxMessagesPerRequest')
+            ->willReturn(1);
         $localAdapterMock->method('send')
             ->willReturn(json_encode(['status' => 'success', 'adapter' => 'local']));
 
@@ -57,5 +59,20 @@ class GEOSMSTest extends Base
 
         $this->assertEquals('success', $result->status);
         $this->assertEquals('local', $result->adapter);
+    }
+
+    public function testMaxMessagesPerRequestIsLowest()
+    {
+        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock->method('getMaxMessagesPerRequest')
+            ->willReturn(1000);
+        $localAdapterMock = $this->createMock(SMSAdapter::class);
+        $localAdapterMock->method('getMaxMessagesPerRequest')
+            ->willReturn(2);
+
+        $adapter = new GEOSMS($defaultAdapterMock);
+        $adapter->setLocal('44', $localAdapterMock);
+
+        $this->assertEquals(2, $adapter->getMaxMessagesPerRequest());
     }
 }
