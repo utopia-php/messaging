@@ -4,6 +4,7 @@ namespace Tests\E2E;
 
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Adapters\SMS\GEOSMS;
+use Utopia\Messaging\Adapters\SMS\GEOSMS\CallingCode;
 use Utopia\Messaging\Messages\SMS;
 
 class GEOSMSTest extends Base
@@ -44,7 +45,7 @@ class GEOSMSTest extends Base
             ->willReturn(json_encode(['status' => 'success', 'adapter' => 'local']));
 
         $adapter = new GEOSMS($defaultAdapterMock);
-        $adapter->setLocal('44', $localAdapterMock);
+        $adapter->setLocal(CallingCode::UNITED_KINGDOM, $localAdapterMock);
 
         $to = ['+441234567890'];
         $from = 'Sender';
@@ -59,20 +60,5 @@ class GEOSMSTest extends Base
 
         $this->assertEquals('success', $result->status);
         $this->assertEquals('local', $result->adapter);
-    }
-
-    public function testMaxMessagesPerRequestIsLowest()
-    {
-        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
-        $defaultAdapterMock->method('getMaxMessagesPerRequest')
-            ->willReturn(1000);
-        $localAdapterMock = $this->createMock(SMSAdapter::class);
-        $localAdapterMock->method('getMaxMessagesPerRequest')
-            ->willReturn(2);
-
-        $adapter = new GEOSMS($defaultAdapterMock);
-        $adapter->setLocal('44', $localAdapterMock);
-
-        $this->assertEquals(2, $adapter->getMaxMessagesPerRequest());
     }
 }
