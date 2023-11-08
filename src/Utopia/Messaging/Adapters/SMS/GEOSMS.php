@@ -38,18 +38,27 @@ class GEOSMS extends SMSAdapter
     {
         $recipientsByCallingCode = $this->groupRecipientsByCallingCode($message->getTo());
         $responses = [];
+        $errors = [];
 
         foreach ($recipientsByCallingCode as $callingCode => $recipients) {
             $adapter = isset($this->localAdapters[$callingCode])
                 ? $this->localAdapters[$callingCode]
                 : $this->defaultAdapter;
 
-            $responses[] = $adapter->send(new SMS(
-                to: $recipients,
-                content: $message->getContent(),
-                from: $message->getFrom(),
-                attachments: $message->getAttachments()
-            ));
+            try {
+                $responses[] = $adapter->send(new SMS(
+                    to: $recipients,
+                    content: $message->getContent(),
+                    from: $message->getFrom(),
+                    attachments: $message->getAttachments()
+                ));
+            } catch (\Exception $e) {
+                $errors[] = $e;
+            }
+        }
+
+        if (count($errors) > 0) {
+            throw new \Exception('Failed to send SMS to some recipients', 0, $errors[0]);
         }
 
         return $responses[0];

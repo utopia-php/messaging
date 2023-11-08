@@ -577,7 +577,7 @@ class CallingCode
     {
         $digits = str_replace(['+', ' ', '(', ')', '-'], '', $number);
 
-        // International call prefix is usually 00 or 011
+        // Remove international call prefix, usually `00` or `011`
         // https://en.wikipedia.org/wiki/List_of_international_call_prefixes
         $digits = preg_replace('/^00|^011/', '', $digits);
 
