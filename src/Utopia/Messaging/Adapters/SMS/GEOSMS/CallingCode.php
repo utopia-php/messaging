@@ -188,7 +188,7 @@ enum CallingCode: string
     case UNITED_ARAB_EMIRATES = '971';
     case UNITED_KINGDOM = '44';
     case URUGUAY = '598';
-    case USA_AND_CANADA = '1';
+    case NORTH_AMERICA = '1';
     case VANUATU = '678';
     case VENEZUELA = '58';
     case VIETNAM = '84';
