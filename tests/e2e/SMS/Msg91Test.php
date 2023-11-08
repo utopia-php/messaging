@@ -24,5 +24,6 @@ class Msg91Test extends Base
         $result = \json_decode($response, true);
 
         $this->assertEquals('success', $result['type']);
+        $this->assertEquals('Test Content', $result['message']);
     }
 }
