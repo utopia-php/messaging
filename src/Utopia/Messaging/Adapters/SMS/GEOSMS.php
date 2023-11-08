@@ -27,9 +27,9 @@ class GEOSMS extends SMSAdapter
         return PHP_INT_MAX;
     }
 
-    public function setLocal(CallingCode $callingCode, SMSAdapter $adapter): self
+    public function setLocal(string $callingCode, SMSAdapter $adapter): self
     {
-        $this->localAdapters[$callingCode->value] = $adapter;
+        $this->localAdapters[$callingCode] = $adapter;
 
         return $this;
     }
@@ -40,7 +40,9 @@ class GEOSMS extends SMSAdapter
         $responses = [];
 
         foreach ($recipientsByCallingCode as $callingCode => $recipients) {
-            $adapter = isset($this->localAdapters[$callingCode]) ? $this->localAdapters[$callingCode] : $this->defaultAdapter;
+            $adapter = isset($this->localAdapters[$callingCode])
+                ? $this->localAdapters[$callingCode]
+                : $this->defaultAdapter;
 
             $responses[] = $adapter->send(new SMS(
                 to: $recipients,
@@ -59,7 +61,7 @@ class GEOSMS extends SMSAdapter
 
         foreach ($recipients as $recipient) {
             $callingCode = CallingCode::fromPhoneNumber($recipient);
-            $result[$callingCode->value][] = $recipient;
+            $result[$callingCode][] = $recipient;
         }
 
         return $result;

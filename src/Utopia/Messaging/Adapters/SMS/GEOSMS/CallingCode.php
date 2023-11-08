@@ -7,197 +7,573 @@ namespace Utopia\Messaging\Adapters\SMS\GEOSMS;
  * @link https://en.wikipedia.org/wiki/List_of_country_calling_codes
  */
 
-enum CallingCode: string
+class CallingCode
 {
-    case ALGERIA = '213';
-    case ANDORRA = '376';
-    case ANGOLA = '244';
-    case ARGENTINA = '54';
-    case ARMENIA = '374';
-    case ARUBA = '297';
-    case AUSTRALIA = '61';
-    case AUSTRIA = '43';
-    case AZERBAIJAN = '994';
-    case BAHRAIN = '973';
-    case BANGLADESH = '880';
-    case BELARUS = '375';
-    case BELGIUM = '32';
-    case BELIZE = '501';
-    case BENIN = '229';
-    case BHUTAN = '975';
-    case BOLIVIA = '591';
-    case BOSNIA_HERZEGOVINA = '387';
-    case BOTSWANA = '267';
-    case BRAZIL = '55';
-    case BRUNEI = '673';
-    case BULGARIA = '359';
-    case BURKINA_FASO = '226';
-    case BURUNDI = '257';
-    case CAMBODIA = '855';
-    case CAMEROON = '237';
-    case CAPE_VERDE_ISLANDS = '238';
-    case CENTRAL_AFRICAN_REPUBLIC = '236';
-    case CHILE = '56';
-    case CHINA = '86';
-    case COLOMBIA = '57';
-    case COMOROS_AND_MAYOTTE = '269';
-    case CONGO = '242';
-    case COOK_ISLANDS = '682';
-    case COSTA_RICA = '506';
-    case CROATIA = '385';
-    case CUBA = '53';
-    case CYPRUS = '357';
-    case CZECH_REPUBLIC = '420';
-    case DENMARK = '45';
-    case DJIBOUTI = '253';
-    case ECUADOR = '593';
-    case EGYPT = '20';
-    case EL_SALVADOR = '503';
-    case EQUATORIAL_GUINEA = '240';
-    case ERITREA = '291';
-    case ESTONIA = '372';
-    case ETHIOPIA = '251';
-    case FALKLAND_ISLANDS = '500';
-    case FAROE_ISLANDS = '298';
-    case FIJI = '679';
-    case FINLAND = '358';
-    case FRANCE = '33';
-    case FRENCH_GUIANA = '594';
-    case FRENCH_POLYNESIA = '689';
-    case GABON = '241';
-    case GAMBIA = '220';
-    case GEORGIA = '995';
-    case GERMANY = '49';
-    case GHANA = '233';
-    case GIBRALTAR = '350';
-    case GREECE = '30';
-    case GREENLAND = '299';
-    case GUADELOUPE = '590';
-    case GUAM = '671';
-    case GUATEMALA = '502';
-    case GUINEA = '224';
-    case GUINEA_BISSAU = '245';
-    case GUYANA = '592';
-    case HAITI = '509';
-    case HONDURAS = '504';
-    case HONG_KONG = '852';
-    case HUNGARY = '36';
-    case ICELAND = '354';
-    case INDIA = '91';
-    case INDONESIA = '62';
-    case IRAN = '98';
-    case IRAQ = '964';
-    case IRELAND = '353';
-    case ISRAEL = '972';
-    case ITALY = '39';
-    case JAPAN = '81';
-    case JORDAN = '962';
-    case KENYA = '254';
-    case KIRIBATI = '686';
-    case NORTH_KOREA = '850';
-    case SOUTH_KOREA = '82';
-    case KUWAIT = '965';
-    case KYRGYZSTAN = '996';
-    case LAOS = '856';
-    case LATVIA = '371';
-    case LEBANON = '961';
-    case LESOTHO = '266';
-    case LIBERIA = '231';
-    case LIBYA = '218';
-    case LIECHTENSTEIN = '417';
-    case LITHUANIA = '370';
-    case LUXEMBOURG = '352';
-    case MACAO = '853';
-    case MACEDONIA = '389';
-    case MADAGASCAR = '261';
-    case MALAWI = '265';
-    case MALAYSIA = '60';
-    case MALDIVES = '960';
-    case MALI = '223';
-    case MALTA = '356';
-    case MARSHALL_ISLANDS = '692';
-    case MARTINIQUE = '596';
-    case MAURITANIA = '222';
-    case MEXICO = '52';
-    case MICRONESIA = '691';
-    case MOLDOVA = '373';
-    case MONACO = '377';
-    case MONGOLIA = '976';
-    case MOROCCO = '212';
-    case MOZAMBIQUE = '258';
-    case MYANMAR = '95';
-    case NAMIBIA = '264';
-    case NAURU = '674';
-    case NEPAL = '977';
-    case NETHERLANDS = '31';
-    case NEW_CALEDONIA = '687';
-    case NEW_ZEALAND = '64';
-    case NICARAGUA = '505';
-    case NIGER = '227';
-    case NIGERIA = '234';
-    case NIUE = '683';
-    case NORFOLK_ISLANDS = '672';
-    case NORTHERN_MARIANA_ISLANDS = '670';
-    case NORWAY = '47';
-    case OMAN = '968';
-    case PALAU = '680';
-    case PANAMA = '507';
-    case PAPUA_NEW_GUINEA = '675';
-    case PARAGUAY = '595';
-    case PERU = '51';
-    case PHILIPPINES = '63';
-    case POLAND = '48';
-    case PORTUGAL = '351';
-    case QATAR = '974';
-    case REUNION = '262';
-    case ROMANIA = '40';
-    case RUSSIA_KAZAKHSTAN_UZBEKISTAN_TURKMENISTAN_AND_TAJIKSTAN = '7';
-    case RWANDA = '250';
-    case SAN_MARINO = '378';
-    case SAO_TOME_AND_PRINCIPE = '239';
-    case SAUDI_ARABIA = '966';
-    case SENEGAL = '221';
-    case SERBIA = '381';
-    case SEYCHELLES = '248';
-    case SIERRA_LEONE = '232';
-    case SINGAPORE = '65';
-    case SLOVAK_REPUBLIC = '421';
-    case SLOVENIA = '386';
-    case SOLOMON_ISLANDS = '677';
-    case SOMALIA = '252';
-    case SOUTH_AFRICA = '27';
-    case SPAIN = '34';
-    case SRI_LANKA = '94';
-    case ST_HELENA = '290';
-    case SUDAN = '249';
-    case SURINAME = '597';
-    case SWAZILAND = '268';
-    case SWEDEN = '46';
-    case SWITZERLAND = '41';
-    case SYRIA = '963';
-    case TAIWAN = '886';
-    case THAILAND = '66';
-    case TOGO = '228';
-    case TONGA = '676';
-    case TUNISIA = '216';
-    case TURKEY = '90';
-    case TUVALU = '688';
-    case UGANDA = '256';
-    case UKRAINE = '380';
-    case UNITED_ARAB_EMIRATES = '971';
-    case UNITED_KINGDOM = '44';
-    case URUGUAY = '598';
-    case NORTH_AMERICA = '1';
-    case VANUATU = '678';
-    case VENEZUELA = '58';
-    case VIETNAM = '84';
-    case WALLIS_AND_FUTUNA = '681';
-    case YEMEN = '967';
-    case ZAMBIA = '260';
-    case ZANZIBAR = '255';
-    case ZIMBABWE = '263';
+    public const ALGERIA = '213';
 
-    public static function fromPhoneNumber($number): ?CallingCode
+    public const ANDORRA = '376';
+
+    public const ANGOLA = '244';
+
+    public const ARGENTINA = '54';
+
+    public const ARMENIA = '374';
+
+    public const ARUBA = '297';
+
+    public const AUSTRALIA = '61';
+
+    public const AUSTRIA = '43';
+
+    public const AZERBAIJAN = '994';
+
+    public const BAHRAIN = '973';
+
+    public const BANGLADESH = '880';
+
+    public const BELARUS = '375';
+
+    public const BELGIUM = '32';
+
+    public const BELIZE = '501';
+
+    public const BENIN = '229';
+
+    public const BHUTAN = '975';
+
+    public const BOLIVIA = '591';
+
+    public const BOSNIA_HERZEGOVINA = '387';
+
+    public const BOTSWANA = '267';
+
+    public const BRAZIL = '55';
+
+    public const BRUNEI = '673';
+
+    public const BULGARIA = '359';
+
+    public const BURKINA_FASO = '226';
+
+    public const BURUNDI = '257';
+
+    public const CAMBODIA = '855';
+
+    public const CAMEROON = '237';
+
+    public const CAPE_VERDE_ISLANDS = '238';
+
+    public const CENTRAL_AFRICAN_REPUBLIC = '236';
+
+    public const CHILE = '56';
+
+    public const CHINA = '86';
+
+    public const COLOMBIA = '57';
+
+    public const COMOROS_AND_MAYOTTE = '269';
+
+    public const CONGO = '242';
+
+    public const COOK_ISLANDS = '682';
+
+    public const COSTA_RICA = '506';
+
+    public const CROATIA = '385';
+
+    public const CUBA = '53';
+
+    public const CYPRUS = '357';
+
+    public const CZECH_REPUBLIC = '420';
+
+    public const DENMARK = '45';
+
+    public const DJIBOUTI = '253';
+
+    public const ECUADOR = '593';
+
+    public const EGYPT = '20';
+
+    public const EL_SALVADOR = '503';
+
+    public const EQUATORIAL_GUINEA = '240';
+
+    public const ERITREA = '291';
+
+    public const ESTONIA = '372';
+
+    public const ETHIOPIA = '251';
+
+    public const FALKLAND_ISLANDS = '500';
+
+    public const FAROE_ISLANDS = '298';
+
+    public const FIJI = '679';
+
+    public const FINLAND = '358';
+
+    public const FRANCE = '33';
+
+    public const FRENCH_GUIANA = '594';
+
+    public const FRENCH_POLYNESIA = '689';
+
+    public const GABON = '241';
+
+    public const GAMBIA = '220';
+
+    public const GEORGIA = '995';
+
+    public const GERMANY = '49';
+
+    public const GHANA = '233';
+
+    public const GIBRALTAR = '350';
+
+    public const GREECE = '30';
+
+    public const GREENLAND = '299';
+
+    public const GUADELOUPE = '590';
+
+    public const GUAM = '671';
+
+    public const GUATEMALA = '502';
+
+    public const GUINEA = '224';
+
+    public const GUINEA_BISSAU = '245';
+
+    public const GUYANA = '592';
+
+    public const HAITI = '509';
+
+    public const HONDURAS = '504';
+
+    public const HONG_KONG = '852';
+
+    public const HUNGARY = '36';
+
+    public const ICELAND = '354';
+
+    public const INDIA = '91';
+
+    public const INDONESIA = '62';
+
+    public const IRAN = '98';
+
+    public const IRAQ = '964';
+
+    public const IRELAND = '353';
+
+    public const ISRAEL = '972';
+
+    public const ITALY = '39';
+
+    public const JAPAN = '81';
+
+    public const JORDAN = '962';
+
+    public const KENYA = '254';
+
+    public const KIRIBATI = '686';
+
+    public const NORTH_KOREA = '850';
+
+    public const SOUTH_KOREA = '82';
+
+    public const KUWAIT = '965';
+
+    public const KYRGYZSTAN = '996';
+
+    public const LAOS = '856';
+
+    public const LATVIA = '371';
+
+    public const LEBANON = '961';
+
+    public const LESOTHO = '266';
+
+    public const LIBERIA = '231';
+
+    public const LIBYA = '218';
+
+    public const LIECHTENSTEIN = '417';
+
+    public const LITHUANIA = '370';
+
+    public const LUXEMBOURG = '352';
+
+    public const MACAO = '853';
+
+    public const MACEDONIA = '389';
+
+    public const MADAGASCAR = '261';
+
+    public const MALAWI = '265';
+
+    public const MALAYSIA = '60';
+
+    public const MALDIVES = '960';
+
+    public const MALI = '223';
+
+    public const MALTA = '356';
+
+    public const MARSHALL_ISLANDS = '692';
+
+    public const MARTINIQUE = '596';
+
+    public const MAURITANIA = '222';
+
+    public const MEXICO = '52';
+
+    public const MICRONESIA = '691';
+
+    public const MOLDOVA = '373';
+
+    public const MONACO = '377';
+
+    public const MONGOLIA = '976';
+
+    public const MOROCCO = '212';
+
+    public const MOZAMBIQUE = '258';
+
+    public const MYANMAR = '95';
+
+    public const NAMIBIA = '264';
+
+    public const NAURU = '674';
+
+    public const NEPAL = '977';
+
+    public const NETHERLANDS = '31';
+
+    public const NEW_CALEDONIA = '687';
+
+    public const NEW_ZEALAND = '64';
+
+    public const NICARAGUA = '505';
+
+    public const NIGER = '227';
+
+    public const NIGERIA = '234';
+
+    public const NIUE = '683';
+
+    public const NORFOLK_ISLANDS = '672';
+
+    public const NORTHERN_MARIANA_ISLANDS = '670';
+
+    public const NORWAY = '47';
+
+    public const OMAN = '968';
+
+    public const PALAU = '680';
+
+    public const PANAMA = '507';
+
+    public const PAPUA_NEW_GUINEA = '675';
+
+    public const PARAGUAY = '595';
+
+    public const PERU = '51';
+
+    public const PHILIPPINES = '63';
+
+    public const POLAND = '48';
+
+    public const PORTUGAL = '351';
+
+    public const QATAR = '974';
+
+    public const REUNION = '262';
+
+    public const ROMANIA = '40';
+
+    public const RUSSIA_KAZAKHSTAN_UZBEKISTAN_TURKMENISTAN_AND_TAJIKSTAN = '7';
+
+    public const RWANDA = '250';
+
+    public const SAN_MARINO = '378';
+
+    public const SAO_TOME_AND_PRINCIPE = '239';
+
+    public const SAUDI_ARABIA = '966';
+
+    public const SENEGAL = '221';
+
+    public const SERBIA = '381';
+
+    public const SEYCHELLES = '248';
+
+    public const SIERRA_LEONE = '232';
+
+    public const SINGAPORE = '65';
+
+    public const SLOVAK_REPUBLIC = '421';
+
+    public const SLOVENIA = '386';
+
+    public const SOLOMON_ISLANDS = '677';
+
+    public const SOMALIA = '252';
+
+    public const SOUTH_AFRICA = '27';
+
+    public const SPAIN = '34';
+
+    public const SRI_LANKA = '94';
+
+    public const ST_HELENA = '290';
+
+    public const SUDAN = '249';
+
+    public const SURINAME = '597';
+
+    public const SWAZILAND = '268';
+
+    public const SWEDEN = '46';
+
+    public const SWITZERLAND = '41';
+
+    public const SYRIA = '963';
+
+    public const TAIWAN = '886';
+
+    public const THAILAND = '66';
+
+    public const TOGO = '228';
+
+    public const TONGA = '676';
+
+    public const TUNISIA = '216';
+
+    public const TURKEY = '90';
+
+    public const TUVALU = '688';
+
+    public const UGANDA = '256';
+
+    public const UKRAINE = '380';
+
+    public const UNITED_ARAB_EMIRATES = '971';
+
+    public const UNITED_KINGDOM = '44';
+
+    public const URUGUAY = '598';
+
+    public const NORTH_AMERICA = '1';
+
+    public const VANUATU = '678';
+
+    public const VENEZUELA = '58';
+
+    public const VIETNAM = '84';
+
+    public const WALLIS_AND_FUTUNA = '681';
+
+    public const YEMEN = '967';
+
+    public const ZAMBIA = '260';
+
+    public const ZANZIBAR = '255';
+
+    public const ZIMBABWE = '263';
+
+    protected const CODES = [
+        self::ALGERIA => true,
+        self::ANDORRA => true,
+        self::ANGOLA => true,
+        self::ARGENTINA => true,
+        self::ARMENIA => true,
+        self::ARUBA => true,
+        self::AUSTRALIA => true,
+        self::AUSTRIA => true,
+        self::AZERBAIJAN => true,
+        self::BAHRAIN => true,
+        self::BANGLADESH => true,
+        self::BELARUS => true,
+        self::BELGIUM => true,
+        self::BELIZE => true,
+        self::BENIN => true,
+        self::BHUTAN => true,
+        self::BOLIVIA => true,
+        self::BOSNIA_HERZEGOVINA => true,
+        self::BOTSWANA => true,
+        self::BRAZIL => true,
+        self::BRUNEI => true,
+        self::BULGARIA => true,
+        self::BURKINA_FASO => true,
+        self::BURUNDI => true,
+        self::CAMBODIA => true,
+        self::CAMEROON => true,
+        self::CAPE_VERDE_ISLANDS => true,
+        self::CENTRAL_AFRICAN_REPUBLIC => true,
+        self::CHILE => true,
+        self::CHINA => true,
+        self::COLOMBIA => true,
+        self::COMOROS_AND_MAYOTTE => true,
+        self::CONGO => true,
+        self::COOK_ISLANDS => true,
+        self::COSTA_RICA => true,
+        self::CROATIA => true,
+        self::CUBA => true,
+        self::CYPRUS => true,
+        self::CZECH_REPUBLIC => true,
+        self::DENMARK => true,
+        self::DJIBOUTI => true,
+        self::ECUADOR => true,
+        self::EGYPT => true,
+        self::EL_SALVADOR => true,
+        self::EQUATORIAL_GUINEA => true,
+        self::ERITREA => true,
+        self::ESTONIA => true,
+        self::ETHIOPIA => true,
+        self::FALKLAND_ISLANDS => true,
+        self::FAROE_ISLANDS => true,
+        self::FIJI => true,
+        self::FINLAND => true,
+        self::FRANCE => true,
+        self::FRENCH_GUIANA => true,
+        self::FRENCH_POLYNESIA => true,
+        self::GABON => true,
+        self::GAMBIA => true,
+        self::GEORGIA => true,
+        self::GERMANY => true,
+        self::GHANA => true,
+        self::GIBRALTAR => true,
+        self::GREECE => true,
+        self::GREENLAND => true,
+        self::GUADELOUPE => true,
+        self::GUAM => true,
+        self::GUATEMALA => true,
+        self::GUINEA => true,
+        self::GUINEA_BISSAU => true,
+        self::GUYANA => true,
+        self::HAITI => true,
+        self::HONDURAS => true,
+        self::HONG_KONG => true,
+        self::HUNGARY => true,
+        self::ICELAND => true,
+        self::INDIA => true,
+        self::INDONESIA => true,
+        self::IRAN => true,
+        self::IRAQ => true,
+        self::IRELAND => true,
+        self::ISRAEL => true,
+        self::ITALY => true,
+        self::JAPAN => true,
+        self::JORDAN => true,
+        self::KENYA => true,
+        self::KIRIBATI => true,
+        self::NORTH_KOREA => true,
+        self::SOUTH_KOREA => true,
+        self::KUWAIT => true,
+        self::KYRGYZSTAN => true,
+        self::LAOS => true,
+        self::LATVIA => true,
+        self::LEBANON => true,
+        self::LESOTHO => true,
+        self::LIBERIA => true,
+        self::LIBYA => true,
+        self::LIECHTENSTEIN => true,
+        self::LITHUANIA => true,
+        self::LUXEMBOURG => true,
+        self::MACAO => true,
+        self::MACEDONIA => true,
+        self::MADAGASCAR => true,
+        self::MALAWI => true,
+        self::MALAYSIA => true,
+        self::MALDIVES => true,
+        self::MALI => true,
+        self::MALTA => true,
+        self::MARSHALL_ISLANDS => true,
+        self::MARTINIQUE => true,
+        self::MAURITANIA => true,
+        self::MEXICO => true,
+        self::MICRONESIA => true,
+        self::MOLDOVA => true,
+        self::MONACO => true,
+        self::MONGOLIA => true,
+        self::MOROCCO => true,
+        self::MOZAMBIQUE => true,
+        self::MYANMAR => true,
+        self::NAMIBIA => true,
+        self::NAURU => true,
+        self::NEPAL => true,
+        self::NETHERLANDS => true,
+        self::NEW_CALEDONIA => true,
+        self::NEW_ZEALAND => true,
+        self::NICARAGUA => true,
+        self::NIGER => true,
+        self::NIGERIA => true,
+        self::NIUE => true,
+        self::NORFOLK_ISLANDS => true,
+        self::NORTHERN_MARIANA_ISLANDS => true,
+        self::NORWAY => true,
+        self::OMAN => true,
+        self::PALAU => true,
+        self::PANAMA => true,
+        self::PAPUA_NEW_GUINEA => true,
+        self::PARAGUAY => true,
+        self::PERU => true,
+        self::PHILIPPINES => true,
+        self::POLAND => true,
+        self::PORTUGAL => true,
+        self::QATAR => true,
+        self::REUNION => true,
+        self::ROMANIA => true,
+        self::RUSSIA_KAZAKHSTAN_UZBEKISTAN_TURKMENISTAN_AND_TAJIKSTAN => true,
+        self::RWANDA => true,
+        self::SAN_MARINO => true,
+        self::SAO_TOME_AND_PRINCIPE => true,
+        self::SAUDI_ARABIA => true,
+        self::SENEGAL => true,
+        self::SERBIA => true,
+        self::SEYCHELLES => true,
+        self::SIERRA_LEONE => true,
+        self::SINGAPORE => true,
+        self::SLOVAK_REPUBLIC => true,
+        self::SLOVENIA => true,
+        self::SOLOMON_ISLANDS => true,
+        self::SOMALIA => true,
+        self::SOUTH_AFRICA => true,
+        self::SPAIN => true,
+        self::SRI_LANKA => true,
+        self::ST_HELENA => true,
+        self::SUDAN => true,
+        self::SURINAME => true,
+        self::SWAZILAND => true,
+        self::SWEDEN => true,
+        self::SWITZERLAND => true,
+        self::SYRIA => true,
+        self::TAIWAN => true,
+        self::THAILAND => true,
+        self::TOGO => true,
+        self::TONGA => true,
+        self::TUNISIA => true,
+        self::TURKEY => true,
+        self::TUVALU => true,
+        self::UGANDA => true,
+        self::UKRAINE => true,
+        self::UNITED_ARAB_EMIRATES => true,
+        self::UNITED_KINGDOM => true,
+        self::URUGUAY => true,
+        self::NORTH_AMERICA => true,
+        self::VANUATU => true,
+        self::VENEZUELA => true,
+        self::VIETNAM => true,
+        self::WALLIS_AND_FUTUNA => true,
+        self::YEMEN => true,
+        self::ZAMBIA => true,
+        self::ZANZIBAR => true,
+        self::ZIMBABWE => true,
+    ];
+
+    public static function fromPhoneNumber($number): ?string
     {
         $digits = str_replace(['+', ' ', '(', ')', '-'], '', $number);
 
@@ -208,9 +584,8 @@ enum CallingCode: string
         // Prefixes can be 3, 2, or 1 digits long
         // Attempt to match the longest first
         foreach ([3, 2, 1] as $length) {
-            $codeScalar = substr($digits, 0, $length);
-            $code = CallingCode::tryFrom($codeScalar);
-            if ($code) {
+            $code = substr($digits, 0, $length);
+            if (isset(self::CODES[$code])) {
                 return $code;
             }
         }
