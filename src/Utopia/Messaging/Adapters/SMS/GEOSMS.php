@@ -2,13 +2,14 @@
 
 namespace Utopia\Messaging\Adapters\SMS;
 
-use Utopia\Messaging\Adapters\SMS\GEOSMS\CallingCode;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
+use Utopia\Messaging\Adapters\SMS\GEOSMS\CallingCode;
 use Utopia\Messaging\Messages\SMS;
 
 class GEOSMS extends SMSAdapter
 {
     protected $defaultAdapter;
+
     protected $localAdapters = [];
 
     public function __construct(SMSAdapter $defaultAdapter)
@@ -29,6 +30,7 @@ class GEOSMS extends SMSAdapter
     public function setLocal(CallingCode $callingCode, SMSAdapter $adapter): self
     {
         $this->localAdapters[$callingCode->value] = $adapter;
+
         return $this;
     }
 

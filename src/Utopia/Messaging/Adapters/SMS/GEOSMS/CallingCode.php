@@ -9,7 +9,6 @@ namespace Utopia\Messaging\Adapters\SMS\GEOSMS;
 
 enum CallingCode: string
 {
-
     case ALGERIA = '213';
     case ANDORRA = '376';
     case ANGOLA = '244';
@@ -203,7 +202,7 @@ enum CallingCode: string
         $digits = str_replace(['+', ' ', '(', ')', '-'], '', $number);
 
         // International call prefix is usually 00 or 011
-        // https://en.wikipedia.org/wiki/List_of_international_call_prefixes 
+        // https://en.wikipedia.org/wiki/List_of_international_call_prefixes
         $digits = preg_replace('/^00|^011/', '', $digits);
 
         // Prefixes can be 3, 2, or 1 digits long
@@ -211,7 +210,9 @@ enum CallingCode: string
         foreach ([3, 2, 1] as $length) {
             $codeScalar = substr($digits, 0, $length);
             $code = CallingCode::tryFrom($codeScalar);
-            if ($code) return $code;
+            if ($code) {
+                return $code;
+            }
         }
 
         return null;
