@@ -1,6 +1,6 @@
 <?php
 
-namespace Utopia\Messaging\Adapter\App;
+namespace Utopia\Messaging\Adapter\Chat;
 
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Messages\Discord as DiscordMessage;

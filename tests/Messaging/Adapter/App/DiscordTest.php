@@ -1,8 +1,8 @@
 <?php
 
-namespace Utopia\Tests\Adapter\App;
+namespace Utopia\Tests\Adapter\Chat;
 
-use Utopia\Messaging\Adapter\App\Discord;
+use Utopia\Messaging\Adapter\Chat\Discord;
 use Utopia\Messaging\Messages\Discord as DiscordMessage;
 use Utopia\Tests\Adapter\Base;
 
