@@ -52,6 +52,7 @@ class Msg91 extends SMSAdapter
             $recipients[] = [
                 'mobiles' => $recipient,
                 'content' => $message->getContent(),
+                'otp' => $message->getContent(),
             ];
         }
 
