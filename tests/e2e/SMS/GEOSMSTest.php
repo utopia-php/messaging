@@ -12,8 +12,8 @@ class GEOSMSTest extends Base
     public function testSendSMSUsingDefaultAdapter()
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
-        $defaultAdapterMock->method('getMaxMessagesPerRequest')
-            ->willReturn(1);
+        $defaultAdapterMock->method('getName')
+            ->willReturn('default');
         $defaultAdapterMock->method('send')
             ->willReturn(json_encode(['status' => 'success']));
 
@@ -28,26 +28,25 @@ class GEOSMSTest extends Base
             from: $from
         );
 
-        $result = json_decode($adapter->send($message));
+        $result = json_decode($adapter->send($message), true);
 
-        $this->assertEquals('success', $result->status);
+        $this->assertEquals(1, count($result));
+        $this->assertEquals('success', $result['default']['status']);
     }
 
     public function testSendSMSUsingLocalAdapter()
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
-        $defaultAdapterMock->method('getMaxMessagesPerRequest')
-            ->willReturn(1);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
-        $localAdapterMock->method('getMaxMessagesPerRequest')
-            ->willReturn(1);
+        $localAdapterMock->method('getName')
+            ->willReturn('local');
         $localAdapterMock->method('send')
-            ->willReturn(json_encode(['status' => 'success', 'adapter' => 'local']));
+            ->willReturn(json_encode(['status' => 'success']));
 
         $adapter = new GEOSMS($defaultAdapterMock);
-        $adapter->setLocal(CallingCode::UNITED_KINGDOM, $localAdapterMock);
+        $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
 
-        $to = ['+441234567890'];
+        $to = ['+911234567890'];
         $from = 'Sender';
 
         $message = new SMS(
@@ -56,9 +55,69 @@ class GEOSMSTest extends Base
             from: $from
         );
 
-        $result = json_decode($adapter->send($message));
+        $result = json_decode($adapter->send($message), true);
 
-        $this->assertEquals('success', $result->status);
-        $this->assertEquals('local', $result->adapter);
+        $this->assertEquals(1, count($result));
+        $this->assertEquals('success', $result['local']['status']);
+    }
+
+    public function testSendSMSUsingLocalAdapterAndDefault()
+    {
+        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock->method('getName')
+            ->willReturn('default');
+        $defaultAdapterMock->method('send')
+            ->willReturn(json_encode(['status' => 'success']));
+        $localAdapterMock = $this->createMock(SMSAdapter::class);
+        $localAdapterMock->method('getName')
+            ->willReturn('local');
+        $localAdapterMock->method('send')
+            ->willReturn(json_encode(['status' => 'success']));
+
+        $adapter = new GEOSMS($defaultAdapterMock);
+        $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
+
+        $to = ['+911234567890', '+11234567890'];
+        $from = 'Sender';
+
+        $message = new SMS(
+            to: $to,
+            content: 'Test Content',
+            from: $from
+        );
+
+        $result = json_decode($adapter->send($message), true);
+
+        $this->assertEquals(2, count($result));
+        $this->assertEquals('success', $result['local']['status']);
+        $this->assertEquals('success', $result['default']['status']);
+    }
+
+    public function testSendSMSUsingGroupedLocalAdapter()
+    {
+        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
+        $localAdapterMock = $this->createMock(SMSAdapter::class);
+        $localAdapterMock->method('getName')
+            ->willReturn('local');
+        $localAdapterMock->method('send')
+            ->willReturn(json_encode(['status' => 'success']));
+
+        $adapter = new GEOSMS($defaultAdapterMock);
+        $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
+        $adapter->setLocal(CallingCode::NORTH_AMERICA, $localAdapterMock);
+
+        $to = ['+911234567890', '+11234567890'];
+        $from = 'Sender';
+
+        $message = new SMS(
+            to: $to,
+            content: 'Test Content',
+            from: $from
+        );
+
+        $result = json_decode($adapter->send($message), true);
+
+        $this->assertEquals(1, count($result));
+        $this->assertEquals('success', $result['local']['status']);
     }
 }

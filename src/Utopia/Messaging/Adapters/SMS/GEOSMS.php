@@ -34,45 +34,77 @@ class GEOSMS extends SMSAdapter
         return $this;
     }
 
-    protected function process(SMS $message): string
-    {
-        $recipientsByCallingCode = $this->groupRecipientsByCallingCode($message->getTo());
-        $responses = [];
-        $errors = [];
-
-        foreach ($recipientsByCallingCode as $callingCode => $recipients) {
-            $adapter = isset($this->localAdapters[$callingCode])
-                ? $this->localAdapters[$callingCode]
-                : $this->defaultAdapter;
-
-            try {
-                $responses[] = $adapter->send(new SMS(
-                    to: $recipients,
-                    content: $message->getContent(),
-                    from: $message->getFrom(),
-                    attachments: $message->getAttachments()
-                ));
-            } catch (\Exception $e) {
-                $errors[] = $e;
-            }
-        }
-
-        if (count($errors) > 0) {
-            throw new \Exception('Failed to send SMS to some recipients', 0, $errors[0]);
-        }
-
-        return $responses[0];
-    }
-
-    protected function groupRecipientsByCallingCode(array $recipients): array
+    protected function filterCallingCodesByAdapter(SMSAdapter $adapter): array
     {
         $result = [];
 
-        foreach ($recipients as $recipient) {
-            $callingCode = CallingCode::fromPhoneNumber($recipient);
-            $result[$callingCode][] = $recipient;
+        foreach ($this->localAdapters as $callingCode => $localAdapter) {
+            if ($localAdapter === $adapter) {
+                $result[] = $callingCode;
+            }
         }
 
         return $result;
+    }
+
+    protected function process(SMS $message): string
+    {
+        $results = [];
+        $recipients = $message->getTo();
+
+        do {
+            [$nextRecipients, $nextAdapter] = $this->getNextRecipientsAndAdapter($recipients);
+
+            try {
+                $results[$nextAdapter->getName()] = json_decode($nextAdapter->send(
+                    new SMS(
+                        to: $nextRecipients,
+                        content: $message->getContent(),
+                        from: $message->getFrom(),
+                        attachments: $message->getAttachments()
+                    )
+                ));
+            } catch (\Exception $e) {
+                $results[$nextAdapter->getName()] = [
+                    'type' => 'error',
+                    'message' => $e->getMessage(),
+                ];
+            }
+
+            $recipients = \array_diff($recipients, $nextRecipients);
+        } while (count($recipients) > 0);
+
+        return \json_encode($results);
+    }
+
+    protected function getNextRecipientsAndAdapter(array $recipients): array
+    {
+        $nextRecipients = [];
+        $nextAdapter = null;
+
+        foreach ($recipients as $recipient) {
+            $adapter = $this->getAdapterByPhoneNumber($recipient);
+
+            if ($nextAdapter === null || $adapter === $nextAdapter) {
+                $nextAdapter = $adapter;
+                $nextRecipients[] = $recipient;
+            }
+        }
+
+        return [$nextRecipients, $nextAdapter];
+    }
+
+    protected function getAdapterByPhoneNumber(?string $phoneNumber): SMSAdapter
+    {
+        $callingCode = CallingCode::fromPhoneNumber($phoneNumber);
+        if ($callingCode === null || empty($callingCode)) {
+            return $this->defaultAdapter;
+        }
+
+        if (isset($this->localAdapters[$callingCode])) {
+            return $this->localAdapters[$callingCode];
+        }
+
+        return $this->defaultAdapter;
     }
 }

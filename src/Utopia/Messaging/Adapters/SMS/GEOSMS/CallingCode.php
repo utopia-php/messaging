@@ -265,6 +265,8 @@ class CallingCode
 
     public const NORFOLK_ISLANDS = '672';
 
+    public const NORTH_AMERICA = '1';
+
     public const NORTHERN_MARIANA_ISLANDS = '670';
 
     public const NORWAY = '47';
@@ -364,8 +366,6 @@ class CallingCode
     public const UNITED_KINGDOM = '44';
 
     public const URUGUAY = '598';
-
-    public const NORTH_AMERICA = '1';
 
     public const VANUATU = '678';
 
