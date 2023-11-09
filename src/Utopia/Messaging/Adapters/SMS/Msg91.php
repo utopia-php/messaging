@@ -10,6 +10,8 @@ use Utopia\Messaging\Messages\SMS;
 
 class Msg91 extends SMSAdapter
 {
+    private $templateId;
+
     /**
      * @param  string  $senderId Msg91 Sender ID
      * @param  string  $authKey Msg91 Auth Key
@@ -31,6 +33,13 @@ class Msg91 extends SMSAdapter
         return 1000;
     }
 
+    public function setTemplate(string $templateId): self
+    {
+        $this->templateId = $templateId;
+
+        return $this;
+    }
+
     /**
      * {@inheritdoc}
      *
@@ -38,7 +47,13 @@ class Msg91 extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
-        $to = ['mobiles' => \implode(',', $message->getTo())];
+        $recipients = [];
+        foreach ($message->getTo() as $recipient) {
+            $recipients[] = [
+                'mobiles' => $recipient,
+                'content' => $message->getContent(),
+            ];
+        }
 
         return $this->request(
             method: 'POST',
@@ -49,28 +64,9 @@ class Msg91 extends SMSAdapter
             ],
             body: \json_encode([
                 'sender' => $this->senderId,
-                'otp' => $message->getContent(),
-                'flow_id' => $message->getFrom(),
-                'recipients' => [$to],
+                'template_id' => $this->templateId,
+                'recipients' => $recipients,
             ]),
-        );
-    }
-
-    private function addTemplate(string $content, string $senderId, string $templateName, string $smsType = 'NORMAL')
-    {
-        return $this->request(
-            method: 'POST',
-            url: 'https://control.msg91.com/api/v5/sms/addTemplate',
-            headers: [
-                'content-type: application/json',
-                "authkey: {$this->authKey}",
-            ],
-            body: \json_encode([
-                'template' => $content,
-                'sender_id' => $senderId,
-                'template_name' => $templateName,
-                'smsType' => $smsType,
-            ])
         );
     }
 }
