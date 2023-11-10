@@ -50,7 +50,7 @@ class Msg91 extends SMSAdapter
         $recipients = [];
         foreach ($message->getTo() as $recipient) {
             $recipients[] = [
-                'mobiles' => $recipient,
+                'mobiles' => \ltrim($recipient, '+'),
                 'content' => $message->getContent(),
                 'otp' => $message->getContent(),
             ];
