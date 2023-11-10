@@ -1,12 +1,13 @@
 <?php
 
-namespace Tests\E2E;
+namespace Utopia\Tests\Messaging\Adapter\SMS\GEOSMS;
 
-use Utopia\Messaging\Adapters\SMS\GEOSMS\CallingCode;
+use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
+use Utopia\Tests\Adapter\Base;
 
 class CallingCodeTest extends Base
 {
-    public function testFromPhoneNumber()
+    public function testFromPhoneNumber(): void
     {
         $this->assertEquals(CallingCode::NORTH_AMERICA, CallingCode::fromPhoneNumber('+11234567890'));
         $this->assertEquals(CallingCode::INDIA, CallingCode::fromPhoneNumber('+911234567890'));

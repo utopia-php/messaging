@@ -1,6 +1,6 @@
 <?php
 
-namespace Utopia\Messaging\Adapters\SMS\GEOSMS;
+namespace Utopia\Messaging\Adapter\SMS\GEOSMS;
 
 /*
  * List of country calling codes
@@ -573,7 +573,7 @@ class CallingCode
         self::ZIMBABWE => true,
     ];
 
-    public static function fromPhoneNumber($number): ?string
+    public static function fromPhoneNumber(string $number): ?string
     {
         $digits = str_replace(['+', ' ', '(', ')', '-'], '', $number);
 

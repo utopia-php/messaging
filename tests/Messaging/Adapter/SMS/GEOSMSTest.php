@@ -1,15 +1,16 @@
 <?php
 
-namespace Tests\E2E;
+namespace Utopia\Tests\Adapter\SMS;
 
-use Utopia\Messaging\Adapters\SMS as SMSAdapter;
-use Utopia\Messaging\Adapters\SMS\GEOSMS;
-use Utopia\Messaging\Adapters\SMS\GEOSMS\CallingCode;
+use Utopia\Messaging\Adapter\SMS as SMSAdapter;
+use Utopia\Messaging\Adapter\SMS\GEOSMS;
+use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Tests\Adapter\Base;
 
 class GEOSMSTest extends Base
 {
-    public function testSendSMSUsingDefaultAdapter()
+    public function testSendSMSUsingDefaultAdapter(): void
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $defaultAdapterMock->method('getName')
@@ -34,7 +35,7 @@ class GEOSMSTest extends Base
         $this->assertEquals('success', $result['default']['status']);
     }
 
-    public function testSendSMSUsingLocalAdapter()
+    public function testSendSMSUsingLocalAdapter(): void
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
@@ -61,7 +62,7 @@ class GEOSMSTest extends Base
         $this->assertEquals('success', $result['local']['status']);
     }
 
-    public function testSendSMSUsingLocalAdapterAndDefault()
+    public function testSendSMSUsingLocalAdapterAndDefault(): void
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $defaultAdapterMock->method('getName')
@@ -93,7 +94,7 @@ class GEOSMSTest extends Base
         $this->assertEquals('success', $result['default']['status']);
     }
 
-    public function testSendSMSUsingGroupedLocalAdapter()
+    public function testSendSMSUsingGroupedLocalAdapter(): void
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock = $this->createMock(SMSAdapter::class);

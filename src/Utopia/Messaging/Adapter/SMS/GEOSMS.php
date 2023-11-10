@@ -1,16 +1,19 @@
 <?php
 
-namespace Utopia\Messaging\Adapters\SMS;
+namespace Utopia\Messaging\Adapter\SMS;
 
-use Utopia\Messaging\Adapters\SMS as SMSAdapter;
-use Utopia\Messaging\Adapters\SMS\GEOSMS\CallingCode;
+use Utopia\Messaging\Adapter\SMS as SMSAdapter;
+use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
 use Utopia\Messaging\Messages\SMS;
 
 class GEOSMS extends SMSAdapter
 {
-    protected $defaultAdapter;
+    protected SMSAdapter $defaultAdapter;
 
-    protected $localAdapters = [];
+    /**
+     * @var array<string, SMSAdapter>
+     */
+    protected array $localAdapters = [];
 
     public function __construct(SMSAdapter $defaultAdapter)
     {
@@ -34,6 +37,10 @@ class GEOSMS extends SMSAdapter
         return $this;
     }
 
+    /**
+     * @param SMSAdapter $adapter
+     * @return array<string>
+     */
     protected function filterCallingCodesByAdapter(SMSAdapter $adapter): array
     {
         $result = [];
@@ -77,6 +84,10 @@ class GEOSMS extends SMSAdapter
         return \json_encode($results);
     }
 
+    /**
+     * @param array<string> $recipients
+     * @return array<array<string>|SMSAdapter>
+     */
     protected function getNextRecipientsAndAdapter(array $recipients): array
     {
         $nextRecipients = [];
@@ -97,7 +108,7 @@ class GEOSMS extends SMSAdapter
     protected function getAdapterByPhoneNumber(?string $phoneNumber): SMSAdapter
     {
         $callingCode = CallingCode::fromPhoneNumber($phoneNumber);
-        if ($callingCode === null || empty($callingCode)) {
+        if (empty($callingCode)) {
             return $this->defaultAdapter;
         }
 
