@@ -38,7 +38,6 @@ class GEOSMS extends SMSAdapter
     }
 
     /**
-     * @param SMSAdapter $adapter
      * @return array<string>
      */
     protected function filterCallingCodesByAdapter(SMSAdapter $adapter): array
@@ -85,7 +84,7 @@ class GEOSMS extends SMSAdapter
     }
 
     /**
-     * @param array<string> $recipients
+     * @param  array<string>  $recipients
      * @return array<array<string>|SMSAdapter>
      */
     protected function getNextRecipientsAndAdapter(array $recipients): array
