@@ -10,7 +10,7 @@ use Utopia\Messaging\Messages\SMS;
 
 class Msg91 extends SMSAdapter
 {
-    private $templateId;
+    private string $templateId;
 
     /**
      * @param  string  $senderId Msg91 Sender ID
