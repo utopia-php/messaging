@@ -33,7 +33,7 @@ class Pushbullet extends PushAdapter
      */
     public function getMaxMessagesPerRequest(): int
     {
-        //TODO:: Didn't find the limit in PushBullet documentation
+        //TODO:: Didn't find the limit in Pushbullet documentation
         return 1000;
     }
 
