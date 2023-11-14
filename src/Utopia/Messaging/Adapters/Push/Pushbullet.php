@@ -10,7 +10,7 @@ use Utopia\Messaging\Messages\Push;
 class Pushbullet extends PushAdapter
 {
     /**
-     * @param  string  $apiKey The PushBullet API key.
+     * @param  string  $apiKey The Pushbullet API key.
      */
     public function __construct(private string $apiKey)
     {
