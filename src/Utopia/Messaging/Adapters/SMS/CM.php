@@ -8,7 +8,7 @@ use Utopia\Messaging\Messages\SMS;
 class CM extends SMSAdapter
 {
     /**
-     * @param string $apiKey CM API Key
+     * @param  string  $apiKey CM API Key
      */
     public function __construct(
         private string $apiKey
@@ -37,7 +37,7 @@ class CM extends SMSAdapter
             url: 'https://api.cmtelecom.com/v1.0/message',
             headers: [
                 'Content-Type: application/json',
-                'Authorization: Bearer ' . $this->apiKey,
+                'Authorization: Bearer '.$this->apiKey,
             ],
             body: json_encode([
                 'from' => $message->getFrom(),
