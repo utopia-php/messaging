@@ -7,7 +7,7 @@ use Utopia\Messaging\Messages\SMS;
 
 // Reference Material
 // https://46elks.com/docs/send-sms
-class fortysixelks extends SMSAdapter
+class FortySixElks extends SMSAdapter
 { 
 
      /**
