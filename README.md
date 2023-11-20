@@ -110,7 +110,7 @@ $messaging->send($message);
 - [x] [FCM](https://firebase.google.com/docs/cloud-messaging)
 - [ ] [APNS](https://developer.apple.com/documentation/usernotifications)
 - [ ] [OneSignal](https://onesignal.com/)
-- [ ] [Pusher](https://pusher.com/)
+- [x] [Pusher](https://pusher.com/)
 - [ ] [WebPush](https://developer.mozilla.org/en-US/docs/Web/API/Push_API)
 - [ ] [UrbanAirship](https://www.urbanairship.com/)
 - [ ] [Pushwoosh](https://www.pushwoosh.com/)
