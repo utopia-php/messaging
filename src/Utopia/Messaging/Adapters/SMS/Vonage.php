@@ -16,7 +16,8 @@ class Vonage extends SMSAdapter
      */
     public function __construct(
         private string $apiKey,
-        private string $apiSecret
+        private string $apiSecret,
+        private ?string $from = null
     ) {
     }
 
@@ -47,7 +48,7 @@ class Vonage extends SMSAdapter
             url: 'https://rest.nexmo.com/sms/json',
             body: \http_build_query([
                 'text' => $message->getContent(),
-                'from' => $message->getFrom(),
+                'from' => $this->from ?? $message->getFrom(),
                 'to' => $to[0], //\implode(',', $to),
                 'api_key' => $this->apiKey,
                 'api_secret' => $this->apiSecret,

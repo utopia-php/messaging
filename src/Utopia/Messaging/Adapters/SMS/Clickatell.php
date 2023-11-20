@@ -14,6 +14,7 @@ class Clickatell extends SMSAdapter
      */
     public function __construct(
         private string $apiKey,
+        private ?string $from = null
     ) {
     }
 
@@ -43,7 +44,7 @@ class Clickatell extends SMSAdapter
             ],
             body: \json_encode([
                 'content' => $message->getContent(),
-                'from' => $message->getFrom(),
+                'from' => $this->from ?? $message->getFrom(),
                 'to' => $message->getTo(),
             ]),
         );

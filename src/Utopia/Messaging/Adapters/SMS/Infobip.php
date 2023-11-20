@@ -15,7 +15,8 @@ class Infobip extends SMSAdapter
      */
     public function __construct(
         private string $apiBaseUrl,
-        private string $apiKey
+        private string $apiKey,
+        private ?string $from = null
     ) {
     }
 
@@ -48,7 +49,7 @@ class Infobip extends SMSAdapter
             body: \json_encode([
                 'messages' => [
                     'text' => $message->getContent(),
-                    'from' => $message->getFrom(),
+                    'from' => $this->from ?? $message->getFrom(),
                     'destinations' => $to,
                 ],
             ]),

@@ -13,7 +13,8 @@ class Twilio extends SMSAdapter
      */
     public function __construct(
         private string $accountSid,
-        private string $authToken
+        private string $authToken,
+        private ?string $from = null
     ) {
     }
 
@@ -42,7 +43,7 @@ class Twilio extends SMSAdapter
             ],
             body: \http_build_query([
                 'Body' => $message->getContent(),
-                'From' => $message->getFrom(),
+                'From' => $this->from ?? $message->getFrom(),
                 'To' => $message->getTo()[0],
             ]),
         );
