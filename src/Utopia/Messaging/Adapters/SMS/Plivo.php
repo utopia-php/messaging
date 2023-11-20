@@ -15,7 +15,8 @@ class Plivo extends SMSAdapter
      */
     public function __construct(
         private string $authId,
-        private string $authToken
+        private string $authToken,
+        private ?string $from = null
     ) {
     }
 
@@ -44,7 +45,7 @@ class Plivo extends SMSAdapter
             ],
             body: \http_build_query([
                 'text' => $message->getContent(),
-                'src' => $message->getFrom() ?? 'Plivo',
+                'src' => $this->from ?? $message->getFrom() ?? 'Plivo',
                 'dst' => \implode('<', $message->getTo()),
             ]),
         );
