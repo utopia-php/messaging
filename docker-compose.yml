@@ -29,6 +29,7 @@ services:
     - VONAGE_API_SECRET
     - VONAGE_TO
     - VONAGE_FROM
+    - NETCORE_API_KEY
     build:
       context: .
     volumes:
