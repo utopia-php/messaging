@@ -98,10 +98,10 @@ class APNS extends PushAdapter
         ]);
 
         $response = '';
-        $endpoint = 'api.push.apple.com';
+        $endpoint = 'https://api.push.apple.com';
 
         if ($this->sandbox) {
-            $endpoint = 'api.development.push.apple.com';
+            $endpoint = 'https://api.development.push.apple.com';
         }
 
         $mh = curl_multi_init();
