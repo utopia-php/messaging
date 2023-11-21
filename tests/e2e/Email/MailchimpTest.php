@@ -34,6 +34,6 @@ class MailchimpTest extends Base
 
         $this->assertArrayHasKey('_id', $result);
         $this->assertArrayHasKey('status', $result);
-        $this->assertTrue(str_contains(strtolower($result['status']), 'sent'));
+        $this->assertStringContainsStringIgnoringCase('sent', $result['status']);
     }
 }
