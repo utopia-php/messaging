@@ -5,6 +5,7 @@ services:
     environment:
     - MAILGUN_API_KEY
     - MAILGUN_DOMAIN
+    - POSTMARK_API_KEY
     - SENDGRID_API_KEY
     - FCM_SERVER_KEY
     - FCM_SERVER_TO

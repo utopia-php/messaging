@@ -12,8 +12,6 @@ class PostmarkTest extends Base
      */
     public function testSendPlainTextEmail()
     {
-        $this->markTestSkipped('Postmark credentials not set.');
-
         $key = getenv('POSTMARK_API_KEY');
         $sender = new Postmark($key);
 
