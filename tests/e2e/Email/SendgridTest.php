@@ -2,6 +2,7 @@
 
 namespace Tests\E2E\Email;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\Email\Sendgrid;
 use Utopia\Messaging\Messages\Email;
 
