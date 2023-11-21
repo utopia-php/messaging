@@ -13,7 +13,7 @@ class APNS extends PushAdapter
      * @param  string  $authKeyId
      * @param  string  $teamId
      * @param  string  $bundleId
-     * @param  string  $endpoint
+     * @param  bool    $sandbox
      * @return void
      */
     public function __construct(
@@ -21,7 +21,7 @@ class APNS extends PushAdapter
       private string $authKeyId,
       private string $teamId,
       private string $bundleId,
-      private string $endpoint
+      private bool $sandbox = false
     ) {
     }
 
@@ -98,13 +98,18 @@ class APNS extends PushAdapter
         ]);
 
         $response = '';
+        $endpoint = 'api.push.apple.com';
+
+        if ($this->sandbox) {
+            $endpoint = 'api.development.push.apple.com';
+        }
 
         $mh = curl_multi_init();
         $handles = [];
 
         // Create a handle for each request
         foreach ($to as $token) {
-            curl_setopt($ch, CURLOPT_URL, $this->endpoint.'/3/device/'.$token);
+            curl_setopt($ch, CURLOPT_URL, $endpoint.'/3/device/'.$token);
 
             $handle = curl_copy_handle($ch);
             curl_multi_add_handle($mh, $handle);
