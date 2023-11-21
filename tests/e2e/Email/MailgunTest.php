@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\Email;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\Email\Mailgun;
 use Utopia\Messaging\Messages\Email;
 

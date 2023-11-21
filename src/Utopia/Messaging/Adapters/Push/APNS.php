@@ -9,26 +9,19 @@ use Utopia\Messaging\Messages\Push;
 class APNS extends PushAdapter
 {
     /**
-     * @param  string  $authKey
-     * @param  string  $authKeyId
-     * @param  string  $teamId
-     * @param  string  $bundleId
-     * @param  bool    $sandbox
      * @return void
      */
     public function __construct(
-      private string $authKey,
-      private string $authKeyId,
-      private string $teamId,
-      private string $bundleId,
-      private bool $sandbox = false
+        private string $authKey,
+        private string $authKeyId,
+        private string $teamId,
+        private string $bundleId,
+        private bool $sandbox = false
     ) {
     }
 
     /**
      * Get adapter name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -37,8 +30,6 @@ class APNS extends PushAdapter
 
     /**
      * Get max messages per request.
-     *
-     * @return int
      */
     public function getMaxMessagesPerRequest(): int
     {
@@ -48,8 +39,6 @@ class APNS extends PushAdapter
     /**
      * {@inheritdoc}
      *
-     * @param  Push  $message
-     * @return string
      *
      * @throws Exception
      */
@@ -184,7 +173,6 @@ class APNS extends PushAdapter
     /**
      * Generate JWT.
      *
-     * @return string
      *
      * @throws Exception
      */

@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\Push;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\Push\FCM as FCMAdapter;
 use Utopia\Messaging\Messages\Push;
 

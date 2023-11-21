@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\Push;
 
 use Utopia\Messaging\Adapters\Push\APNS as APNSAdapter;
 use Utopia\Messaging\Messages\Push;

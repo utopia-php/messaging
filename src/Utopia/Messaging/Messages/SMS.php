@@ -14,33 +14,21 @@ class SMS implements Message
     ) {
     }
 
-    /**
-     * @return array
-     */
     public function getTo(): array
     {
         return $this->to;
     }
 
-    /**
-     * @return string
-     */
     public function getContent(): string
     {
         return $this->content;
     }
 
-    /**
-     * @return string|null
-     */
     public function getFrom(): ?string
     {
         return $this->from;
     }
 
-    /**
-     * @return array|null
-     */
     public function getAttachments(): ?array
     {
         return $this->attachments;
