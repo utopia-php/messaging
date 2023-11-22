@@ -18,8 +18,6 @@ class FCM extends PushAdapter
 
     /**
      * Get adapter name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -28,8 +26,6 @@ class FCM extends PushAdapter
 
     /**
      * Get max messages per request.
-     *
-     * @return int
      */
     public function getMaxMessagesPerRequest(): int
     {
@@ -44,7 +40,7 @@ class FCM extends PushAdapter
     protected function process(Push $message): string
     {
         $response = new Response(0, 0, $this->getType(), []);
-        $result =  \json_decode($this->request(
+        $result = \json_decode($this->request(
             method: 'POST',
             url: 'https://fcm.googleapis.com/fcm/send',
             headers: [
@@ -77,7 +73,7 @@ class FCM extends PushAdapter
                 $details[] = [
                     'recipient' => $message->getTo()[$index],
                     'status' => \array_key_exists('error', $item) ? 'failure' : 'success',
-                    'error' => \array_key_exists('error', $item) 
+                    'error' => \array_key_exists('error', $item)
                                     ? match ($item['error']) {
                                         'MissingRegistration' => 'Bad Request. Missing token.',
                                         'InvalidRegistration' => 'Invalid token.',
@@ -88,22 +84,22 @@ class FCM extends PushAdapter
                                         default => $item['error'],
                                     } : '',
                 ];
-            } else if ($result['statusCode'] === 400) {
+            } elseif ($result['statusCode'] === 400) {
                 $details[] = [
                     'recipient' => $message->getTo()[$index],
                     'status' => 'failure',
                     'error' => match ($item['error']) {
                         'Invalid JSON' => 'Bad Request.',
                         'Invalid Parameters' => 'Bad Request.',
-                    }
-                ]; 
-            } else if ($result['statusCode'] === 401) {
+                    },
+                ];
+            } elseif ($result['statusCode'] === 401) {
                 $details[] = [
                     'recipient' => $message->getTo()[$index],
                     'status' => 'failure',
                     'error' => 'Authentication error.',
                 ];
-            } else if ($result['statusCode'] >= 500) {
+            } elseif ($result['statusCode'] >= 500) {
                 $details[] = [
                     'recipient' => $message->getTo()[$index],
                     'status' => 'failure',
@@ -116,7 +112,7 @@ class FCM extends PushAdapter
                     'error' => 'Unknown error',
                 ];
             }
-           
+
         }
 
         $response->setDetails($details);

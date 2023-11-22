@@ -10,26 +10,19 @@ use Utopia\Messaging\Response;
 class APNS extends PushAdapter
 {
     /**
-     * @param  string  $authKey
-     * @param  string  $authKeyId
-     * @param  string  $teamId
-     * @param  string  $bundleId
-     * @param  string  $endpoint
      * @return void
      */
     public function __construct(
-      private string $authKey,
-      private string $authKeyId,
-      private string $teamId,
-      private string $bundleId,
-      private string $endpoint
+        private string $authKey,
+        private string $authKeyId,
+        private string $teamId,
+        private string $bundleId,
+        private string $endpoint
     ) {
     }
 
     /**
      * Get adapter name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -38,8 +31,6 @@ class APNS extends PushAdapter
 
     /**
      * Get max messages per request.
-     *
-     * @return int
      */
     public function getMaxMessagesPerRequest(): int
     {
@@ -49,8 +40,6 @@ class APNS extends PushAdapter
     /**
      * {@inheritdoc}
      *
-     * @param  Push  $message
-     * @return string
      *
      * @throws Exception
      */
@@ -125,9 +114,9 @@ class APNS extends PushAdapter
         foreach ($handles as $ch) {
             $urlInfo = curl_getinfo($ch);
             $result = curl_multi_getcontent($ch);
-            
+
             // Separate headers and body
-            list($headerString, $body) = explode("\r\n\r\n", $result, 2);
+            [$headerString, $body] = explode("\r\n\r\n", $result, 2);
             $body = \json_decode($body, true);
             $errorMessage = $body ? $body['reason'] : '';
             $device = basename($urlInfo['url']); // Extracts deviceToken from the URL
@@ -162,14 +151,14 @@ class APNS extends PushAdapter
                         'InternalServerError' => 'Internal server error.',
                         'PayloadEmpty' => 'Bad Request.',
                         default => $errorMessage,
-                    }
+                    },
                 ];
 
                 $response->setFailure($failure);
                 $response->setDetails($details);
 
                 if ($httpCode === 401) {
-                    $details[\count($response->getDetails())-1]['error'] = 'Authentication error.';
+                    $details[\count($response->getDetails()) - 1]['error'] = 'Authentication error.';
 
                     $response->setDetails($details);
                 }
@@ -181,14 +170,13 @@ class APNS extends PushAdapter
 
         curl_multi_close($mh);
         curl_share_close($sh);
+
         return $response->toArray();
     }
-
 
     /**
      * Generate JWT.
      *
-     * @return string
      *
      * @throws Exception
      */

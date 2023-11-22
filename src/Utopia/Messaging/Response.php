@@ -5,8 +5,11 @@ namespace Utopia\Messaging;
 class Response
 {
     private int $success;
+
     private int $failure;
+
     private string $type;
+
     private array $details;
 
     public function __construct(int $success, int $failure, string $type, array $details)

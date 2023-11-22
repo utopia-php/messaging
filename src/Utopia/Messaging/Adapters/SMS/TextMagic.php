@@ -42,7 +42,7 @@ class Textmagic extends SMSAdapter
             $message->getTo()
         );
 
-        $result =  $this->request(
+        $result = $this->request(
             method: 'POST',
             url: 'https://rest.textmagic.com/api/v2/messages',
             headers: [
@@ -55,6 +55,7 @@ class Textmagic extends SMSAdapter
                 'phones' => \implode(',', $to),
             ]),
         );
+
         return $result;
     }
 }

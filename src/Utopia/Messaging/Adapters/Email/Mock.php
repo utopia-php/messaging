@@ -52,7 +52,7 @@ class Mock extends EmailAdapter
             $mail->addAddress($to);
         }
 
-        if (!$mail->send()) {
+        if (! $mail->send()) {
             $response->setFailure(\count($message->getTo()));
             $response->setDetails([
                 'recipient' => '',

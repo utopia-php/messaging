@@ -17,8 +17,6 @@ class Sendgrid extends EmailAdapter
 
     /**
      * Get adapter name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -27,8 +25,6 @@ class Sendgrid extends EmailAdapter
 
     /**
      * Get max messages per request.
-     *
-     * @return int
      */
     public function getMaxMessagesPerRequest(): int
     {
@@ -38,8 +34,6 @@ class Sendgrid extends EmailAdapter
     /**
      * {@inheritdoc}
      *
-     * @param  Email  $message
-     * @return string
      *
      * @throws Exception
      */

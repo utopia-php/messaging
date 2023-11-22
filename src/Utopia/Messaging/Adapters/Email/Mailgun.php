@@ -21,8 +21,6 @@ class Mailgun extends EmailAdapter
 
     /**
      * Get adapter name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -31,8 +29,6 @@ class Mailgun extends EmailAdapter
 
     /**
      * Get adapter description.
-     *
-     * @return int
      */
     public function getMaxMessagesPerRequest(): int
     {
@@ -72,7 +68,7 @@ class Mailgun extends EmailAdapter
 
         if ($statusCode >= 200 && $statusCode < 300) {
             $response->setSuccess(\count($message->getTo()));
-        } else if ($statusCode >= 400 && $statusCode < 500) {
+        } elseif ($statusCode >= 400 && $statusCode < 500) {
             $response->setFailure(\count($message->getTo()));
             $response->setDetails([
                 'recipient' => '',
