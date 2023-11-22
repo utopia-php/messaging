@@ -13,7 +13,8 @@ class Seven extends SMSAdapter
      * @param  string  $apiKey Seven API token
      */
     public function __construct(
-        private string $apiKey
+        private string $apiKey,
+        private ?string $from = null
     ) {
     }
 
@@ -42,7 +43,7 @@ class Seven extends SMSAdapter
                 'content-type: application/json',
             ],
             body: \json_encode([
-                'from' => $message->getFrom(),
+                'from' => $this->from ?? $message->getFrom(),
                 'to' => \implode(',', $message->getTo()),
                 'text' => $message->getContent(),
             ]),
