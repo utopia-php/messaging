@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\Email;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\Email\Sendgrid;
 use Utopia\Messaging\Messages\Email;
 
@@ -12,7 +13,6 @@ class SendgridTest extends Base
      */
     public function testSendEmail()
     {
-        /*
         $key = getenv('SENDGRID_API_KEY');
         $sender = new Sendgrid($key);
 
@@ -31,8 +31,5 @@ class SendgridTest extends Base
         $response = $sender->send($message);
 
         $this->assertEquals($response, '');
-        */
-
-        $this->markTestSkipped('Sendgrid: Authenticated user is not authorized to send mail');
     }
 }

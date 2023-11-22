@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapters\Email;
 
 use Utopia\Messaging\Adapters\Email as EmailAdapter;
 use Utopia\Messaging\Messages\Email;
+use Utopia\Messaging\Response;
 
 class Mailgun extends EmailAdapter
 {
@@ -50,7 +51,9 @@ class Mailgun extends EmailAdapter
 
         $domain = $this->isEU ? $euDomain : $usDomain;
 
-        $response = $this->request(
+        $response = new Response(0, 0, $this->getType(), []);
+
+        $result = \json_decode($this->request(
             method: 'POST',
             url: "https://$domain/v3/{$this->domain}/messages",
             headers: [
@@ -63,8 +66,21 @@ class Mailgun extends EmailAdapter
                 'text' => $message->isHtml() ? null : $message->getContent(),
                 'html' => $message->isHtml() ? $message->getContent() : null,
             ]),
-        );
+        ), true);
 
-        return $response;
+        $statusCode = $result['statusCode'];
+
+        if ($statusCode >= 200 && $statusCode < 300) {
+            $response->setSuccess(\count($message->getTo()));
+        } else if ($statusCode >= 400 && $statusCode < 500) {
+            $response->setFailure(\count($message->getTo()));
+            $response->setDetails([
+                'recipient' => '',
+                'status' => 'failure',
+                'error' => $result['response']['message'],
+            ]);
+        }
+
+        return \json_encode($response->toArray());
     }
 }

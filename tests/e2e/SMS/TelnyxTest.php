@@ -1,9 +1,8 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\SMS;
 
-use Utopia\Messaging\Adapters\SMS\Telnyx;
-use Utopia\Messaging\Messages\SMS;
+use Tests\E2E\Base;
 
 class TelnyxTest extends Base
 {

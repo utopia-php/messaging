@@ -6,6 +6,7 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use Utopia\Messaging\Adapters\Email as EmailAdapter;
 use Utopia\Messaging\Messages\Email;
+use Utopia\Messaging\Response;
 
 class Mock extends EmailAdapter
 {
@@ -28,6 +29,7 @@ class Mock extends EmailAdapter
      */
     protected function process(Email $message): string
     {
+        $response = new Response(0, 0, $this->getType(), []);
         $mail = new PHPMailer();
         $mail->isSMTP();
         $mail->XMailer = 'Utopia Mailer';
@@ -50,10 +52,17 @@ class Mock extends EmailAdapter
             $mail->addAddress($to);
         }
 
-        if (! $mail->send()) {
-            throw new \Exception($mail->ErrorInfo);
+        if (!$mail->send()) {
+            $response->setFailure(\count($message->getTo()));
+            $response->setDetails([
+                'recipient' => '',
+                'status' => 'failure',
+                'error' => $mail->ErrorInfo,
+            ]);
+        } else {
+            $response->setSuccess(\count($message->getTo()));
         }
 
-        return true;
+        return \json_encode($response->toArray());
     }
 }

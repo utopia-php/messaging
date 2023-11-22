@@ -5,6 +5,7 @@ namespace Utopia\Messaging\Adapters\Push;
 use Exception;
 use Utopia\Messaging\Adapters\Push as PushAdapter;
 use Utopia\Messaging\Messages\Push;
+use Utopia\Messaging\Response;
 
 class APNS extends PushAdapter
 {
@@ -97,8 +98,6 @@ class APNS extends PushAdapter
             CURLOPT_HEADER => true,
         ]);
 
-        $response = '';
-
         $mh = curl_multi_init();
         $handles = [];
 
@@ -112,7 +111,7 @@ class APNS extends PushAdapter
             $handles[] = $handle;
         }
 
-        $active = null;
+        $active = 1;
         $status = CURLM_OK;
 
         // Execute the handles
@@ -120,24 +119,60 @@ class APNS extends PushAdapter
             $status = curl_multi_exec($mh, $active);
         }
 
+        $response = new Response(0, 0, $this->getType(), []);
+
         // Check each handle's result
-        $responses = [];
         foreach ($handles as $ch) {
             $urlInfo = curl_getinfo($ch);
+            $result = curl_multi_getcontent($ch);
+            
+            // Separate headers and body
+            list($headerString, $body) = explode("\r\n\r\n", $result, 2);
+            $body = \json_decode($body, true);
+            $errorMessage = $body ? $body['reason'] : '';
             $device = basename($urlInfo['url']); // Extracts deviceToken from the URL
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $details = $response->getDetails();
 
-            if (! curl_errno($ch)) {
-                $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $responses[] = [
-                    'device' => $device,
+            if ($httpCode === 200) {
+                $success = $response->getSuccess();
+
+                $success++;
+                $details[] = [
+                    'recipient' => $device,
                     'status' => 'success',
-                    'statusCode' => $statusCode,
+                    'error' => '',
                 ];
+
+                $response->setSuccess($success);
+                $response->setDetails($details);
             } else {
-                $responses[$device] = [
-                    'status' => 'error',
-                    'error' => curl_error($ch),
+                $failure = $response->getFailure();
+
+                $failure++;
+                $details[] = [
+                    'recipient' => $device,
+                    'status' => 'failure',
+                    'error' => match ($errorMessage) {
+                        'MissingDeviceToken' => 'Bad Request. Missing token.',
+                        'BadDeviceToken' => 'Invalid token.',
+                        'ExpiredToken' => 'Expired token.',
+                        'PayloadTooLarge' => 'Payload is too large. Please keep maximum 4096 bytes for messages.',
+                        'TooManyRequests' => 'Too many requests were made consecutively to the same device token.',
+                        'InternalServerError' => 'Internal server error.',
+                        'PayloadEmpty' => 'Bad Request.',
+                        default => $errorMessage,
+                    }
                 ];
+
+                $response->setFailure($failure);
+                $response->setDetails($details);
+
+                if ($httpCode === 401) {
+                    $details[\count($response->getDetails())-1]['error'] = 'Authentication error.';
+
+                    $response->setDetails($details);
+                }
             }
 
             curl_multi_remove_handle($mh, $ch);
@@ -146,35 +181,9 @@ class APNS extends PushAdapter
 
         curl_multi_close($mh);
         curl_share_close($sh);
-
-        return $responses;
+        return $response->toArray();
     }
 
-    private function formatResponse(string $response): array
-    {
-        $filtered = array_filter(
-            explode("\r\n", $response),
-            function ($value) {
-                return ! empty($value);
-            }
-        );
-
-        $result = [];
-
-        foreach ($filtered as $value) {
-            if (str_contains($value, 'HTTP')) {
-                $result['status'] = trim(str_replace('HTTP/2 ', '', $value));
-
-                continue;
-            }
-
-            $parts = explode(':', trim($value));
-
-            $result[$parts[0]] = $parts[1];
-        }
-
-        return $result;
-    }
 
     /**
      * Generate JWT.

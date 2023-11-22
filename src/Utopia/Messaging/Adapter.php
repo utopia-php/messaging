@@ -72,15 +72,11 @@ abstract class Adapter
 
         $response = \curl_exec($ch);
 
-        if (\curl_errno($ch)) {
-            throw new \Exception('Error: '.\curl_error($ch));
-        }
-        if (\curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
-            throw new \Exception($response);
-        }
-
         \curl_close($ch);
 
-        return $response;
+        return \json_encode([
+            'response' => \json_decode($response, true),
+            'statusCode' => \curl_getinfo($ch, CURLINFO_HTTP_CODE),
+        ]);
     }
 }

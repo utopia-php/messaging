@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\Push;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\Push\FCM as FCMAdapter;
 use Utopia\Messaging\Messages\Push;
 
@@ -28,10 +29,9 @@ class FCMTest extends Base
             badge: '1'
         );
 
-        $response = \json_decode($adapter->send($message));
-
+        $response = \json_decode($adapter->send($message), true);
         $this->assertNotEmpty($response);
-        $this->assertEquals(1, $response->success);
-        $this->assertEquals(0, $response->failure);
+        $this->assertEquals(1, $response['success']);
+        $this->assertEquals(0, $response['failure']);
     }
 }

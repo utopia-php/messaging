@@ -8,11 +8,11 @@ namespace Utopia\Messaging\Adapters\SMS;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 
-class TextMagic extends SMSAdapter
+class Textmagic extends SMSAdapter
 {
     /**
-     * @param  string  $username TextMagic account username
-     * @param  string  $apiKey TextMagic account API key
+     * @param  string  $username Textmagic account username
+     * @param  string  $apiKey Textmagic account API key
      */
     public function __construct(
         private string $username,
@@ -22,7 +22,7 @@ class TextMagic extends SMSAdapter
 
     public function getName(): string
     {
-        return 'TextMagic';
+        return 'Textmagic';
     }
 
     public function getMaxMessagesPerRequest(): int
@@ -42,7 +42,7 @@ class TextMagic extends SMSAdapter
             $message->getTo()
         );
 
-        return $this->request(
+        $result =  $this->request(
             method: 'POST',
             url: 'https://rest.textmagic.com/api/v2/messages',
             headers: [
@@ -55,5 +55,6 @@ class TextMagic extends SMSAdapter
                 'phones' => \implode(',', $to),
             ]),
         );
+        return $result;
     }
 }

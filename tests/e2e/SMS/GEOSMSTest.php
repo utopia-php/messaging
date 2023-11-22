@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\SMS;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Adapters\SMS\GEOSMS;
 use Utopia\Messaging\Adapters\SMS\GEOSMS\CallingCode;

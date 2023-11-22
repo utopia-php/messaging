@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\Email;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\Email\Mailgun;
 use Utopia\Messaging\Messages\Email;
 
@@ -33,10 +34,10 @@ class MailgunTest extends Base
             content: $content,
         );
 
-        $result = (array) \json_decode($sender->send($message));
+        $response = (array) \json_decode($sender->send($message), true);
 
-        $this->assertArrayHasKey('id', $result);
-        $this->assertArrayHasKey('message', $result);
-        $this->assertTrue(str_contains(strtolower($result['message']), 'queued'));
+        $this->assertEquals(1, $response['success']);
+        $this->assertEquals(0, $response['failure']);
+        $this->assertEquals([], $response['details']);
     }
 }

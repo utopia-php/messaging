@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\Push;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\Push\APNS as APNSAdapter;
 use Utopia\Messaging\Messages\Push;
 
@@ -9,7 +10,7 @@ class APNSTest extends Base
 {
     public function testSend(): void
     {
-        $authKey = getenv('APNS_AUTHKEY_8KVVCLA3HL');
+        $authKey = getenv('APNS_AUTHKEY');
         $authKeyId = getenv('APNS_AUTH_ID');
         $teamId = getenv('APNS_TEAM_ID');
         $bundleId = getenv('APNS_BUNDLE_ID');
@@ -30,10 +31,11 @@ class APNSTest extends Base
             badge: '1'
         );
 
-        $responses = \json_decode($adapter->send($message));
+        $response = \json_decode($adapter->send($message), true);
 
-        foreach ($responses as $response) {
-            $this->assertEquals('success', $response->status);
-        }
+        $this->assertEquals(1, $response['success']);
+        $this->assertEquals('', $response['details'][0]['error']);
+        $this->assertEquals('success', $response['details'][0]['status']);
+
     }
 }
