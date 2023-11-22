@@ -1,3 +1,4 @@
+# Stage 1: Composer
 FROM composer:2.0 as composer
 
 ARG TESTING=false
@@ -15,11 +16,14 @@ RUN composer install \
     --no-scripts \
     --prefer-dist
 
+# Stage 2: PHP
 FROM php:8.0-cli-alpine
 
 WORKDIR /usr/local/src/
 
 COPY --from=composer /usr/local/src/vendor /usr/local/src/vendor
 COPY . /usr/local/src/
+
+
 
 CMD [ "tail", "-f", "/dev/null" ]

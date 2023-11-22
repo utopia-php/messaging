@@ -17,8 +17,6 @@ class FCM extends PushAdapter
 
     /**
      * Get adapter name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -27,8 +25,6 @@ class FCM extends PushAdapter
 
     /**
      * Get max messages per request.
-     *
-     * @return int
      */
     public function getMaxMessagesPerRequest(): int
     {

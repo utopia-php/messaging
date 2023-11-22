@@ -6,29 +6,21 @@ abstract class Adapter
 {
     /**
      * Get the name of the adapter.
-     *
-     * @return string
      */
     abstract public function getName(): string;
 
     /**
      * Get the type of the adapter.
-     *
-     * @return string
      */
     abstract public function getType(): string;
 
     /**
      * Get the type of the message the adapter can send.
-     *
-     * @return string
      */
     abstract public function getMessageType(): string;
 
     /**
      * Get the maximum number of messages that can be sent in a single request.
-     *
-     * @return int
      */
     abstract public function getMaxMessagesPerRequest(): int;
 
