@@ -39,7 +39,7 @@ class FCM extends PushAdapter
      */
     protected function process(Push $message): string
     {
-        $response = new Response(0, 0, $this->getType(), []);
+        $response = new Response($this->getType());
         $result = \json_decode($this->request(
             method: 'POST',
             url: 'https://fcm.googleapis.com/fcm/send',
@@ -63,17 +63,13 @@ class FCM extends PushAdapter
             ])
         ), true);
 
-        $response->setSuccess($result['response']['success']);
-        $response->setFailure($result['response']['failure']);
-
-        $details = $response->getDetails();
+        $response->setDeliveredTo($result['response']['success']);
 
         foreach ($result['response']['results'] as $index => $item) {
             if ($result['statusCode'] === 200) {
-                $details[] = [
-                    'recipient' => $message->getTo()[$index],
-                    'status' => \array_key_exists('error', $item) ? 'failure' : 'success',
-                    'error' => \array_key_exists('error', $item)
+                $response->addToDetails(
+                    $message->getTo()[$index],
+                    \array_key_exists('error', $item)
                                     ? match ($item['error']) {
                                         'MissingRegistration' => 'Bad Request. Missing token.',
                                         'InvalidRegistration' => 'Invalid token.',
@@ -83,39 +79,33 @@ class FCM extends PushAdapter
                                         'InternalServerError' => 'Internal server error.',
                                         default => $item['error'],
                                     } : '',
-                ];
+                );
             } elseif ($result['statusCode'] === 400) {
-                $details[] = [
-                    'recipient' => $message->getTo()[$index],
-                    'status' => 'failure',
-                    'error' => match ($item['error']) {
+                $response->addToDetails(
+                    $message->getTo()[$index],
+                    match ($item['error']) {
                         'Invalid JSON' => 'Bad Request.',
                         'Invalid Parameters' => 'Bad Request.',
                     },
-                ];
+                );
             } elseif ($result['statusCode'] === 401) {
-                $details[] = [
-                    'recipient' => $message->getTo()[$index],
-                    'status' => 'failure',
-                    'error' => 'Authentication error.',
-                ];
+                $response->addToDetails(
+                    $message->getTo()[$index],
+                    'Authentication error.',
+                );
             } elseif ($result['statusCode'] >= 500) {
-                $details[] = [
-                    'recipient' => $message->getTo()[$index],
-                    'status' => 'failure',
-                    'error' => 'Server unavailable.',
-                ];
+                $response->addToDetails(
+                    $message->getTo()[$index],
+                    'Server unavailable.',
+                );
             } else {
-                $details[] = [
-                    'recipient' => $message->getTo()[$index],
-                    'status' => 'failure',
-                    'error' => 'Unknown error',
-                ];
+                $response->addToDetails(
+                    $message->getTo()[$index],
+                    'Unknown error',
+                );
             }
 
         }
-
-        $response->setDetails($details);
 
         return \json_encode($response->toArray());
     }

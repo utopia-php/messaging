@@ -31,7 +31,8 @@ class FCMTest extends Base
 
         $response = \json_decode($adapter->send($message), true);
         $this->assertNotEmpty($response);
-        $this->assertEquals(1, $response['success']);
-        $this->assertEquals(0, $response['failure']);
+        $this->assertEquals(1, $response['deliveredTo']);
+        $this->assertEquals('success', $response['details'][0]['status']);
+        $this->assertEquals($to, $response['details'][0]['recipient']);
     }
 }

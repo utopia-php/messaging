@@ -47,7 +47,7 @@ class Mailgun extends EmailAdapter
 
         $domain = $this->isEU ? $euDomain : $usDomain;
 
-        $response = new Response(0, 0, $this->getType(), []);
+        $response = new Response($this->getType());
 
         $result = \json_decode($this->request(
             method: 'POST',
@@ -67,14 +67,14 @@ class Mailgun extends EmailAdapter
         $statusCode = $result['statusCode'];
 
         if ($statusCode >= 200 && $statusCode < 300) {
-            $response->setSuccess(\count($message->getTo()));
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addToDetails($to);
+            }
         } elseif ($statusCode >= 400 && $statusCode < 500) {
-            $response->setFailure(\count($message->getTo()));
-            $response->setDetails([
-                'recipient' => '',
-                'status' => 'failure',
-                'error' => $result['response']['message'],
-            ]);
+            foreach ($message->getTo() as $to) {
+                $response->addToDetails($to, $result['response']['message']);
+            }
         }
 
         return \json_encode($response->toArray());

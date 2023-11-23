@@ -108,7 +108,7 @@ class APNS extends PushAdapter
             $status = curl_multi_exec($mh, $active);
         }
 
-        $response = new Response(0, 0, $this->getType(), []);
+        $response = new Response($this->getType());
 
         // Check each handle's result
         foreach ($handles as $ch) {
@@ -121,28 +121,14 @@ class APNS extends PushAdapter
             $errorMessage = $body ? $body['reason'] : '';
             $device = basename($urlInfo['url']); // Extracts deviceToken from the URL
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $details = $response->getDetails();
 
             if ($httpCode === 200) {
-                $success = $response->getSuccess();
-
-                $success++;
-                $details[] = [
-                    'recipient' => $device,
-                    'status' => 'success',
-                    'error' => '',
-                ];
-
-                $response->setSuccess($success);
-                $response->setDetails($details);
+                $response->incrementDeliveredTo();
+                $response->addToDetails($device);
             } else {
-                $failure = $response->getFailure();
-
-                $failure++;
-                $details[] = [
-                    'recipient' => $device,
-                    'status' => 'failure',
-                    'error' => match ($errorMessage) {
+                $response->addToDetails(
+                    $device,
+                    match ($errorMessage) {
                         'MissingDeviceToken' => 'Bad Request. Missing token.',
                         'BadDeviceToken' => 'Invalid token.',
                         'ExpiredToken' => 'Expired token.',
@@ -152,15 +138,11 @@ class APNS extends PushAdapter
                         'PayloadEmpty' => 'Bad Request.',
                         default => $errorMessage,
                     },
-                ];
-
-                $response->setFailure($failure);
-                $response->setDetails($details);
+                );
 
                 if ($httpCode === 401) {
-                    $details[\count($response->getDetails()) - 1]['error'] = 'Authentication error.';
-
-                    $response->setDetails($details);
+                    $response->popFromDetails();
+                    $response->addToDetails($device, 'Authentication error.');
                 }
             }
 

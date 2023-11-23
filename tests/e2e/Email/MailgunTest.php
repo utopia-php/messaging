@@ -36,8 +36,8 @@ class MailgunTest extends Base
 
         $response = (array) \json_decode($sender->send($message), true);
 
-        $this->assertEquals(1, $response['success']);
-        $this->assertEquals(0, $response['failure']);
-        $this->assertEquals([], $response['details']);
+        $this->assertEquals(1, $response['deliveredTo']);
+        $this->assertEquals('', $response['details'][0]['error']);
+        $this->assertEquals('success', $response['details'][0]['status']);
     }
 }

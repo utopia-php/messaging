@@ -4,40 +4,32 @@ namespace Utopia\Messaging;
 
 class Response
 {
-    private int $success;
-
-    private int $failure;
+    private int $deliveredTo;
 
     private string $type;
 
     private array $details;
 
-    public function __construct(int $success, int $failure, string $type, array $details)
+    public function __construct(string $type)
     {
-        $this->success = $success;
-        $this->failure = $failure;
         $this->type = $type;
-        $this->details = $details;
+        $this->deliveredTo = 0;
+        $this->details = [];
     }
 
-    public function setSuccess(int $success): void
+    public function setDeliveredTo(int $deliveredTo): void
     {
-        $this->success = $success;
+        $this->deliveredTo = $deliveredTo;
     }
 
-    public function getSuccess(): int
+    public function incrementDeliveredTo(): void
     {
-        return $this->success;
+        $this->deliveredTo++;
     }
 
-    public function setFailure(int $failure): void
+    public function getDeliveredTo(): int
     {
-        $this->failure = $failure;
-    }
-
-    public function getFailure(): int
-    {
-        return $this->failure;
+        return $this->deliveredTo;
     }
 
     public function setType(string $type): void
@@ -50,9 +42,18 @@ class Response
         return $this->type;
     }
 
-    public function setDetails(array $details): void
+    public function addToDetails(string $recipient, string $error = ''): void
     {
-        $this->details = $details;
+        $this->details[] = [
+            'recipient' => $recipient,
+            'status' => $error === '' ? 'success' : 'failure',
+            'error' => $error,
+        ];
+    }
+
+    public function popFromDetails()
+    {
+        array_pop($this->details);
     }
 
     public function getDetails(): array
@@ -63,8 +64,7 @@ class Response
     public function toArray(): array
     {
         return [
-            'success' => $this->success,
-            'failure' => $this->failure,
+            'deliveredTo' => $this->deliveredTo,
             'type' => $this->type,
             'details' => $this->details,
         ];

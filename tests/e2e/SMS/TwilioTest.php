@@ -23,11 +23,12 @@ class TwilioTest extends Base
             from: $from
         );
 
-        $result = \json_decode($sender->send($message));
+        $result = \json_decode($sender->send($message), true);
 
-        $this->assertNotEmpty($result);
-        $this->assertEquals($to[0], $result->to);
-        $this->assertEquals($from, $result->from);
-        $this->assertNull($result->error_message);
+        $this->assertEquals($to[0], $result['details'][0]['recipient']);
+        $this->assertEquals(1, $result['deliveredTo']);
+        $this->assertEquals('success', $result['details'][0]['status']);
+        $this->assertEquals('', $result['details'][0]['error']);
+
     }
 }

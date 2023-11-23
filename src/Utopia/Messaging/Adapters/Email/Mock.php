@@ -29,7 +29,7 @@ class Mock extends EmailAdapter
      */
     protected function process(Email $message): string
     {
-        $response = new Response(0, 0, $this->getType(), []);
+        $response = new Response($this->getType());
         $mail = new PHPMailer();
         $mail->isSMTP();
         $mail->XMailer = 'Utopia Mailer';
@@ -53,14 +53,9 @@ class Mock extends EmailAdapter
         }
 
         if (! $mail->send()) {
-            $response->setFailure(\count($message->getTo()));
-            $response->setDetails([
-                'recipient' => '',
-                'status' => 'failure',
-                'error' => $mail->ErrorInfo,
-            ]);
+            $response->addToDetails('', $mail->ErrorInfo);
         } else {
-            $response->setSuccess(\count($message->getTo()));
+            $response->setDeliveredTo(\count($message->getTo()));
         }
 
         return \json_encode($response->toArray());

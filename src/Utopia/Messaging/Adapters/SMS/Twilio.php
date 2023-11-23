@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapters\SMS;
 
 use Utopia\Messaging\Adapters\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Response;
 
 class Twilio extends SMSAdapter
 {
@@ -35,7 +36,9 @@ class Twilio extends SMSAdapter
      */
     protected function process(SMS $message): string
     {
-        return $this->request(
+        $response = new Response($this->getType());
+
+        $result = \json_decode($this->request(
             method: 'POST',
             url: "https://api.twilio.com/2010-04-01/Accounts/{$this->accountSid}/Messages.json",
             headers: [
@@ -46,6 +49,15 @@ class Twilio extends SMSAdapter
                 'From' => $this->from ?? $message->getFrom(),
                 'To' => $message->getTo()[0],
             ]),
-        );
+        ), true);
+
+        if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
+            $response->setDeliveredTo(1);
+            $response->addToDetails($message->getTo()[0]);
+        } else {
+            $response->addToDetails($message->getTo()[0], $result['body']['message'] ?? '');
+        }
+
+        return \json_encode($response->toArray());
     }
 }
