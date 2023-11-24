@@ -27,10 +27,11 @@ class EmailTest extends Base
             from: $from
         );
 
-        $sender->send($message);
+        $response = \json_decode($sender->send($message), true);
 
         $lastEmail = $this->getLastEmail();
 
+        $this->assertResponse($response);
         $this->assertEquals($to, $lastEmail['to'][0]['address']);
         $this->assertEquals($from, $lastEmail['from'][0]['address']);
         $this->assertEquals($subject, $lastEmail['subject']);

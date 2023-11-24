@@ -2,7 +2,6 @@
 
 namespace Utopia\Messaging\Adapters\Push;
 
-use Exception;
 use Utopia\Messaging\Adapters\Push as PushAdapter;
 use Utopia\Messaging\Messages\Push;
 use Utopia\Messaging\Response;
@@ -39,9 +38,6 @@ class APNS extends PushAdapter
 
     /**
      * {@inheritdoc}
-     *
-     *
-     * @throws Exception
      */
     public function process(Push $message): string
     {
@@ -158,9 +154,6 @@ class APNS extends PushAdapter
 
     /**
      * Generate JWT.
-     *
-     *
-     * @throws Exception
      */
     private function generateJwt(): string
     {
@@ -176,14 +169,14 @@ class APNS extends PushAdapter
         $base64UrlClaims = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($claims));
 
         if (! $this->authKey) {
-            throw new \Exception('Invalid private key');
+            return '';
         }
 
         $signature = '';
         $success = openssl_sign("$base64UrlHeader.$base64UrlClaims", $signature, $this->authKey, OPENSSL_ALGO_SHA256);
 
         if (! $success) {
-            throw new \Exception('Failed to sign JWT');
+            return '';
         }
 
         $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));

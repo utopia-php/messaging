@@ -37,8 +37,6 @@ class Mailgun extends EmailAdapter
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Exception
      */
     protected function process(Email $message): string
     {
@@ -49,7 +47,7 @@ class Mailgun extends EmailAdapter
 
         $response = new Response($this->getType());
 
-        $result = \json_decode($this->request(
+        $result = $this->request(
             method: 'POST',
             url: "https://$domain/v3/{$this->domain}/messages",
             headers: [
@@ -62,7 +60,7 @@ class Mailgun extends EmailAdapter
                 'text' => $message->isHtml() ? null : $message->getContent(),
                 'html' => $message->isHtml() ? $message->getContent() : null,
             ]),
-        ), true);
+        );
 
         $statusCode = $result['statusCode'];
 

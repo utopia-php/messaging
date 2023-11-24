@@ -34,13 +34,11 @@ class FCM extends PushAdapter
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Exception
      */
     protected function process(Push $message): string
     {
         $response = new Response($this->getType());
-        $result = \json_decode($this->request(
+        $result = $this->request(
             method: 'POST',
             url: 'https://fcm.googleapis.com/fcm/send',
             headers: [
@@ -61,7 +59,7 @@ class FCM extends PushAdapter
                 ],
                 'data' => $message->getData(),
             ])
-        ), true);
+        );
 
         $response->setDeliveredTo($result['response']['success']);
 

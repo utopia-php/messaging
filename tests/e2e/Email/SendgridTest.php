@@ -28,8 +28,8 @@ class SendgridTest extends Base
             content: $content,
         );
 
-        $response = $sender->send($message);
+        $response = \json_decode($sender->send($message), true);
 
-        $this->assertEquals($response, '');
+        $this->assertResponse($response);
     }
 }

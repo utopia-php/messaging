@@ -28,4 +28,11 @@ class Base extends TestCase
 
         return [];
     }
+
+    protected function assertResponse(array $response): void
+    {
+        $this->assertEquals(1, $response['deliveredTo']);
+        $this->assertEquals('', $response['details'][0]['error']);
+        $this->assertEquals('success', $response['details'][0]['status']);
+    }
 }

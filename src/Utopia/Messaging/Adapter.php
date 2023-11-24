@@ -48,7 +48,7 @@ abstract class Adapter
         string $url,
         array $headers = [],
         string $body = null,
-    ): string {
+    ): array {
         $ch = \curl_init();
 
         if (! \is_null($body)) {
@@ -66,9 +66,9 @@ abstract class Adapter
 
         \curl_close($ch);
 
-        return \json_encode([
+        return [
             'response' => \json_decode($response, true),
             'statusCode' => \curl_getinfo($ch, CURLINFO_HTTP_CODE),
-        ]);
+        ];
     }
 }

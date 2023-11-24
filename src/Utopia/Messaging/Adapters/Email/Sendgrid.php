@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapters\Email;
 
 use Utopia\Messaging\Adapters\Email as EmailAdapter;
 use Utopia\Messaging\Messages\Email;
+use Utopia\Messaging\Response;
 
 class Sendgrid extends EmailAdapter
 {
@@ -33,13 +34,11 @@ class Sendgrid extends EmailAdapter
 
     /**
      * {@inheritdoc}
-     *
-     *
-     * @throws Exception
      */
     protected function process(Email $message): string
     {
-        return $this->request(
+        $response = new Response($this->getType());
+        $result = $this->request(
             method: 'POST',
             url: 'https://api.sendgrid.com/v3/mail/send',
             headers: [
@@ -67,5 +66,20 @@ class Sendgrid extends EmailAdapter
                 ],
             ]),
         );
+
+        $statusCode = $result['statusCode'];
+
+        if ($statusCode === 202) {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $recipient) {
+                $response->addToDetails($recipient);
+            }
+        } else {
+            foreach ($message->getTo() as $recipient) {
+                $response->addToDetails($recipient, $result['response']['errors'][0]['message']);
+            }
+        }
+
+        return \json_encode($response->toArray());
     }
 }
