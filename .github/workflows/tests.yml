@@ -25,6 +25,7 @@ jobs:
         TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
         TELNYX_API_KEY: ${{ secrets.TELNYX_API_KEY }}
         TELNYX_PUBLIC_KEY: ${{ secrets.TELNYX_PUBLIC_KEY }}
+        AWSSNS_API_GATEWAY_URL: ${{ secrets.AWSSNS_API_GATEWAY_URL }}
         APNS_AUTHKEY_8KVVCLA3HL: ${{ secrets.APNS_AUTHKEY_8KVVCLA3HL }}
         APNS_AUTH_ID: ${{ secrets.APNS_AUTH_ID }}
         APNS_TEAM_ID: ${{ secrets.APNS_TEAM_ID }}
