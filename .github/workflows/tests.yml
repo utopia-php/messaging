@@ -40,6 +40,10 @@ jobs:
         VONAGE_API_SECRET: ${{ secrets.VONAGE_API_SECRET }}
         VONAGE_TO: ${{ secrets.VONAGE_TO }}
         VONAGE_FROM: ${{ secrets.VONAGE_FROM }}
+        SMS_GLOBAL_API_KEY: ${{ secrets.SMS_GLOBAL_API_KEY }}
+        SMS_GLOBAL_API_SECRET: ${{ secrets.SMS_GLOBAL_API_SECRET }}
+        SMS_GLOBAL_TO: ${{ secrets.SMS_GLOBAL_TO }}
+        SMS_GLOBAL_FROM: ${{ secrets.SMS_GLOBAL_FROM }}
       run: |
         docker compose up -d --build
         sleep 5
