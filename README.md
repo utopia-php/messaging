@@ -21,8 +21,8 @@ composer require utopia-php/messaging
 <?php
 
 use \Utopia\Messaging\Messages\Email;
-use \Utopia\Messaging\Adapters\Email\SendGrid;
-use \Utopia\Messaging\Adapters\Email\Mailgun;
+use \Utopia\Messaging\Adapter\Email\SendGrid;
+use \Utopia\Messaging\Adapter\Email\Mailgun;
 
 $message = new Email(
     to: ['team@appwrite.io'],
@@ -43,8 +43,8 @@ $messaging->send($message);
 <?php
 
 use \Utopia\Messaging\Messages\SMS;
-use \Utopia\Messaging\Adapters\SMS\Twilio;
-use \Utopia\Messaging\Adapters\SMS\Telesign;
+use \Utopia\Messaging\Adapter\SMS\Twilio;
+use \Utopia\Messaging\Adapter\SMS\Telesign;
 
 $message = new SMS(
     to: ['+12025550139'],
@@ -64,7 +64,7 @@ $messaging->send($message);
 <?php
 
 use \Utopia\Messaging\Messages\Push;
-use \Utopia\Messaging\Adapters\Push\FCM;
+use \Utopia\Messaging\Adapter\Push\FCM;
 
 $message = new Push(
     to: ['eyJhGc...ssw5c'],
