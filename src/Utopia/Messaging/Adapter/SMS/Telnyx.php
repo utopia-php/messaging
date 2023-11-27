@@ -12,6 +12,7 @@ class Telnyx extends SMSAdapter
      */
     public function __construct(
         private string $apiKey,
+        private ?string $from = null
     ) {
     }
 
@@ -41,7 +42,7 @@ class Telnyx extends SMSAdapter
             ],
             body: \json_encode([
                 'text' => $message->getContent(),
-                'from' => $message->getFrom(),
+                'from' => $this->from ?? $message->getFrom(),
                 'to' => $message->getTo()[0],
             ]),
         );

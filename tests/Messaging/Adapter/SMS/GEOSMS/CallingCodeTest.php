@@ -1,6 +1,6 @@
 <?php
 
-namespace Utopia\Tests\Messaging\Adapter\SMS\GEOSMS;
+namespace Utopia\Tests\Adapter\SMS\GEOSMS;
 
 use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
 use Utopia\Tests\Adapter\Base;

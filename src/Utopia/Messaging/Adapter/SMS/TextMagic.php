@@ -16,7 +16,8 @@ class TextMagic extends SMSAdapter
      */
     public function __construct(
         private string $username,
-        private string $apiKey
+        private string $apiKey,
+        private ?string $from = null
     ) {
     }
 
@@ -51,7 +52,7 @@ class TextMagic extends SMSAdapter
             ],
             body: \http_build_query([
                 'text' => $message->getContent(),
-                'from' => \ltrim($message->getFrom(), '+'),
+                'from' => \ltrim($this->from ?? $message->getFrom(), '+'),
                 'phones' => \implode(',', $to),
             ]),
         );

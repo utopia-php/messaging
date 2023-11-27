@@ -15,7 +15,8 @@ class Sinch extends SMSAdapter
      */
     public function __construct(
         private string $servicePlanId,
-        private string $apiToken
+        private string $apiToken,
+        private ?string $from = null
     ) {
     }
 
@@ -46,7 +47,7 @@ class Sinch extends SMSAdapter
                 'content-type: application/json',
             ],
             body: \json_encode([
-                'from' => $message->getFrom(),
+                'from' => $this->from ?? $message->getFrom(),
                 'to' => $to,
                 'body' => $message->getContent(),
             ]),

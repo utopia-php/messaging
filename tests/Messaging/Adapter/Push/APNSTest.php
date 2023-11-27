@@ -14,9 +14,8 @@ class APNSTest extends Base
         $authKeyId = \getenv('APNS_AUTH_ID');
         $teamId = \getenv('APNS_TEAM_ID');
         $bundleId = \getenv('APNS_BUNDLE_ID');
-        $endpoint = 'https://api.sandbox.push.apple.com:443';
 
-        $adapter = new APNSAdapter($authKey, $authKeyId, $teamId, $bundleId, $endpoint);
+        $adapter = new APNSAdapter($authKey, $authKeyId, $teamId, $bundleId);
 
         $message = new Push(
             to: [\getenv('APNS_TO')],
