@@ -9,26 +9,19 @@ use Utopia\Messaging\Messages\Push;
 class APNS extends PushAdapter
 {
     /**
-     * @param  string  $authKey
-     * @param  string  $authKeyId
-     * @param  string  $teamId
-     * @param  string  $bundleId
-     * @param  string  $endpoint
      * @return void
      */
     public function __construct(
-      private string $authKey,
-      private string $authKeyId,
-      private string $teamId,
-      private string $bundleId,
-      private string $endpoint
+        private string $authKey,
+        private string $authKeyId,
+        private string $teamId,
+        private string $bundleId,
+        private bool $sandbox = false
     ) {
     }
 
     /**
      * Get adapter name.
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -37,8 +30,6 @@ class APNS extends PushAdapter
 
     /**
      * Get max messages per request.
-     *
-     * @return int
      */
     public function getMaxMessagesPerRequest(): int
     {
@@ -48,8 +39,6 @@ class APNS extends PushAdapter
     /**
      * {@inheritdoc}
      *
-     * @param  Push  $message
-     * @return string
      *
      * @throws Exception
      */
@@ -98,13 +87,18 @@ class APNS extends PushAdapter
         ]);
 
         $response = '';
+        $endpoint = 'https://api.push.apple.com';
+
+        if ($this->sandbox) {
+            $endpoint = 'https://api.development.push.apple.com';
+        }
 
         $mh = curl_multi_init();
         $handles = [];
 
         // Create a handle for each request
         foreach ($to as $token) {
-            curl_setopt($ch, CURLOPT_URL, $this->endpoint.'/3/device/'.$token);
+            curl_setopt($ch, CURLOPT_URL, $endpoint.'/3/device/'.$token);
 
             $handle = curl_copy_handle($ch);
             curl_multi_add_handle($mh, $handle);
@@ -179,7 +173,6 @@ class APNS extends PushAdapter
     /**
      * Generate JWT.
      *
-     * @return string
      *
      * @throws Exception
      */

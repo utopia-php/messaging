@@ -1,7 +1,8 @@
 <?php
 
-namespace Tests\E2E;
+namespace Tests\E2E\SMS\GEOSMS;
 
+use Tests\E2E\Base;
 use Utopia\Messaging\Adapters\SMS\GEOSMS\CallingCode;
 
 class CallingCodeTest extends Base
