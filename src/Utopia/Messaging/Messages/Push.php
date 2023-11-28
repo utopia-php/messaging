@@ -32,6 +32,9 @@ class Push implements Message
     ) {
     }
 
+    /**
+     * @return array<string>
+     */
     public function getTo(): array
     {
         return $this->to;

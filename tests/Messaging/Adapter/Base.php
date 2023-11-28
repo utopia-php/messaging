@@ -35,6 +35,9 @@ class Base extends TestCase
         return [];
     }
 
+    /**
+     * @param  array<string, mixed>  $response
+     */
     protected function assertResponse(array $response): void
     {
         $this->assertEquals(1, $response['deliveredTo']);

@@ -52,7 +52,7 @@ abstract class Adapter
      * @param  string  $url The URL to send the request to.
      * @param  array<string>  $headers An array of headers to send with the request.
      * @param  string|null  $body The body of the request.
-     * @return array The response body.
+     * @return array<string, mixed> The response body.
      */
     protected function request(
         string $method,

@@ -8,7 +8,7 @@ use Utopia\Tests\Adapter\Base;
 
 class Msg91Test extends Base
 {
-    public function testSendSMS()
+    public function testSendSMS(): void
     {
         $sender = new Msg91(getenv('MSG_91_SENDER_ID'), getenv('MSG_91_AUTH_KEY'), getenv('MSG_91_TEMPLATE_ID'));
 

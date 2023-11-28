@@ -8,6 +8,9 @@ class Response
 
     private string $type;
 
+    /**
+     * @var array<string, string>
+     */
     private array $details;
 
     public function __construct(string $type)
@@ -51,16 +54,22 @@ class Response
         ];
     }
 
-    public function popFromDetails()
+    public function popFromDetails(): void
     {
         array_pop($this->details);
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getDetails(): array
     {
         return $this->details;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [
