@@ -84,7 +84,7 @@ class FCM extends PushAdapter
                     match ($item['error']) {
                         'Invalid JSON' => 'Bad Request.',
                         'Invalid Parameters' => 'Bad Request.',
-                        'default' => null,
+                        default => null,
                     },
                 );
             } elseif ($result['statusCode'] === 401) {
