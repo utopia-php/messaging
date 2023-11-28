@@ -81,10 +81,10 @@ Putting it all together, the `SendGrid` adapter should look like this:
 ```php
 <?php
 
-namespace Utopia\Messaging\Adapters\Email;
+namespace Utopia\Messaging\Adapter\Email;
 
 use Utopia\Messaging\Messages\Email;
-use Utopia\Messaging\Adapters\Email as EmailAdapter;
+use Utopia\Messaging\Adapter\Email as EmailAdapter;
 
 class Sendgrid extends EmailAdapter
 {

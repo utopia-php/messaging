@@ -7,11 +7,11 @@ use Utopia\Messaging\Message;
 class Email implements Message
 {
     /**
-     * @param  array  $to The recipients of the email.
+     * @param  array<string>  $to The recipients of the email.
      * @param  string  $subject The subject of the email.
      * @param  string  $content The content of the email.
      * @param  string|null  $from The sender of the email.
-     * @param  array|null  $attachments The attachments of the email.
+     * @param  array<string, mixed>|null  $attachments The attachments of the email.
      * @param  bool  $html Whether the message is HTML or not.
      */
     public function __construct(
@@ -24,6 +24,9 @@ class Email implements Message
     ) {
     }
 
+    /**
+     * @return array<string>
+     */
     public function getTo(): array
     {
         return $this->to;
@@ -44,6 +47,9 @@ class Email implements Message
         return $this->from;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getAttachments(): ?array
     {
         return $this->attachments;

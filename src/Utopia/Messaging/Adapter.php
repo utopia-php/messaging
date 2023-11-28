@@ -30,18 +30,29 @@ abstract class Adapter
      * @param  Message  $message The message to send.
      * @return string The response body.
      */
-    abstract public function send(Message $message): string;
+    public function send(Message $message): string
+    {
+        if (! \is_a($message, $this->getMessageType())) {
+            throw new \Exception('Invalid message type.');
+        }
+        if (\method_exists($message, 'getTo') && \count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
+            throw new \Exception("{$this->getName()} can only send {$this->getMaxMessagesPerRequest()} messages per request.");
+        }
+        if (! \method_exists($this, 'process')) {
+            throw new \Exception('Adapter does not implement process method.');
+        }
+
+        return $this->process($message);
+    }
 
     /**
      * Send an HTTP request.
      *
      * @param  string  $method The HTTP method to use.
      * @param  string  $url The URL to send the request to.
-     * @param  array  $headers An array of headers to send with the request.
+     * @param  array<string>  $headers An array of headers to send with the request.
      * @param  string|null  $body The body of the request.
-     * @return string The response body.
-     *
-     * @throws \Exception If the request fails.
+     * @return array The response body.
      */
     protected function request(
         string $method,
