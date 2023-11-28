@@ -38,9 +38,6 @@ class Discord extends Adapter
         return 1;
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function process(DiscordMessage $message): string
     {
         $query = [];
