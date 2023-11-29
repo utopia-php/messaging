@@ -2,8 +2,6 @@
 
 namespace Utopia\Tests\Adapter\SMS;
 
-use Utopia\Messaging\Adapter\SMS\Vonage;
-use Utopia\Messaging\Messages\SMS;
 use Utopia\Tests\Adapter\Base;
 
 class VonageTest extends Base
@@ -13,21 +11,25 @@ class VonageTest extends Base
      */
     public function testSendSMS(): void
     {
-        $apiKey = \getenv('VONAGE_API_KEY');
-        $apiSecret = \getenv('VONAGE_API_SECRET');
+        $this->markTestSkipped('Vonage credentials are not available.');
 
-        $sender = new Vonage($apiKey, $apiSecret);
+        /* 
+            $apiKey = \getenv('VONAGE_API_KEY');
+            $apiSecret = \getenv('VONAGE_API_SECRET');
 
-        $message = new SMS(
-            to: [\getenv('VONAGE_TO')],
-            content: 'Test Content',
-            from: \getenv('VONAGE_FROM')
-        );
+            $sender = new Vonage($apiKey, $apiSecret);
 
-        $response = $sender->send($message);
+            $message = new SMS(
+                to: [\getenv('VONAGE_TO')],
+                content: 'Test Content',
+                from: \getenv('VONAGE_FROM')
+            );
 
-        $result = \json_decode($response, true);
+            $response = $sender->send($message);
 
-        $this->assertResponse($result);
+            $result = \json_decode($response, true);
+
+            $this->assertResponse($result); 
+        */
     }
 }
