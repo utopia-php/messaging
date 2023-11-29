@@ -40,7 +40,7 @@ class Mock extends EmailAdapter
         $mail->Subject = $message->getSubject();
         $mail->Body = $message->getContent();
         $mail->AltBody = \strip_tags($message->getContent());
-        $mail->setFrom($message->getFrom(), 'Utopia');
+        $mail->setFrom($message->getSenderEmailAddress(), 'Utopia');
         $mail->addReplyTo($message->getFrom(), 'Utopia');
         $mail->isHTML($message->isHtml());
 

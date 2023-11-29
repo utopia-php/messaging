@@ -45,6 +45,22 @@ class Mailgun extends EmailAdapter
 
         $domain = $this->isEU ? $euDomain : $usDomain;
 
+        $body = [
+            'to' => \implode(',', $message->getTo()),
+            'from' => "{$message->getFrom()}<{$message->getSenderEmailAddress()}>",
+            'subject' => $message->getSubject(),
+            'text' => $message->isHtml() ? null : $message->getContent(),
+            'html' => $message->isHtml() ? $message->getContent() : null,
+        ];
+
+        if (! \is_null($message->getCcName()) && ! \is_null($message->getCcEmail())) {
+            $body['cc'] = "{$message->getCcName()}<{$message->getCcEmail()}>";
+        }
+
+        if (! \is_null($message->getBccName()) && ! \is_null($message->getBccEmail())) {
+            $body['bcc'] = "{$message->getBccName()}<{$message->getBccEmail()}>";
+        }
+
         $response = new Response($this->getType());
 
         $result = $this->request(
@@ -52,14 +68,9 @@ class Mailgun extends EmailAdapter
             url: "https://$domain/v3/{$this->domain}/messages",
             headers: [
                 'Authorization: Basic '.base64_encode('api:'.$this->apiKey),
+                'h:Reply-To: '.$message->getReplyTo(),
             ],
-            body: \http_build_query([
-                'to' => \implode(',', $message->getTo()),
-                'from' => $message->getFrom(),
-                'subject' => $message->getSubject(),
-                'text' => $message->isHtml() ? null : $message->getContent(),
-                'html' => $message->isHtml() ? $message->getContent() : null,
-            ]),
+            body: \http_build_query($body),
         );
 
         $statusCode = $result['statusCode'];

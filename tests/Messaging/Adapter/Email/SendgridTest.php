@@ -16,13 +16,14 @@ class SendgridTest extends Base
         $to = \getenv('TEST_EMAIL');
         $subject = 'Test Subject';
         $content = 'Test Content';
-        $from = \getenv('TEST_FROM_EMAIL');
+        $senderEmailAddress = \getenv('TEST_FROM_EMAIL');
 
         $message = new Email(
             to: [$to],
             subject: $subject,
             content: $content,
-            from: $from,
+            from: 'prateek',
+            senderEmailAddress: $senderEmailAddress,
         );
 
         $response = \json_decode($sender->send($message), true);
