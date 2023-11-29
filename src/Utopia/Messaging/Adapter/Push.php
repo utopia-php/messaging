@@ -22,6 +22,8 @@ abstract class Push extends Adapter
      *
      * @param  PushMessage  $message Message to process.
      * @return string The response body.
+     *
+     * @throws \Exception If the message fails.
      */
     abstract protected function process(PushMessage $message): string;
 }

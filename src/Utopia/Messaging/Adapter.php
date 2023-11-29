@@ -53,6 +53,8 @@ abstract class Adapter
      * @param  array<string>  $headers An array of headers to send with the request.
      * @param  string|null  $body The body of the request.
      * @return array<string, mixed> The response body.
+     *
+     * @throws \Exception If the request fails.
      */
     protected function request(
         string $method,
@@ -73,10 +75,12 @@ abstract class Adapter
         \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         \curl_setopt($ch, CURLOPT_USERAGENT, "Appwrite {$this->getName()} Message Sender");
 
-        $errno = \curl_errno($ch);
         $response = \curl_exec($ch);
-
         \curl_close($ch);
+
+        if (\curl_errno($ch)) {
+            throw new \Exception('Error: '.\curl_error($ch));
+        }
 
         $jsonResponse = \json_decode($response, true);
 
@@ -84,14 +88,12 @@ abstract class Adapter
             return [
                 'response' => $jsonResponse,
                 'statusCode' => \curl_getinfo($ch, CURLINFO_HTTP_CODE),
-                'errno' => $errno,
             ];
         }
 
         return [
             'response' => $response,
             'statusCode' => \curl_getinfo($ch, CURLINFO_HTTP_CODE),
-            'errno' => $errno,
         ];
     }
 }

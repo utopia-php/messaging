@@ -22,6 +22,8 @@ abstract class Email extends Adapter
      *
      * @param  EmailMessage  $message Message to process.
      * @return string The response body.
+     *
+     * @throws \Exception If the message fails.
      */
     abstract protected function process(EmailMessage $message): string;
 }
