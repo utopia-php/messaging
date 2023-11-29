@@ -63,8 +63,7 @@ class Vonage extends SMSAdapter
                 $response->addResultForRecipient($result['response']['messages'][0]['to']);
                 break;
             default:
-                $response->addResultForRecipient($result['response']['messages'][0]['to'], $result['response']['messages'][0]['error-text']);
-
+                $response->addResultForRecipient($message->getTo()[0], $result['response']['messages'][0]['error-text']);
         }
 
         return \json_encode($response->toArray());

@@ -41,7 +41,7 @@ class Base extends TestCase
     protected function assertResponse(array $response): void
     {
         $this->assertEquals(1, $response['deliveredTo']);
-        $this->assertEquals('', $response['details'][0]['error']);
-        $this->assertEquals('success', $response['details'][0]['status']);
+        $this->assertEquals('', $response['results'][0]['error']);
+        $this->assertEquals('success', $response['results'][0]['status']);
     }
 }
