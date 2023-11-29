@@ -13,7 +13,7 @@ class VonageTest extends Base
     {
         $this->markTestSkipped('Vonage credentials are not available.');
 
-        /* 
+        /*
             $apiKey = \getenv('VONAGE_API_KEY');
             $apiSecret = \getenv('VONAGE_API_SECRET');
 
@@ -29,7 +29,7 @@ class VonageTest extends Base
 
             $result = \json_decode($response, true);
 
-            $this->assertResponse($result); 
+            $this->assertResponse($result);
         */
     }
 }
