@@ -60,7 +60,7 @@ class Response
     }
 
     /**
-     * @return array<string, string>
+     * @return array<array<string, string>>
      */
     public function getDetails(): array
     {

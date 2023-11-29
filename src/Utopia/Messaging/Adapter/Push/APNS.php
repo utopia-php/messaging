@@ -186,7 +186,7 @@ class APNS extends PushAdapter
         return "$base64UrlHeader.$base64UrlClaims.$base64UrlSignature";
     }
 
-    private function getSpecificErrorMessage($error): string
+    private function getSpecificErrorMessage(string $error): string
     {
         return match ($error) {
             'MissingDeviceToken' => 'Bad Request. Missing token.',

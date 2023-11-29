@@ -73,13 +73,25 @@ abstract class Adapter
         \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         \curl_setopt($ch, CURLOPT_USERAGENT, "Appwrite {$this->getName()} Message Sender");
 
+        $errno = \curl_errno($ch);
         $response = \curl_exec($ch);
 
         \curl_close($ch);
 
+        $jsonResponse = \json_decode($response, true);
+
+        if (\json_last_error() == JSON_ERROR_NONE) {
+            return [
+                'response' => $jsonResponse,
+                'statusCode' => \curl_getinfo($ch, CURLINFO_HTTP_CODE),
+                'errno' => $errno,
+            ];
+        }
+
         return [
-            'response' => \json_decode($response, true),
+            'response' => $response,
             'statusCode' => \curl_getinfo($ch, CURLINFO_HTTP_CODE),
+            'errno' => $errno,
         ];
     }
 }
