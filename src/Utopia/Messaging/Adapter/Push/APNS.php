@@ -131,25 +131,16 @@ class APNS extends PushAdapter
 
             if ($httpCode === 200) {
                 $response->incrementDeliveredTo();
-                $response->addToDetails($device);
+                $response->addResultForRecipient($device);
             } else {
-                $response->addToDetails(
+                $response->addResultForRecipient(
                     $device,
-                    match ($errorMessage) {
-                        'MissingDeviceToken' => 'Bad Request. Missing token.',
-                        'BadDeviceToken' => 'Invalid token.',
-                        'ExpiredToken' => 'Expired token.',
-                        'PayloadTooLarge' => 'Payload is too large. Please keep maximum 4096 bytes for messages.',
-                        'TooManyRequests' => 'Too many requests were made consecutively to the same device token.',
-                        'InternalServerError' => 'Internal server error.',
-                        'PayloadEmpty' => 'Bad Request.',
-                        default => $errorMessage,
-                    },
+                    $this->getSpecificErrorMessage($errorMessage)
                 );
 
                 if ($httpCode === 401) {
-                    $response->popFromDetails();
-                    $response->addToDetails($device, 'Authentication error.');
+                    $response->popFromResults();
+                    $response->addResultForRecipient($device, 'Authentication error.');
                 }
             }
 
@@ -193,5 +184,19 @@ class APNS extends PushAdapter
         $base64UrlSignature = \str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
 
         return "$base64UrlHeader.$base64UrlClaims.$base64UrlSignature";
+    }
+
+    private function getSpecificErrorMessage($error): string
+    {
+        return match ($error) {
+            'MissingDeviceToken' => 'Bad Request. Missing token.',
+            'BadDeviceToken' => 'Invalid token.',
+            'ExpiredToken' => 'Expired token.',
+            'PayloadTooLarge' => 'Payload is too large. Please keep maximum 4096 bytes for messages.',
+            'TooManyRequests' => 'Too many requests were made consecutively to the same device token.',
+            'InternalServerError' => 'Internal server error.',
+            'PayloadEmpty' => 'Bad Request.',
+            default => $error,
+        };
     }
 }

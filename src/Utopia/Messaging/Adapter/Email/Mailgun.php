@@ -67,11 +67,11 @@ class Mailgun extends EmailAdapter
         if ($statusCode >= 200 && $statusCode < 300) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addToDetails($to);
+                $response->addResultForRecipient($to);
             }
         } elseif ($statusCode >= 400 && $statusCode < 500) {
             foreach ($message->getTo() as $to) {
-                $response->addToDetails($to, $result['response']['message']);
+                $response->addResultForRecipient($to, $result['response']['message']);
             }
         }
 

@@ -9,15 +9,15 @@ class Response
     private string $type;
 
     /**
-     * @var array<string, string>
+     * @var array<array<string, string>>
      */
-    private array $details;
+    private array $results;
 
     public function __construct(string $type)
     {
         $this->type = $type;
         $this->deliveredTo = 0;
-        $this->details = [];
+        $this->results = [];
     }
 
     public function setDeliveredTo(int $deliveredTo): void
@@ -45,18 +45,18 @@ class Response
         return $this->type;
     }
 
-    public function addToDetails(string $recipient, string $error = ''): void
+    public function addResultForRecipient(string $recipient, string $error = ''): void
     {
-        $this->details[] = [
+        $this->results[] = [
             'recipient' => $recipient,
             'status' => $error === '' ? 'success' : 'failure',
             'error' => $error,
         ];
     }
 
-    public function popFromDetails(): void
+    public function popFromResults(): void
     {
-        array_pop($this->details);
+        array_pop($this->results);
     }
 
     /**
@@ -64,7 +64,7 @@ class Response
      */
     public function getDetails(): array
     {
-        return $this->details;
+        return $this->results;
     }
 
     /**
@@ -75,7 +75,7 @@ class Response
         return [
             'deliveredTo' => $this->deliveredTo,
             'type' => $this->type,
-            'details' => $this->details,
+            'results' => $this->results,
         ];
     }
 }

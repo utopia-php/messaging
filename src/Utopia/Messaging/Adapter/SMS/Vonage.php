@@ -7,6 +7,7 @@ namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Response;
 
 class Vonage extends SMSAdapter
 {
@@ -43,6 +44,7 @@ class Vonage extends SMSAdapter
             $message->getTo()
         );
 
+        $response = new Response($this->getType());
         $result = $this->request(
             method: 'POST',
             url: 'https://rest.nexmo.com/sms/json',
@@ -55,6 +57,16 @@ class Vonage extends SMSAdapter
             ]),
         );
 
-        return \json_encode($result['response']);
+        switch ($result['response']['messages'][0]['status']) {
+            case 0:
+                $response->setDeliveredTo(1);
+                $response->addResultForRecipient($result['response']['messages'][0]['to']);
+                break;
+            default:
+                $response->addResultForRecipient($result['response']['messages'][0]['to'], $result['response']['messages'][0]['error-text']);
+
+        }
+
+        return \json_encode($response->toArray());
     }
 }

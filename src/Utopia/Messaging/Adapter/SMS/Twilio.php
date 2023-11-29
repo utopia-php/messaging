@@ -51,9 +51,9 @@ class Twilio extends SMSAdapter
 
         if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
             $response->setDeliveredTo(1);
-            $response->addToDetails($message->getTo()[0]);
+            $response->addResultForRecipient($message->getTo()[0]);
         } else {
-            $response->addToDetails($message->getTo()[0], $result['response']['message'] ?? '');
+            $response->addResultForRecipient($message->getTo()[0], $result['response']['message'] ?? '');
         }
 
         return \json_encode($response->toArray());

@@ -66,11 +66,11 @@ class Msg91 extends SMSAdapter
         if ($result['statusCode'] === 200) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addToDetails($to);
+                $response->addResultForRecipient($to);
             }
         } else {
             foreach ($message->getTo() as $to) {
-                $response->addToDetails($to, 'Unknown Error.');
+                $response->addResultForRecipient($to, 'Unknown Error.');
             }
         }
 

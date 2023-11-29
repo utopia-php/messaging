@@ -28,8 +28,6 @@ class VonageTest extends Base
 
         $result = \json_decode($response, true);
 
-        $this->assertArrayHasKey('messages', $result);
-        $this->assertEquals(1, count($result['messages']));
-        $this->assertEquals('1', $result['message-count']);
+        $this->assertResponse($result);
     }
 }

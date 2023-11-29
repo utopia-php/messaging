@@ -65,21 +65,14 @@ class FCM extends PushAdapter
 
         foreach ($result['response']['results'] as $index => $item) {
             if ($result['statusCode'] === 200) {
-                $response->addToDetails(
+                $response->addResultForRecipient(
                     $message->getTo()[$index],
                     \array_key_exists('error', $item)
-                                    ? match ($item['error']) {
-                                        'MissingRegistration' => 'Bad Request. Missing token.',
-                                        'InvalidRegistration' => 'Invalid token.',
-                                        'NotRegistered' => 'Expired token.',
-                                        'MessageTooBig' => 'Payload is too large. Please keep maximum 4096 bytes for messages.',
-                                        'DeviceMessageRateExceeded' => 'Too many requests were made consecutively to the same device token.',
-                                        'InternalServerError' => 'Internal server error.',
-                                        default => $item['error'],
-                                    } : '',
+                        ? $this->getSpecificErrorMessage($item['error'])
+                        : '',
                 );
             } elseif ($result['statusCode'] === 400) {
-                $response->addToDetails(
+                $response->addResultForRecipient(
                     $message->getTo()[$index],
                     match ($item['error']) {
                         'Invalid JSON' => 'Bad Request.',
@@ -88,17 +81,17 @@ class FCM extends PushAdapter
                     },
                 );
             } elseif ($result['statusCode'] === 401) {
-                $response->addToDetails(
+                $response->addResultForRecipient(
                     $message->getTo()[$index],
                     'Authentication error.',
                 );
             } elseif ($result['statusCode'] >= 500) {
-                $response->addToDetails(
+                $response->addResultForRecipient(
                     $message->getTo()[$index],
                     'Server unavailable.',
                 );
             } else {
-                $response->addToDetails(
+                $response->addResultForRecipient(
                     $message->getTo()[$index],
                     'Unknown error',
                 );
@@ -107,5 +100,18 @@ class FCM extends PushAdapter
         }
 
         return \json_encode($response->toArray());
+    }
+
+    private function getSpecificErrorMessage(string $error): string
+    {
+        return match ($error) {
+            'MissingRegistration' => 'Bad Request. Missing token.',
+            'InvalidRegistration' => 'Invalid token.',
+            'NotRegistered' => 'Expired token.',
+            'MessageTooBig' => 'Payload is too large. Please keep maximum 4096 bytes for messages.',
+            'DeviceMessageRateExceeded' => 'Too many requests were made consecutively to the same device token.',
+            'InternalServerError' => 'Internal server error.',
+            default => $error,
+        };
     }
 }
