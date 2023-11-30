@@ -29,6 +29,7 @@ abstract class Adapter
      *
      * @param  Message  $message The message to send.
      * @return string The response body.
+     *
      * @throws \Exception If the message fails.
      */
     public function send(Message $message): string
