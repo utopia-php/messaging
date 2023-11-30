@@ -18,6 +18,7 @@ class Email implements Message
      * @param  string|null  $replyToEmail The email address of the reply to.
      * @param  array<string, mixed>|null  $attachments The attachments of the email.
      * @param  bool  $html Whether the message is HTML or not.
+     * @throws \InvalidArgumentException
      */
     public function __construct(
         private array $to,
