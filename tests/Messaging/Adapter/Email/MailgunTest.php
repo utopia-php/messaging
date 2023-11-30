@@ -31,7 +31,7 @@ class MailgunTest extends Base
             from: $from,
         );
 
-        $response = (array) \json_decode($sender->send($message), true);
+        $response = \json_decode($sender->send($message), true);
 
         $this->assertResponse($response);
     }
