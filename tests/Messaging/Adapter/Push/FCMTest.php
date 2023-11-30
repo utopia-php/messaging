@@ -29,10 +29,8 @@ class FCMTest extends Base
             badge: '1'
         );
 
-        $response = \json_decode($adapter->send($message));
+        $response = \json_decode($adapter->send($message), true);
 
-        $this->assertNotEmpty($response);
-        $this->assertEquals(1, $response->success);
-        $this->assertEquals(0, $response->failure);
+        $this->assertResponse($response);
     }
 }

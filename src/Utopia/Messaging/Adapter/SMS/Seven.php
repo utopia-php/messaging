@@ -3,7 +3,7 @@
 namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
-use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Messages\SMS as SMSMessage;
 
 // Reference Material
 // https://www.seven.io/en/docs/gateway/http-api/sms-dispatch/
@@ -33,9 +33,9 @@ class Seven extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMS $message): string
+    protected function process(SMSMessage $message): string
     {
-        return $this->request(
+        $result = $this->request(
             method: 'POST',
             url: 'https://gateway.sms77.io/api/sms',
             headers: [
@@ -48,5 +48,7 @@ class Seven extends SMSAdapter
                 'text' => $message->getContent(),
             ]),
         );
+
+        return \json_encode($result['response']);
     }
 }

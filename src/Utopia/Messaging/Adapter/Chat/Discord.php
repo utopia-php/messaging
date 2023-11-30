@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\Chat;
 
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Messages\Discord as DiscordMessage;
+use Utopia\Messaging\Response;
 
 class Discord extends Adapter
 {
@@ -37,9 +38,6 @@ class Discord extends Adapter
         return 1;
     }
 
-    /**
-     * @throws \Exception
-     */
     protected function process(DiscordMessage $message): string
     {
         $query = [];
@@ -59,7 +57,8 @@ class Discord extends Adapter
             $queryString .= $key.'='.$value;
         }
 
-        return $this->request(
+        $response = new Response($this->getType());
+        $result = $this->request(
             method: 'POST',
             url: "https://discord.com/api/webhooks/{$this->webhookId}/{$this->webhookToken}{$queryString}",
             headers: [
@@ -78,5 +77,18 @@ class Discord extends Adapter
                 'thread_name' => $message->getThreadName(),
             ]),
         );
+
+        $statusCode = $result['statusCode'];
+
+        if ($statusCode >= 200 && $statusCode < 300) {
+            $response->setDeliveredTo(1);
+            $response->addResultForRecipient($this->webhookId);
+        } elseif ($statusCode >= 400 && $statusCode < 500) {
+            $response->addResultForRecipient($this->webhookId, 'Bad Request.');
+        } else {
+            $response->addResultForRecipient($this->webhookId, 'Unknown Error.');
+        }
+
+        return \json_encode($response->toArray());
     }
 }

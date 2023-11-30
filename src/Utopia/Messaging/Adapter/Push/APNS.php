@@ -2,9 +2,9 @@
 
 namespace Utopia\Messaging\Adapter\Push;
 
-use Exception;
 use Utopia\Messaging\Adapter\Push as PushAdapter;
-use Utopia\Messaging\Messages\Push;
+use Utopia\Messaging\Messages\Push as PushMessage;
+use Utopia\Messaging\Response;
 
 class APNS extends PushAdapter
 {
@@ -38,11 +38,8 @@ class APNS extends PushAdapter
 
     /**
      * {@inheritdoc}
-     *
-     *
-     * @throws Exception
      */
-    public function process(Push $message): string
+    public function process(PushMessage $message): string
     {
         $payload = [
             'aps' => [
@@ -63,8 +60,6 @@ class APNS extends PushAdapter
      * @param  array<string>  $to
      * @param  array<string, mixed>  $payload
      * @return array<string, mixed>
-     *
-     * @throws Exception
      */
     private function notify(array $to, array $payload): array
     {
@@ -93,7 +88,6 @@ class APNS extends PushAdapter
             CURLOPT_HEADER => true,
         ]);
 
-        $response = '';
         $endpoint = 'https://api.push.apple.com';
 
         if ($this->sandbox) {
@@ -113,7 +107,7 @@ class APNS extends PushAdapter
             $handles[] = $handle;
         }
 
-        $active = null;
+        $active = 1;
         $status = CURLM_OK;
 
         // Execute the handles
@@ -121,24 +115,33 @@ class APNS extends PushAdapter
             $status = \curl_multi_exec($mh, $active);
         }
 
-        // Check each handles result
-        $responses = [];
-        foreach ($handles as $ch) {
-            $urlInfo = \curl_getinfo($ch);
-            $device = basename($urlInfo['url']); // Extracts deviceToken from the URL
+        $response = new Response($this->getType());
 
-            if (! \curl_errno($ch)) {
-                $statusCode = \curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $responses[] = [
-                    'device' => $device,
-                    'status' => 'success',
-                    'statusCode' => $statusCode,
-                ];
+        // Check each handle's result
+        foreach ($handles as $ch) {
+            $urlInfo = curl_getinfo($ch);
+            $result = curl_multi_getcontent($ch);
+
+            // Separate headers and body
+            [$headerString, $body] = explode("\r\n\r\n", $result, 2);
+            $body = \json_decode($body, true);
+            $errorMessage = $body ? $body['reason'] : '';
+            $device = basename($urlInfo['url']); // Extracts deviceToken from the URL
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+            if ($httpCode === 200) {
+                $response->incrementDeliveredTo();
+                $response->addResultForRecipient($device);
             } else {
-                $responses[$device] = [
-                    'status' => 'error',
-                    'error' => \curl_error($ch),
-                ];
+                $response->addResultForRecipient(
+                    $device,
+                    $this->getSpecificErrorMessage($errorMessage)
+                );
+
+                if ($httpCode === 401) {
+                    $response->popFromResults();
+                    $response->addResultForRecipient($device, 'Authentication error.');
+                }
             }
 
             \curl_multi_remove_handle($mh, $ch);
@@ -148,14 +151,11 @@ class APNS extends PushAdapter
         \curl_multi_close($mh);
         \curl_share_close($sh);
 
-        return $responses;
+        return $response->toArray();
     }
 
     /**
      * Generate JWT.
-     *
-     *
-     * @throws Exception
      */
     private function generateJwt(): string
     {
@@ -171,18 +171,32 @@ class APNS extends PushAdapter
         $base64UrlClaims = \str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($claims));
 
         if (! $this->authKey) {
-            throw new \Exception('Invalid private key');
+            return '';
         }
 
         $signature = '';
         $success = \openssl_sign("$base64UrlHeader.$base64UrlClaims", $signature, $this->authKey, OPENSSL_ALGO_SHA256);
 
         if (! $success) {
-            throw new \Exception('Failed to sign JWT');
+            return '';
         }
 
         $base64UrlSignature = \str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
 
         return "$base64UrlHeader.$base64UrlClaims.$base64UrlSignature";
+    }
+
+    private function getSpecificErrorMessage(string $error): string
+    {
+        return match ($error) {
+            'MissingDeviceToken' => 'Bad Request. Missing token.',
+            'BadDeviceToken' => 'Invalid token.',
+            'ExpiredToken' => 'Expired token.',
+            'PayloadTooLarge' => 'Payload is too large. Please keep maximum 4096 bytes for messages.',
+            'TooManyRequests' => 'Too many requests were made consecutively to the same device token.',
+            'InternalServerError' => 'Internal server error.',
+            'PayloadEmpty' => 'Bad Request.',
+            default => $error,
+        };
     }
 }

@@ -30,7 +30,7 @@ abstract class Adapter
      * @param  Message  $message The message to send.
      * @return string The response body.
      *
-     * @throws \Exception
+     * @throws \Exception If the message fails.
      */
     public function send(Message $message): string
     {
@@ -54,7 +54,7 @@ abstract class Adapter
      * @param  string  $url The URL to send the request to.
      * @param  array<string>  $headers An array of headers to send with the request.
      * @param  string|null  $body The body of the request.
-     * @return string The response body.
+     * @return array<string, mixed> The response body.
      *
      * @throws \Exception If the request fails.
      */
@@ -63,7 +63,7 @@ abstract class Adapter
         string $url,
         array $headers = [],
         string $body = null,
-    ): string {
+    ): array {
         $ch = \curl_init();
 
         if (! \is_null($body)) {
@@ -78,16 +78,24 @@ abstract class Adapter
         \curl_setopt($ch, CURLOPT_USERAGENT, "Appwrite {$this->getName()} Message Sender");
 
         $response = \curl_exec($ch);
+        \curl_close($ch);
 
         if (\curl_errno($ch)) {
             throw new \Exception('Error: '.\curl_error($ch));
         }
-        if (\curl_getinfo($ch, CURLINFO_HTTP_CODE) >= 400) {
-            throw new \Exception($response);
+
+        $jsonResponse = \json_decode($response, true);
+
+        if (\json_last_error() == JSON_ERROR_NONE) {
+            return [
+                'response' => $jsonResponse,
+                'statusCode' => \curl_getinfo($ch, CURLINFO_HTTP_CODE),
+            ];
         }
 
-        \curl_close($ch);
-
-        return $response;
+        return [
+            'response' => $response,
+            'statusCode' => \curl_getinfo($ch, CURLINFO_HTTP_CODE),
+        ];
     }
 }

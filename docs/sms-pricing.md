@@ -27,7 +27,7 @@ _In most providers when you're sending SMS to US numbers you must own a US phone
 | Clickatell | 0.0075     | 75 $  |
 | Twilio     | 0.0079     | 79 $  |
 | Sinch      | 0.0120     | 120 $ |
-| TextMagic  | 0.0400     | 400 $ |
+| Textmagic  | 0.0400     | 400 $ |
 | Telnyx     | 0.0440     | 440 $ |
 | Seven      | 0.0810     | 810 $ |
 
@@ -45,7 +45,7 @@ _In most providers when you're sending SMS to US numbers you must own a US phone
 | Seven      | 0.0810     | 810 $ |
 | Infobip    | n/a        |       |
 | Sinch      | n/a        |       |
-| TextMagic  | n/a        |       |
+| Textmagic  | n/a        |       |
 
 ## Israel
 
@@ -61,4 +61,4 @@ _In most providers when you're sending SMS to US numbers you must own a US phone
 | Twilio     | 0.112      | 1120 $   |
 | Clickatell | 0.13144    | 1314.4 $ |
 | Sinch      | n/a        |          |
-| TextMagic  | n/a        |          |
+| Textmagic  | n/a        |          |

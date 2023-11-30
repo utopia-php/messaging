@@ -6,13 +6,14 @@ namespace Utopia\Messaging\Adapter\SMS;
 // https://www.textmagic.com/docs/api/send-sms/#How-to-send-bulk-text-messages
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
-use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Messages\SMS as SMSMessage;
+use Utopia\Messaging\Response;
 
-class TextMagic extends SMSAdapter
+class Textmagic extends SMSAdapter
 {
     /**
-     * @param  string  $username TextMagic account username
-     * @param  string  $apiKey TextMagic account API key
+     * @param  string  $username Textmagic account username
+     * @param  string  $apiKey Textmagic account API key
      */
     public function __construct(
         private string $username,
@@ -23,12 +24,12 @@ class TextMagic extends SMSAdapter
 
     public function getName(): string
     {
-        return 'TextMagic';
+        return 'Textmagic';
     }
 
     public function getMaxMessagesPerRequest(): int
     {
-        return PHP_INT_MAX;
+        return 1000;
     }
 
     /**
@@ -36,14 +37,15 @@ class TextMagic extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMS $message): string
+    protected function process(SMSMessage $message): string
     {
         $to = \array_map(
             fn ($to) => \ltrim($to, '+'),
             $message->getTo()
         );
 
-        return $this->request(
+        $response = new Response($this->getType());
+        $result = $this->request(
             method: 'POST',
             url: 'https://rest.textmagic.com/api/v2/messages',
             headers: [
@@ -56,5 +58,18 @@ class TextMagic extends SMSAdapter
                 'phones' => \implode(',', $to),
             ]),
         );
+
+        if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to);
+            }
+        } else {
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to, $result['response']['message'] ?? '');
+            }
+        }
+
+        return \json_encode($response->toArray());
     }
 }

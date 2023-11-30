@@ -15,7 +15,7 @@ class APNSTest extends Base
         $teamId = \getenv('APNS_TEAM_ID');
         $bundleId = \getenv('APNS_BUNDLE_ID');
 
-        $adapter = new APNSAdapter($authKey, $authKeyId, $teamId, $bundleId);
+        $adapter = new APNSAdapter($authKey, $authKeyId, $teamId, $bundleId, true);
 
         $message = new Push(
             to: [\getenv('APNS_TO')],
@@ -30,10 +30,8 @@ class APNSTest extends Base
             badge: '1'
         );
 
-        $responses = \json_decode($adapter->send($message));
+        $response = \json_decode($adapter->send($message), true);
 
-        foreach ($responses as $response) {
-            $this->assertEquals('success', $response->status);
-        }
+        $this->assertResponse($response);
     }
 }

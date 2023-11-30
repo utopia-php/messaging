@@ -8,12 +8,8 @@ use Utopia\Tests\Adapter\Base;
 
 class SendgridTest extends Base
 {
-    /**
-     * @throws \Exception
-     */
     public function testSendEmail(): void
     {
-        /*
         $key = getenv('SENDGRID_API_KEY');
         $sender = new Sendgrid($key);
 
@@ -29,11 +25,8 @@ class SendgridTest extends Base
             from: $from,
         );
 
-        $response = $sender->send($message);
+        $response = \json_decode($sender->send($message), true);
 
-        $this->assertEquals($response, '');
-        */
-
-        $this->markTestSkipped('Sendgrid: Authenticated user is not authorized to send mail');
+        $this->assertResponse($response);
     }
 }

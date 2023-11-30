@@ -3,7 +3,6 @@
 namespace Utopia\Messaging\Adapter;
 
 use Utopia\Messaging\Adapter;
-use Utopia\Messaging\Message;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 
 abstract class SMS extends Adapter
@@ -23,6 +22,8 @@ abstract class SMS extends Adapter
      *
      * @param  SMSMessage  $message Message to send.
      * @return string The response body.
+     *
+     * @throws \Exception If the message fails.
      */
     abstract protected function process(SMSMessage $message): string;
 }

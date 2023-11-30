@@ -3,7 +3,6 @@
 namespace Utopia\Messaging\Adapter;
 
 use Utopia\Messaging\Adapter;
-use Utopia\Messaging\Message;
 use Utopia\Messaging\Messages\Email as EmailMessage;
 
 abstract class Email extends Adapter
@@ -23,6 +22,8 @@ abstract class Email extends Adapter
      *
      * @param  EmailMessage  $message Message to process.
      * @return string The response body.
+     *
+     * @throws \Exception If the message fails.
      */
     abstract protected function process(EmailMessage $message): string;
 }

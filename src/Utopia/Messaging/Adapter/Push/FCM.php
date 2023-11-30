@@ -3,7 +3,8 @@
 namespace Utopia\Messaging\Adapter\Push;
 
 use Utopia\Messaging\Adapter\Push as PushAdapter;
-use Utopia\Messaging\Messages\Push;
+use Utopia\Messaging\Messages\Push as PushMessage;
+use Utopia\Messaging\Response;
 
 class FCM extends PushAdapter
 {
@@ -33,12 +34,11 @@ class FCM extends PushAdapter
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Exception
      */
-    protected function process(Push $message): string
+    protected function process(PushMessage $message): string
     {
-        return $this->request(
+        $response = new Response($this->getType());
+        $result = $this->request(
             method: 'POST',
             url: 'https://fcm.googleapis.com/fcm/send',
             headers: [
@@ -60,5 +60,58 @@ class FCM extends PushAdapter
                 'data' => $message->getData(),
             ])
         );
+
+        $response->setDeliveredTo($result['response']['success']);
+
+        foreach ($result['response']['results'] as $index => $item) {
+            if ($result['statusCode'] === 200) {
+                $response->addResultForRecipient(
+                    $message->getTo()[$index],
+                    \array_key_exists('error', $item)
+                        ? $this->getSpecificErrorMessage($item['error'])
+                        : '',
+                );
+            } elseif ($result['statusCode'] === 400) {
+                $response->addResultForRecipient(
+                    $message->getTo()[$index],
+                    match ($item['error']) {
+                        'Invalid JSON' => 'Bad Request.',
+                        'Invalid Parameters' => 'Bad Request.',
+                        default => null,
+                    },
+                );
+            } elseif ($result['statusCode'] === 401) {
+                $response->addResultForRecipient(
+                    $message->getTo()[$index],
+                    'Authentication error.',
+                );
+            } elseif ($result['statusCode'] >= 500) {
+                $response->addResultForRecipient(
+                    $message->getTo()[$index],
+                    'Server unavailable.',
+                );
+            } else {
+                $response->addResultForRecipient(
+                    $message->getTo()[$index],
+                    'Unknown error',
+                );
+            }
+
+        }
+
+        return \json_encode($response->toArray());
+    }
+
+    private function getSpecificErrorMessage(string $error): string
+    {
+        return match ($error) {
+            'MissingRegistration' => 'Bad Request. Missing token.',
+            'InvalidRegistration' => 'Invalid token.',
+            'NotRegistered' => 'Expired token.',
+            'MessageTooBig' => 'Payload is too large. Please keep maximum 4096 bytes for messages.',
+            'DeviceMessageRateExceeded' => 'Too many requests were made consecutively to the same device token.',
+            'InternalServerError' => 'Internal server error.',
+            default => $error,
+        };
     }
 }

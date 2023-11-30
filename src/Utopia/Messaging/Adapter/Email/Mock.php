@@ -2,10 +2,10 @@
 
 namespace Utopia\Messaging\Adapter\Email;
 
-use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use Utopia\Messaging\Adapter\Email as EmailAdapter;
-use Utopia\Messaging\Messages\Email;
+use Utopia\Messaging\Messages\Email as EmailMessage;
+use Utopia\Messaging\Response;
 
 class Mock extends EmailAdapter
 {
@@ -22,12 +22,10 @@ class Mock extends EmailAdapter
 
     /**
      * {@inheritdoc}
-     *
-     * @throws Exception
-     * @throws \Exception
      */
-    protected function process(Email $message): string
+    protected function process(EmailMessage $message): string
     {
+        $response = new Response($this->getType());
         $mail = new PHPMailer();
         $mail->isSMTP();
         $mail->XMailer = 'Utopia Mailer';
@@ -51,9 +49,16 @@ class Mock extends EmailAdapter
         }
 
         if (! $mail->send()) {
-            throw new \Exception($mail->ErrorInfo);
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to, $mail->ErrorInfo);
+            }
+        } else {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to);
+            }
         }
 
-        return \json_encode($message);
+        return \json_encode($response->toArray());
     }
 }

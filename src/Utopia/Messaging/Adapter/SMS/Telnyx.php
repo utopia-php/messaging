@@ -3,7 +3,7 @@
 namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
-use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Messages\SMS as SMSMessage;
 
 class Telnyx extends SMSAdapter
 {
@@ -31,9 +31,9 @@ class Telnyx extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMS $message): string
+    protected function process(SMSMessage $message): string
     {
-        return $this->request(
+        $result = $this->request(
             method: 'POST',
             url: 'https://api.telnyx.com/v2/messages',
             headers: [
@@ -46,5 +46,7 @@ class Telnyx extends SMSAdapter
                 'to' => $message->getTo()[0],
             ]),
         );
+
+        return \json_encode($result['response']);
     }
 }

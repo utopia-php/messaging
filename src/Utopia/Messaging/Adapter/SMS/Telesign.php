@@ -3,7 +3,8 @@
 namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
-use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Messages\SMS as SMSMessage;
+use Utopia\Messaging\Response;
 
 // Reference Material
 // https://developer.telesign.com/enterprise/reference/sendbulksms
@@ -35,14 +36,15 @@ class Telesign extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMS $message): string
+    protected function process(SMSMessage $message): string
     {
         $to = $this->formatNumbers(\array_map(
             fn ($to) => $to,
             $message->getTo()
         ));
 
-        return $this->request(
+        $response = new Response($this->getType());
+        $result = $this->request(
             method: 'POST',
             url: 'https://rest-ww.telesign.com/v1/verify/bulk_sms',
             headers: [
@@ -53,6 +55,19 @@ class Telesign extends SMSAdapter
                 'recipients' => $to,
             ]),
         );
+
+        if ($result['statusCode'] === 200) {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to);
+            }
+        } else {
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to, $result['response']['errors'][0]['description']);
+            }
+        }
+
+        return \json_encode($response->toArray());
     }
 
     /**

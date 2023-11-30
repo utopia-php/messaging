@@ -3,7 +3,7 @@
 namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
-use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Messages\SMS as SMSMessage;
 
 class Mock extends SMSAdapter
 {
@@ -32,9 +32,9 @@ class Mock extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMS $message): string
+    protected function process(SMSMessage $message): string
     {
-        return $this->request(
+        $result = $this->request(
             method: 'POST',
             url: 'http://request-catcher:5000/mock-sms',
             headers: [
@@ -48,5 +48,7 @@ class Mock extends SMSAdapter
                 'to' => \implode(',', $message->getTo()),
             ]),
         );
+
+        return \json_encode($result['response']);
     }
 }

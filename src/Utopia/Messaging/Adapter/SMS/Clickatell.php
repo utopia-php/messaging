@@ -3,7 +3,7 @@
 namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
-use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Messages\SMS as SMSMessage;
 
 // Reference Material
 // https://docs.clickatell.com/channels/sms-channels/sms-api-reference/#tag/SMS-API/operation/sendMessageREST_1
@@ -33,9 +33,9 @@ class Clickatell extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMS $message): string
+    protected function process(SMSMessage $message): string
     {
-        return $this->request(
+        $result = $this->request(
             method: 'POST',
             url: 'https://platform.clickatell.com/messages',
             headers: [
@@ -48,5 +48,7 @@ class Clickatell extends SMSAdapter
                 'to' => $message->getTo(),
             ]),
         );
+
+        return \json_encode($result['response']);
     }
 }

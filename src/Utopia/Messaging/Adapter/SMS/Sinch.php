@@ -3,7 +3,7 @@
 namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
-use Utopia\Messaging\Messages\SMS;
+use Utopia\Messaging\Messages\SMS as SMSMessage;
 
 // Reference Material
 // https://developers.sinch.com/docs/sms/api-reference/
@@ -35,11 +35,11 @@ class Sinch extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMS $message): string
+    protected function process(SMSMessage $message): string
     {
         $to = \array_map(fn ($number) => \ltrim($number, '+'), $message->getTo());
 
-        return $this->request(
+        $result = $this->request(
             method: 'POST',
             url: "https://sms.api.sinch.com/xms/v1/{$this->servicePlanId}/batches",
             headers: [
@@ -52,5 +52,7 @@ class Sinch extends SMSAdapter
                 'body' => $message->getContent(),
             ]),
         );
+
+        return \json_encode($result['response']);
     }
 }

@@ -27,7 +27,6 @@ class DiscordTest extends Base
 
         $result = \json_decode($sender->send($message), true);
 
-        $this->assertNotEmpty($result);
-        $this->assertNotEmpty($result['id']);
+        $this->assertResponse($result);
     }
 }

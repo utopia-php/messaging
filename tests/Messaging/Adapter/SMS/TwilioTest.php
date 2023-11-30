@@ -23,11 +23,9 @@ class TwilioTest extends Base
             from: $from
         );
 
-        $result = \json_decode($sender->send($message));
+        $result = \json_decode($sender->send($message), true);
 
-        $this->assertNotEmpty($result);
-        $this->assertEquals($to[0], $result->to);
-        $this->assertEquals($from, $result->from);
-        $this->assertNull($result->error_message);
+        $this->assertResponse($result);
+
     }
 }

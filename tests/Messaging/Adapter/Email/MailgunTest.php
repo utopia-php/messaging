@@ -8,9 +8,6 @@ use Utopia\Tests\Adapter\Base;
 
 class MailgunTest extends Base
 {
-    /**
-     * @throws \Exception
-     */
     public function testSendEmail(): void
     {
         $key = \getenv('MAILGUN_API_KEY');
@@ -34,10 +31,8 @@ class MailgunTest extends Base
             from: $from,
         );
 
-        $result = \json_decode($sender->send($message), true);
+        $response = \json_decode($sender->send($message), true);
 
-        $this->assertArrayHasKey('id', $result);
-        $this->assertArrayHasKey('message', $result);
-        $this->assertTrue(\str_contains(\strtolower($result['message']), 'queued'));
+        $this->assertResponse($response);
     }
 }

@@ -2,28 +2,23 @@
 
 namespace Utopia\Tests\Adapter\SMS;
 
+use Utopia\Messaging\Adapter\SMS\Msg91;
+use Utopia\Messaging\Messages\SMS;
 use Utopia\Tests\Adapter\Base;
 
 class Msg91Test extends Base
 {
-    /**
-     * @throws \Exception
-     */
     public function testSendSMS(): void
     {
-        // $sender = new Msg91(\getenv('MSG_91_SENDER_ID'), \getenv('MSG_91_AUTH_KEY'));
+        $sender = new Msg91(getenv('MSG_91_SENDER_ID'), getenv('MSG_91_AUTH_KEY'), getenv('MSG_91_TEMPLATE_ID'));
 
-        // $message = new SMS(
-        //     to: [\getenv('MSG_91_TO')],
-        //     content: 'Test Content',
-        //     from: \getenv('MSG_91_FROM')
-        // );
+        $message = new SMS(
+            to: [getenv('MSG_91_TO')],
+            content: 'Test Content',
+        );
 
-        // $response = $sender->send($message);
-        // $result = \json_decode($response, true);
+        $response = \json_decode($sender->send($message), true);
 
-        // $this->assertEquals('success', $result['type']);
-
-        $this->markTestSkipped('Msg91 requires business verification to use template and SMS api.');
+        $this->assertResponse($response);
     }
 }
