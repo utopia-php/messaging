@@ -82,11 +82,11 @@ class Discord extends Adapter
 
         if ($statusCode >= 200 && $statusCode < 300) {
             $response->setDeliveredTo(1);
-            $response->addResultForRecipient($this->webhookId ?? '');
+            $response->addResultForRecipient($this->webhookId);
         } elseif ($statusCode >= 400 && $statusCode < 500) {
-            $response->addResultForRecipient($this->webhookId ?? '', 'Bad Request.');
+            $response->addResultForRecipient($this->webhookId, 'Bad Request.');
         } else {
-            $response->addResultForRecipient($this->webhookId ?? '', 'Unknown Error.');
+            $response->addResultForRecipient($this->webhookId, 'Unknown Error.');
         }
 
         return \json_encode($response->toArray());
