@@ -22,14 +22,14 @@ class MailgunTest extends Base
         $to = \getenv('TEST_EMAIL');
         $subject = 'Test Subject';
         $content = 'Test Content';
-        $senderEmailAddress = 'sender@'.$domain;
+        $fromEmail = 'sender@'.$domain;
 
         $message = new Email(
             to: [$to],
             subject: $subject,
             content: $content,
-            from: 'Test Sender',
-            senderEmailAddress: $senderEmailAddress,
+            fromName: 'Test Sender',
+            fromEmail: $fromEmail,
         );
 
         $response = \json_decode($sender->send($message), true);

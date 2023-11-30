@@ -47,18 +47,22 @@ class Mailgun extends EmailAdapter
 
         $body = [
             'to' => \implode(',', $message->getTo()),
-            'from' => "{$message->getFrom()}<{$message->getSenderEmailAddress()}>",
+            'from' => "{$message->getFromName()}<{$message->getFromEmail()}>",
             'subject' => $message->getSubject(),
             'text' => $message->isHtml() ? null : $message->getContent(),
             'html' => $message->isHtml() ? $message->getContent() : null,
         ];
 
-        if (! \is_null($message->getCcName()) && ! \is_null($message->getCcEmail())) {
-            $body['cc'] = "{$message->getCcName()}<{$message->getCcEmail()}>";
+        if (! \is_null($message->getCC())) {
+            foreach ($message->getCC() as $cc) {
+                $body['cc'] = "{$body['cc']},{$cc['name']}<{$cc['email']}>";
+            }
         }
 
-        if (! \is_null($message->getBccName()) && ! \is_null($message->getBccEmail())) {
-            $body['bcc'] = "{$message->getBccName()}<{$message->getBccEmail()}>";
+        if (! \is_null($message->getBCC())) {
+            foreach ($message->getBCC() as $bcc) {
+                $body['bcc'] = "{$body['bcc']},{$bcc['name']}<{$bcc['email']}>";
+            }
         }
 
         $response = new Response($this->getType());
@@ -68,7 +72,7 @@ class Mailgun extends EmailAdapter
             url: "https://$domain/v3/{$this->domain}/messages",
             headers: [
                 'Authorization: Basic '.base64_encode('api:'.$this->apiKey),
-                'h:Reply-To: '.$message->getReplyTo(),
+                'h:Reply-To: '."{$message->getReplyToName()}<{$message->getReplyToEmail()}>",
             ],
             body: \http_build_query($body),
         );

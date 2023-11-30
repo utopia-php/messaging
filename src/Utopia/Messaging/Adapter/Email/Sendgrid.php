@@ -47,18 +47,22 @@ class Sendgrid extends EmailAdapter
             ],
         ];
 
-        if (! \is_null($message->getCcName()) && ! \is_null($message->getCcEmail())) {
-            $personalizations[0]['cc'] = [
-                'name' => $message->getCcName(),
-                'email' => $message->getCcEmail(),
-            ];
+        if (! \is_null($message->getCC())) {
+            foreach ($message->getCC() as $cc) {
+                $personalizations[0]['cc'][] = [
+                    'name' => $cc['name'],
+                    'email' => $cc['email'],
+                ];
+            }
         }
 
-        if (! \is_null($message->getBccName()) && ! \is_null($message->getBccEmail())) {
-            $personalizations[0]['bcc'] = [
-                'name' => $message->getBccName(),
-                'email' => $message->getBccEmail(),
-            ];
+        if (! \is_null($message->getBCC())) {
+            foreach ($message->getBCC() as $bcc) {
+                $personalizations[0]['bcc'][] = [
+                    'name' => $bcc['name'],
+                    'email' => $bcc['email'],
+                ];
+            }
         }
 
         $response = new Response($this->getType());
@@ -72,11 +76,12 @@ class Sendgrid extends EmailAdapter
             body: \json_encode([
                 'personalizations' => $personalizations,
                 'reply_to' => [
-                    'email' => $message->getReplyTo(),
+                    'name' => $message->getReplyToName(),
+                    'email' => $message->getReplyToEmail(),
                 ],
                 'from' => [
-                    'name' => $message->getFrom(),
-                    'email' => $message->getSenderEmailAddress(),
+                    'name' => $message->getFromName(),
+                    'email' => $message->getFromEmail(),
                 ],
                 'content' => [
                     [
