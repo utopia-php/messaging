@@ -32,7 +32,7 @@ class MailgunTest extends Base
             senderEmailAddress: $senderEmailAddress,
         );
 
-        $response = (array) \json_decode($sender->send($message), true);
+        $response = \json_decode($sender->send($message), true);
 
         $this->assertResponse($response);
     }
