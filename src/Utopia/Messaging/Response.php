@@ -78,4 +78,16 @@ class Response
             'results' => $this->results,
         ];
     }
+
+    /**
+     * @param  array<array<string, string>>  $results
+     */
+    public function fromArray(array $results): self
+    {
+        $response = new self($this->type);
+        $response->deliveredTo = $this->deliveredTo;
+        $response->results = $this->results;
+
+        return $response;
+    }
 }
