@@ -49,19 +49,31 @@ class Sendgrid extends EmailAdapter
 
         if (! \is_null($message->getCC())) {
             foreach ($message->getCC() as $cc) {
-                $personalizations[0]['cc'][] = [
-                    'name' => $cc['name'],
-                    'email' => $cc['email'],
-                ];
+                if (! empty($cc['name'])) {
+                    $personalizations[0]['cc'][] = [
+                        'name' => $cc['name'],
+                        'email' => $cc['email'],
+                    ];
+                } else {
+                    $personalizations[0]['cc'][] = [
+                        'email' => $cc['email'],
+                    ];
+                }
             }
         }
 
         if (! \is_null($message->getBCC())) {
             foreach ($message->getBCC() as $bcc) {
-                $personalizations[0]['bcc'][] = [
-                    'name' => $bcc['name'],
-                    'email' => $bcc['email'],
-                ];
+                if (! empty($bcc['name'])) {
+                    $personalizations[0]['bcc'][] = [
+                        'name' => $bcc['name'],
+                        'email' => $bcc['email'],
+                    ];
+                } else {
+                    $personalizations[0]['bcc'][] = [
+                        'email' => $bcc['email'],
+                    ];
+                }
             }
         }
 
