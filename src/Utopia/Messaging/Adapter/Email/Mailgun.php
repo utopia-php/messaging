@@ -54,14 +54,22 @@ class Mailgun extends EmailAdapter
         ];
 
         if (! \is_null($message->getCC())) {
-            foreach ($message->getCC() as $ccEmail) {
-                $body['cc'] = "{$body['cc']}, <{$ccEmail}>";
+            foreach ($message->getCC() as $cc) {
+                if (!empty($cc['name'])) {
+                    $body['cc'] = "{$body['cc']},{$cc['name']}<{$cc['email']}>";
+                } else {
+                    $body['cc'] = "{$body['cc']}, <{$cc['email']}>";
+                }
             }
         }
 
         if (! \is_null($message->getBCC())) {
-            foreach ($message->getBCC() as $bccEmail) {
-                $body['bcc'] = "{$body['bcc']},<{$bccEmail}>";
+            foreach ($message->getBCC() as $bcc) {
+                if (!empty($bcc['name'])) {
+                    $body['bcc'] = "{$body['bcc']},{$bcc['name']}<{$bcc['email']}>";
+                } else {
+                    $body['bcc'] = "{$body['bcc']}, <{$bcc['email']}>";
+                }
             }
         }
 
