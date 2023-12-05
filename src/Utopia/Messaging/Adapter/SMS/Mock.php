@@ -38,7 +38,7 @@ class Mock extends SMSAdapter
         $response = new Response($this->getType());
 
         $response->setDeliveredTo(\count($message->getTo()));
-        
+
         $result = $this->request(
             method: 'POST',
             url: 'http://request-catcher:5000/mock-sms',
