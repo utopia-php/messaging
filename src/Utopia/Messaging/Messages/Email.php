@@ -12,8 +12,8 @@ class Email implements Message
      * @param  string  $content The content of the email.
      * @param  string  $fromName The name of the sender.
      * @param  string  $fromEmail The email address of the sender.
-     * @param  array<array<string,string>>|null  $cc . The CC recipients of the email. Each recipient should be an array containing a "name" and an "email" key.
-     * @param  array<array<string,string>>|null  $bcc . The BCC recipients of the email. Each recipient should be an array containing a "name" and an "email" key.
+     * @param  array<string>|null  $cc . The CC recipients of the email. Each recipient should be an email.
+     * @param  array<string>|null  $bcc . The BCC recipients of the email. Each recipient should be an email.
      * @param  string|null  $replyToName The name of the reply to.
      * @param  string|null  $replyToEmail The email address of the reply to.
      * @param  array<string, mixed>|null  $attachments The attachments of the email.
@@ -98,7 +98,7 @@ class Email implements Message
     }
 
     /**
-     * @return array<array<string, string>>|null
+     * @return array<string>|null
      */
     public function getCC(): ?array
     {
@@ -106,7 +106,7 @@ class Email implements Message
     }
 
     /**
-     * @return array<array<string, string>>|null
+     * @return array<string>|null
      */
     public function getBCC(): ?array
     {

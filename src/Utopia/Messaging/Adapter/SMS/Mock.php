@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
+use Utopia\Messaging\Response;
 
 class Mock extends SMSAdapter
 {
@@ -24,7 +25,7 @@ class Mock extends SMSAdapter
 
     public function getMaxMessagesPerRequest(): int
     {
-        return 1;
+        return 1000;
     }
 
     /**
@@ -34,6 +35,10 @@ class Mock extends SMSAdapter
      */
     protected function process(SMSMessage $message): string
     {
+        $response = new Response($this->getType());
+
+        $response->setDeliveredTo(\count($message->getTo()));
+        
         $result = $this->request(
             method: 'POST',
             url: 'http://request-catcher:5000/mock-sms',
@@ -49,6 +54,17 @@ class Mock extends SMSAdapter
             ]),
         );
 
-        return \json_encode($result['response']);
+        if ($result['statusCode'] === 200) {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to);
+            }
+        } else {
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to, 'Unknown Error.');
+            }
+        }
+
+        return \json_encode($response->toArray());
     }
 }
