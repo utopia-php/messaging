@@ -15,13 +15,15 @@ class EmailTest extends Base
         $to = 'tester@localhost.test';
         $subject = 'Test Subject';
         $content = 'Test Content';
-        $from = 'sender@localhost.test';
+        $fromName = 'Test Sender';
+        $fromEmail = 'sender@localhost.test';
 
         $message = new Email(
             to: [$to],
             subject: $subject,
             content: $content,
-            from: $from
+            fromName: $fromName,
+            fromEmail: $fromEmail,
         );
 
         $response = \json_decode($sender->send($message), true);
@@ -30,7 +32,7 @@ class EmailTest extends Base
 
         $this->assertResponse($response);
         $this->assertEquals($to, $lastEmail['to'][0]['address']);
-        $this->assertEquals($from, $lastEmail['from'][0]['address']);
+        $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
         $this->assertEquals($subject, $lastEmail['subject']);
         $this->assertEquals($content, \trim($lastEmail['text']));
     }

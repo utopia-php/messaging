@@ -37,6 +37,34 @@ class Sendgrid extends EmailAdapter
      */
     protected function process(EmailMessage $message): string
     {
+        $personalizations = [
+            [
+                'to' => \array_map(
+                    fn ($to) => ['email' => $to],
+                    $message->getTo()
+                ),
+                'subject' => $message->getSubject(),
+            ],
+        ];
+
+        if (! \is_null($message->getCC())) {
+            foreach ($message->getCC() as $cc) {
+                $personalizations[0]['cc'][] = [
+                    'name' => $cc['name'],
+                    'email' => $cc['email'],
+                ];
+            }
+        }
+
+        if (! \is_null($message->getBCC())) {
+            foreach ($message->getBCC() as $bcc) {
+                $personalizations[0]['bcc'][] = [
+                    'name' => $bcc['name'],
+                    'email' => $bcc['email'],
+                ];
+            }
+        }
+
         $response = new Response($this->getType());
         $result = $this->request(
             method: 'POST',
@@ -46,17 +74,14 @@ class Sendgrid extends EmailAdapter
                 'Content-Type: application/json',
             ],
             body: \json_encode([
-                'personalizations' => [
-                    [
-                        'to' => \array_map(
-                            fn ($to) => ['email' => $to],
-                            $message->getTo()
-                        ),
-                        'subject' => $message->getSubject(),
-                    ],
+                'personalizations' => $personalizations,
+                'reply_to' => [
+                    'name' => $message->getReplyToName(),
+                    'email' => $message->getReplyToEmail(),
                 ],
                 'from' => [
-                    'email' => $message->getFrom(),
+                    'name' => $message->getFromName(),
+                    'email' => $message->getFromEmail(),
                 ],
                 'content' => [
                     [
