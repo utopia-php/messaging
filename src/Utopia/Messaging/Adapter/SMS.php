@@ -25,5 +25,5 @@ abstract class SMS extends Adapter
      *
      * @throws \Exception If the message fails.
      */
-    abstract protected function process(SMSMessage $message): string;
+    abstract protected function process(SMSMessage $message): array;
 }

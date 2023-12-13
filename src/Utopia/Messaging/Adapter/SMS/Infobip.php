@@ -35,7 +35,7 @@ class Infobip extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMSMessage $message): string
+    protected function process(SMSMessage $message): array
     {
         $to = \array_map(fn ($number) => ['to' => \ltrim($number, '+')], $message->getTo());
 
@@ -55,6 +55,6 @@ class Infobip extends SMSAdapter
             ]),
         );
 
-        return \json_encode($result['response']);
+        return $result;
     }
 }

@@ -37,7 +37,7 @@ class Vonage extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMS $message): string
+    protected function process(SMS $message): array
     {
         $to = \array_map(
             fn ($to) => \ltrim($to, '+'),
@@ -66,6 +66,6 @@ class Vonage extends SMSAdapter
                 $response->addResultForRecipient($message->getTo()[0], $result['response']['messages'][0]['error-text']);
         }
 
-        return \json_encode($response->toArray());
+        return $response->toArray();
     }
 }

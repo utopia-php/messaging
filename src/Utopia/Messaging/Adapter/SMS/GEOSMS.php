@@ -53,7 +53,7 @@ class GEOSMS extends SMSAdapter
         return $result;
     }
 
-    protected function process(SMS $message): string
+    protected function process(SMS $message): array
     {
         $results = [];
         $recipients = $message->getTo();
@@ -80,7 +80,7 @@ class GEOSMS extends SMSAdapter
             $recipients = \array_diff($recipients, $nextRecipients);
         } while (count($recipients) > 0);
 
-        return \json_encode($results);
+        return $results;
     }
 
     /**

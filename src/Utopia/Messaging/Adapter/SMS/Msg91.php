@@ -37,7 +37,7 @@ class Msg91 extends SMSAdapter
     /**
      * {@inheritdoc}
      */
-    protected function process(SMSMessage $message): string
+    protected function process(SMSMessage $message): array
     {
         $recipients = [];
         foreach ($message->getTo() as $recipient) {
@@ -74,6 +74,6 @@ class Msg91 extends SMSAdapter
             }
         }
 
-        return \json_encode($response->toArray());
+        return $response->toArray();
     }
 }

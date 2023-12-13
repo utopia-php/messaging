@@ -37,7 +37,7 @@ class Textmagic extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMSMessage $message): string
+    protected function process(SMSMessage $message): array
     {
         $to = \array_map(
             fn ($to) => \ltrim($to, '+'),
@@ -70,6 +70,6 @@ class Textmagic extends SMSAdapter
             }
         }
 
-        return \json_encode($response->toArray());
+        return $response->toArray();
     }
 }

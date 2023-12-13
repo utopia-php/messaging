@@ -38,7 +38,7 @@ class Mailgun extends EmailAdapter
     /**
      * {@inheritdoc}
      */
-    protected function process(EmailMessage $message): string
+    protected function process(EmailMessage $message): array
     {
         $usDomain = 'api.mailgun.net';
         $euDomain = 'api.eu.mailgun.net';
@@ -98,6 +98,6 @@ class Mailgun extends EmailAdapter
             }
         }
 
-        return \json_encode($response->toArray());
+        return $response->toArray();
     }
 }

@@ -33,7 +33,7 @@ class Clickatell extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMSMessage $message): string
+    protected function process(SMSMessage $message): array
     {
         $result = $this->request(
             method: 'POST',
@@ -49,6 +49,6 @@ class Clickatell extends SMSAdapter
             ]),
         );
 
-        return \json_encode($result['response']);
+        return $result;
     }
 }

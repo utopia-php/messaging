@@ -3,16 +3,23 @@
 namespace Utopia\Messaging\Adapter\Push;
 
 use Utopia\Messaging\Adapter\Push as PushAdapter;
+use Utopia\Messaging\Helpers\JWT;
 use Utopia\Messaging\Messages\Push as PushMessage;
 use Utopia\Messaging\Response;
 
 class FCM extends PushAdapter
 {
+    private const DEFAULT_EXPIRY_SECONDS = 3600;    // 1 hour
+
+    private const DEFAULT_SKEW_SECONDS = 60;        // 1 minute
+
+    private const GOOGLE_TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
+
     /**
-     * @param  string  $serverKey The FCM server key.
+     * @param  string  $serviceAccountJSON Service account JSON file contents
      */
     public function __construct(
-        private string $serverKey,
+        private string $serviceAccountJSON,
     ) {
     }
 
@@ -29,87 +36,134 @@ class FCM extends PushAdapter
      */
     public function getMaxMessagesPerRequest(): int
     {
-        return 1000;
+        return 500;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function process(PushMessage $message): string
+    protected function process(PushMessage $message): array
     {
-        $response = new Response($this->getType());
-        $result = $this->request(
-            method: 'POST',
-            url: 'https://fcm.googleapis.com/fcm/send',
-            headers: [
-                'Content-Type: application/json',
-                "Authorization: key={$this->serverKey}",
-            ],
-            body: \json_encode([
-                'registration_ids' => $message->getTo(),
+        $credentials = \json_decode($this->serviceAccountJSON, true);
+
+        $now = \time();
+
+        $signingKey = $credentials['private_key'];
+        $signingAlgorithm = 'RS256';
+
+        $payload = [
+            'iss' => $credentials['client_email'],
+            'exp' => $now + self::DEFAULT_EXPIRY_SECONDS,
+            'iat' => $now - self::DEFAULT_SKEW_SECONDS,
+            'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+            //'aud' => self::GOOGLE_TOKEN_URL,
+        ];
+
+        $jwt = JWT::encode(
+            $payload,
+            $signingKey,
+            $signingAlgorithm,
+        );
+
+        //        /**
+        //         * @var array{
+        //         *     refresh_token: ?string,
+        //         *     expires_in: ?int,
+        //         *     access_token: ?string,
+        //         *     token_type: ?string,
+        //         *     id_token: ?string
+        //         * } $token
+        //         */
+        //        $token = $this->request(
+        //            method: 'POST',
+        //            url: self::GOOGLE_TOKEN_URL,
+        //            headers: [
+        //                'Content-Type: application/x-www-form-urlencoded',
+        //                "Authorization: Bearer {$jwt}",
+        //            ],
+        //            body: \http_build_query([
+        //                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        //                'assertion' => $jwt,
+        //            ])
+        //        )['response'];
+        //
+        //        $jwt = $token['access_token'];
+
+        $shared = [
+            'message' => [
                 'notification' => [
                     'title' => $message->getTitle(),
                     'body' => $message->getBody(),
-                    'click_action' => $message->getAction(),
-                    'icon' => $message->getIcon(),
-                    'badge' => $message->getBadge(),
-                    'color' => $message->getColor(),
-                    'sound' => $message->getSound(),
-                    'tag' => $message->getTag(),
                 ],
                 'data' => $message->getData(),
-            ])
-        );
+            ],
+        ];
+        $androidNotification = [
+            'click_action' => $message->getAction(),
+            'icon' => $message->getIcon(),
+            'color' => $message->getColor(),
+            'sound' => $message->getSound(),
+            'tag' => $message->getTag(),
+            'image' => $message->getImage(),
+        ];
+        $apnsPayloadAps = [
+            'category' => $message->getAction(),
+            'badge' => $message->getBadge(),
+            'sound' => $message->getSound(),
+        ];
+        $apnsFcmOptions = [
+            'image' => $message->getImage(),
+        ];
 
-        $response->setDeliveredTo($result['response']['success']);
-
-        foreach ($result['response']['results'] as $index => $item) {
-            if ($result['statusCode'] === 200) {
-                $response->addResultForRecipient(
-                    $message->getTo()[$index],
-                    \array_key_exists('error', $item)
-                        ? $this->getSpecificErrorMessage($item['error'])
-                        : '',
-                );
-            } elseif ($result['statusCode'] === 400) {
-                $response->addResultForRecipient(
-                    $message->getTo()[$index],
-                    match ($item['error']) {
-                        'Invalid JSON' => 'Bad Request.',
-                        'Invalid Parameters' => 'Bad Request.',
-                        default => null,
-                    },
-                );
-            } elseif ($result['statusCode'] === 401) {
-                $response->addResultForRecipient(
-                    $message->getTo()[$index],
-                    'Authentication error.',
-                );
-            } elseif ($result['statusCode'] >= 500) {
-                $response->addResultForRecipient(
-                    $message->getTo()[$index],
-                    'Server unavailable.',
-                );
-            } else {
-                $response->addResultForRecipient(
-                    $message->getTo()[$index],
-                    'Unknown error',
-                );
-            }
-
+        if (! empty(array_filter($androidNotification))) {
+            $shared['message']['android']['notification'] = $androidNotification;
+        }
+        if (! empty(array_filter($apnsPayloadAps))) {
+            $shared['message']['apns']['payload']['aps'] = $apnsPayloadAps;
+        }
+        if (! empty(array_filter($apnsFcmOptions))) {
+            $shared['message']['apns']['payload']['aps']['mutable-content'] = 1;
+            $shared['message']['apns']['fcm_options'] = $apnsFcmOptions;
         }
 
-        return \json_encode($response->toArray());
+        $bodies = [];
+
+        foreach ($message->getTo() as $to) {
+            $body = $shared;
+            $body['message']['token'] = $to;
+            $bodies[] = \json_encode($body);
+        }
+
+        $results = $this->requestMulti(
+            method: 'POST',
+            urls: ["https://fcm.googleapis.com/v1/projects/{$credentials['project_id']}/messages:send"],
+            headers: [
+                'Content-Type: application/json',
+                "Authorization: Bearer {$jwt}",
+            ],
+            bodies: $bodies
+        );
+
+        $response = new Response($this->getType());
+
+        foreach ($results as $index => $result) {
+            $response->addResultForRecipient(
+                $message->getTo()[$index],
+                $this->getSpecificErrorMessage($result['error'])
+            );
+        }
+
+        return $response->toArray();
     }
 
     private function getSpecificErrorMessage(string $error): string
     {
         return match ($error) {
             'MissingRegistration' => 'Bad Request. Missing token.',
-            'InvalidRegistration' => 'Invalid token.',
-            'NotRegistered' => 'Expired token.',
-            'MessageTooBig' => 'Payload is too large. Please keep maximum 4096 bytes for messages.',
-            'DeviceMessageRateExceeded' => 'Too many requests were made consecutively to the same device token.',
+            'InvalidRegistration' => 'Invalid device token.',
+            'NotRegistered' => 'Expired device token.',
+            'MessageTooBig' => 'Payload is too large. Messages must be less than 4096 bytes.',
+            'DeviceMessageRateExceeded' => 'Too many requests were made to the same device token.',
             'InternalServerError' => 'Internal server error.',
             default => $error,
         };
