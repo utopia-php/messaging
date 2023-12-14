@@ -23,7 +23,7 @@ class JWT
      *
      * @throws \Exception
      */
-    public static function encode(array $payload, string $key, string $algorithm, ?string $keyId = null): string
+    public static function encode(array $payload, string $key, string $algorithm, string $keyId = null): string
     {
         $header = [
             'typ' => 'JWT',

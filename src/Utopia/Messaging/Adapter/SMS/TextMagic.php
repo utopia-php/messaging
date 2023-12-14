@@ -9,7 +9,7 @@ use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 use Utopia\Messaging\Response;
 
-class Textmagic extends SMSAdapter
+class TextMagic extends SMSAdapter
 {
     /**
      * @param  string  $username Textmagic account username

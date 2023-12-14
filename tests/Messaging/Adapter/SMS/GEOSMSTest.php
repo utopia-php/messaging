@@ -14,7 +14,7 @@ class GEOSMSTest extends Base
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $defaultAdapterMock->method('getName')->willReturn('default');
-        $defaultAdapterMock->method('send')->willReturn(['results' => [['status' => 'success']]]);
+        $defaultAdapterMock->method('send')->willReturn(json_encode(['status' => 'success']));
 
         $adapter = new GEOSMS($defaultAdapterMock);
 
@@ -29,8 +29,8 @@ class GEOSMSTest extends Base
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(1, count($result['results']));
-        $this->assertEquals('success', $result['results'][0]['status']);
+        $this->assertEquals(1, count($result));
+        $this->assertEquals('success', $result['default']['status']);
     }
 
     public function testSendSMSUsingLocalAdapter(): void

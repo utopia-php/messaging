@@ -135,6 +135,8 @@ class FCM extends PushAdapter
             bodies: $bodies
         );
 
+        \var_dump($results);
+
         $response = new Response($this->getType());
 
         foreach ($results as $index => $result) {

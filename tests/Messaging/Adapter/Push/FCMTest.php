@@ -31,8 +31,6 @@ class FCMTest extends Base
 
         $response = $adapter->send($message);
 
-        \var_dump($response);
-
         $this->assertResponse($response);
     }
 }

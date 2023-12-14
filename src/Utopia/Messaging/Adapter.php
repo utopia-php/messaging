@@ -61,7 +61,7 @@ abstract class Adapter
         string $method,
         string $url,
         array $headers = [],
-        ?string $body = null,
+        string $body = null,
         int $timeout = 30
     ): array {
         $ch = \curl_init();
