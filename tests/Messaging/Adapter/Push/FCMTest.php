@@ -14,7 +14,7 @@ class FCMTest extends Base
 
         $adapter = new FCMAdapter($serverKey);
 
-        $to = \getenv('FCM_SERVER_TO');
+        $to = \getenv('FCM_TO');
 
         $message = new Push(
             to: [$to],

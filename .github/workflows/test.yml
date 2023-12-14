@@ -18,7 +18,7 @@ jobs:
         MAILGUN_DOMAIN: ${{ secrets.MAILGUN_DOMAIN }}
         SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
         FCM_SERVICE_ACCOUNT_JSON: ${{ secrets.FCM_SERVICE_ACCOUNT_JSON }}
-        FCM_SERVER_TO: ${{ secrets.FCM_SERVER_TO }}
+        FCM_TO: ${{ secrets.FCM_TO }}
         TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
         TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
         TWILIO_TO: ${{ secrets.TWILIO_TO }}
