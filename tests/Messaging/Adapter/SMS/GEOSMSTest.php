@@ -14,7 +14,7 @@ class GEOSMSTest extends Base
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $defaultAdapterMock->method('getName')->willReturn('default');
-        $defaultAdapterMock->method('send')->willReturn(['status' => 'success']);
+        $defaultAdapterMock->method('send')->willReturn(['results'=>[['status' => 'success']]]);
 
         $adapter = new GEOSMS($defaultAdapterMock);
 
@@ -38,7 +38,7 @@ class GEOSMSTest extends Base
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock->method('getName')->willReturn('local');
-        $localAdapterMock->method('send')->willReturn(['status' => 'success']);
+        $localAdapterMock->method('send')->willReturn(['results'=>[['status' => 'success']]]);
 
         $adapter = new GEOSMS($defaultAdapterMock);
         $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
@@ -62,10 +62,10 @@ class GEOSMSTest extends Base
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $defaultAdapterMock->method('getName')->willReturn('default');
-        $defaultAdapterMock->method('send')->willReturn(['status' => 'success']);
+        $defaultAdapterMock->method('send')->willReturn(['results'=>[['status' => 'success']]]);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock->method('getName')->willReturn('local');
-        $localAdapterMock->method('send')->willReturn(['status' => 'success']);
+        $localAdapterMock->method('send')->willReturn(['results'=>[['status' => 'success']]]);
 
         $adapter = new GEOSMS($defaultAdapterMock);
         $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
@@ -91,7 +91,7 @@ class GEOSMSTest extends Base
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock->method('getName')->willReturn('local');
-        $localAdapterMock->method('send')->willReturn(['status' => 'success']);
+        $localAdapterMock->method('send')->willReturn(['results'=>[['status' => 'success']]]);
 
         $adapter = new GEOSMS($defaultAdapterMock);
         $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
