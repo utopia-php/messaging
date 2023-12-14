@@ -38,6 +38,11 @@ class Discord extends Adapter
         return 1;
     }
 
+    /**
+     * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
+     *
+     * @throws \Exception
+     */
     protected function process(DiscordMessage $message): array
     {
         $query = [];

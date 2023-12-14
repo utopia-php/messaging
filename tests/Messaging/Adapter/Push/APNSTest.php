@@ -19,18 +19,18 @@ class APNSTest extends Base
 
         $message = new Push(
             to: [\getenv('APNS_TO')],
-            title: 'TestTitle',
-            body: 'TestBody',
+            title: 'Test title',
+            body: 'Test body',
             data: null,
             action: null,
             sound: 'default',
             icon: null,
             color: null,
             tag: null,
-            badge: '1'
+            badge: 1
         );
 
-        $response = \json_decode($adapter->send($message), true);
+        $response = $adapter->send($message);
 
         $this->assertResponse($response);
     }

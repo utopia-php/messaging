@@ -26,7 +26,7 @@ class SendgridTest extends Base
             fromEmail: $fromEmail,
         );
 
-        $response = \json_decode($sender->send($message), true);
+        $response = $sender->send($message);
 
         $this->assertResponse($response);
     }

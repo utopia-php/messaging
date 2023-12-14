@@ -20,10 +20,9 @@ abstract class Email extends Adapter
     /**
      * Process an email message.
      *
-     * @param  EmailMessage  $message Message to process.
-     * @return string The response body.
+     * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
      *
-     * @throws \Exception If the message fails.
+     * @throws \Exception
      */
     abstract protected function process(EmailMessage $message): array;
 }

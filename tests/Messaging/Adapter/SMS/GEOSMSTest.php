@@ -13,10 +13,8 @@ class GEOSMSTest extends Base
     public function testSendSMSUsingDefaultAdapter(): void
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
-        $defaultAdapterMock->method('getName')
-            ->willReturn('default');
-        $defaultAdapterMock->method('send')
-            ->willReturn(json_encode(['status' => 'success']));
+        $defaultAdapterMock->method('getName')->willReturn('default');
+        $defaultAdapterMock->method('send')->willReturn(['status' => 'success']);
 
         $adapter = new GEOSMS($defaultAdapterMock);
 
@@ -29,20 +27,18 @@ class GEOSMSTest extends Base
             from: $from
         );
 
-        $result = json_decode($adapter->send($message), true);
+        $result = $adapter->send($message);
 
-        $this->assertEquals(1, count($result));
-        $this->assertEquals('success', $result['default']['status']);
+        $this->assertEquals(1, count($result['results']));
+        $this->assertEquals('success', $result['results'][0]['status']);
     }
 
     public function testSendSMSUsingLocalAdapter(): void
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
-        $localAdapterMock->method('getName')
-            ->willReturn('local');
-        $localAdapterMock->method('send')
-            ->willReturn(json_encode(['status' => 'success']));
+        $localAdapterMock->method('getName')->willReturn('local');
+        $localAdapterMock->method('send')->willReturn(['status' => 'success']);
 
         $adapter = new GEOSMS($defaultAdapterMock);
         $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
@@ -56,24 +52,20 @@ class GEOSMSTest extends Base
             from: $from
         );
 
-        $result = json_decode($adapter->send($message), true);
+        $result = $adapter->send($message);
 
         $this->assertEquals(1, count($result));
-        $this->assertEquals('success', $result['local']['status']);
+        $this->assertEquals('success', $result['local']['results'][0]['status']);
     }
 
     public function testSendSMSUsingLocalAdapterAndDefault(): void
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
-        $defaultAdapterMock->method('getName')
-            ->willReturn('default');
-        $defaultAdapterMock->method('send')
-            ->willReturn(json_encode(['status' => 'success']));
+        $defaultAdapterMock->method('getName')->willReturn('default');
+        $defaultAdapterMock->method('send')->willReturn(['status' => 'success']);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
-        $localAdapterMock->method('getName')
-            ->willReturn('local');
-        $localAdapterMock->method('send')
-            ->willReturn(json_encode(['status' => 'success']));
+        $localAdapterMock->method('getName')->willReturn('local');
+        $localAdapterMock->method('send')->willReturn(['status' => 'success']);
 
         $adapter = new GEOSMS($defaultAdapterMock);
         $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
@@ -87,21 +79,19 @@ class GEOSMSTest extends Base
             from: $from
         );
 
-        $result = json_decode($adapter->send($message), true);
+        $result = $adapter->send($message);
 
         $this->assertEquals(2, count($result));
-        $this->assertEquals('success', $result['local']['status']);
-        $this->assertEquals('success', $result['default']['status']);
+        $this->assertEquals('success', $result['local']['results'][0]['status']);
+        $this->assertEquals('success', $result['default']['results'][0]['status']);
     }
 
     public function testSendSMSUsingGroupedLocalAdapter(): void
     {
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock = $this->createMock(SMSAdapter::class);
-        $localAdapterMock->method('getName')
-            ->willReturn('local');
-        $localAdapterMock->method('send')
-            ->willReturn(json_encode(['status' => 'success']));
+        $localAdapterMock->method('getName')->willReturn('local');
+        $localAdapterMock->method('send')->willReturn(['status' => 'success']);
 
         $adapter = new GEOSMS($defaultAdapterMock);
         $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
@@ -116,9 +106,9 @@ class GEOSMSTest extends Base
             from: $from
         );
 
-        $result = json_decode($adapter->send($message), true);
+        $result = $adapter->send($message);
 
         $this->assertEquals(1, count($result));
-        $this->assertEquals('success', $result['local']['status']);
+        $this->assertEquals('success', $result['local']['results'][0]['status']);
     }
 }

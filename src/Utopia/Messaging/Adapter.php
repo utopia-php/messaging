@@ -27,10 +27,9 @@ abstract class Adapter
     /**
      * Send a message.
      *
-     * @param  Message  $message The message to send.
-     * @return array The results array.
+     * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}|array<string, array{deliveredTo: int, type: string, results: array<array<string, mixed>>}>
      *
-     * @throws \Exception If the message fails.
+     * @throws \Exception
      */
     public function send(Message $message): array
     {
@@ -54,7 +53,7 @@ abstract class Adapter
      * @param  string  $url The URL to send the request to.
      * @param  array<string>  $headers An array of headers to send with the request.
      * @param  string|null  $body The body of the request.
-     * @return array<string, mixed> The response body.
+     * @return array{url: string, statusCode: int, response: array<string, mixed>|null, error: string|null}
      *
      * @throws \Exception If the request fails.
      */
@@ -63,6 +62,7 @@ abstract class Adapter
         string $url,
         array $headers = [],
         ?string $body = null,
+        int $timeout = 30
     ): array {
         $ch = \curl_init();
 
@@ -72,11 +72,12 @@ abstract class Adapter
         }
 
         \curl_setopt_array($ch, [
-            CURLOPT_URL => $url,
             CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_URL => $url,
             CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_RETURNTRANSFER => true,
             CURLOPT_USERAGENT => "Appwrite {$this->getName()} Message Sender",
+            CURLOPT_TIMEOUT => $timeout,
         ]);
 
         $response = \curl_exec($ch);
@@ -85,22 +86,37 @@ abstract class Adapter
 
         try {
             $response = \json_decode($response, true, flags: JSON_THROW_ON_ERROR);
-        } finally {
-            return [
-                'url' => $url,
-                'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
-                'response' => $response,
-                'error' => \curl_error($ch),
-            ];
+        } catch (\JsonException) {
+            // Ignore
         }
+
+        return [
+            'url' => $url,
+            'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
+            'response' => $response,
+            'error' => \curl_error($ch),
+        ];
     }
 
+    /**
+     * @param  array<string>  $urls
+     * @param  array<string>  $headers
+     * @param  array<string>  $bodies
+     * @return array<array{url: string, statusCode: int, response: array<string, mixed>|null, error: string|null}>
+     *
+     * @throws \Exception
+     */
     protected function requestMulti(
         string $method,
         array $urls,
         array $headers = [],
         array $bodies = [],
+        int $timeout = 30
     ): array {
+        if (empty($urls)) {
+            throw new \Exception('No URLs provided. Must provide at least one URL.');
+        }
+
         $sh = \curl_share_init();
         $mh = \curl_multi_init();
         $ch = \curl_init();
@@ -108,41 +124,42 @@ abstract class Adapter
         \curl_share_setopt($sh, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS);
         \curl_share_setopt($sh, CURLSHOPT_SHARE, CURL_LOCK_DATA_CONNECT);
 
-        $headers[] = 'Content-Length: '.\strlen($bodies[0]);
-
         \curl_setopt_array($ch, [
             CURLOPT_SHARE => $sh,
+            CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0,
-            CURLOPT_PORT => 443,
             CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $bodies[0],
-            CURLOPT_URL => $urls[0],
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 30,
             CURLOPT_FORBID_REUSE => false,
             CURLOPT_FRESH_CONNECT => false,
+            CURLOPT_TIMEOUT => $timeout,
         ]);
 
-        /**
-         * Create a handle for each request.
-         * If there are more urls than bodies, use the first body for all requests.
-         * If there are more bodies than urls, use the first url for all requests.
-         */
-        if (\count($urls) >= \count($bodies)) {
-            foreach ($urls as $url) {
-                \curl_setopt($ch, CURLOPT_URL, $url);
-                \curl_multi_add_handle($mh, \curl_copy_handle($ch));
-            }
-        }
-        if (\count($urls) <= \count($bodies)) {
-            foreach ($bodies as $body) {
-                $headers[] = 'Content-Length: '.\strlen($body);
+        $urlCount = \count($urls);
+        $bodyCount = \count($bodies);
 
-                \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-                \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                \curl_multi_add_handle($mh, \curl_copy_handle($ch));
+        if (
+            $urlCount != $bodyCount &&
+            ($urlCount == 1 && $bodyCount != 1 || $urlCount != 1 && $bodyCount == 1)
+        ) {
+            throw new \Exception('URL and body counts must be equal or 1.');
+        }
+
+        if ($urlCount > $bodyCount) {
+            $bodies = \array_pad($bodies, $urlCount, $bodies[0]);
+        } elseif ($urlCount < $bodyCount) {
+            $urls = \array_pad($urls, $bodyCount, $urls[0]);
+        }
+
+        foreach (\array_combine($urls, $bodies) as $url => $body) {
+            if (! empty($body)) {
+                $headers[] = 'Content-Length: '.\strlen($body);
             }
+
+            \curl_setopt($ch, CURLOPT_URL, $url);
+            \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+            \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            \curl_multi_add_handle($mh, \curl_copy_handle($ch));
         }
 
         $active = true;
@@ -164,14 +181,16 @@ abstract class Adapter
 
             try {
                 $response = \json_decode($response, true, flags: JSON_THROW_ON_ERROR);
-            } finally {
-                $responses[] = [
-                    'url' => \curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
-                    'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
-                    'response' => $response,
-                    'error' => \curl_error($ch),
-                ];
+            } catch (\JsonException) {
+                // Ignore
             }
+
+            $responses[] = [
+                'url' => \curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
+                'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
+                'response' => $response,
+                'error' => \curl_error($ch),
+            ];
 
             \curl_multi_remove_handle($mh, $ch);
             \curl_close($ch);

@@ -17,7 +17,7 @@ class Push implements Message
      * @param  string|null  $icon <b>Android only</b>. The icon of the push notification. Sets the notification icon to myicon for drawable resource myicon. If you don't send this key in the request, FCM displays the launcher icon specified in your app manifest.
      * @param  string|null  $color <b>Android only</b>. The icon color of the push notification, expressed in #rrggbb format.
      * @param  string|null  $tag <b>Android only</b>. Identifier used to replace existing notifications in the notification drawer.<br><br>If not specified, each request creates a new notification.<br><br>If specified and a notification with the same tag is already being shown, the new notification replaces the existing one in the notification drawer.
-     * @param  string|null  $badge <b>iOS only</b>. The value of the badge on the home screen app icon. If not specified, the badge is not changed. If set to 0, the badge is removed.
+     * @param  int|null  $badge <b>iOS only</b>. The value of the badge on the home screen app icon. If not specified, the badge is not changed. If set to 0, the badge is removed.
      */
     public function __construct(
         private array $to,
@@ -30,7 +30,7 @@ class Push implements Message
         private ?string $icon = null,
         private ?string $color = null,
         private ?string $tag = null,
-        private ?string $badge = null,
+        private ?int $badge = null,
     ) {
     }
 
@@ -95,7 +95,7 @@ class Push implements Message
         return $this->tag;
     }
 
-    public function getBadge(): ?string
+    public function getBadge(): ?int
     {
         return $this->badge;
     }

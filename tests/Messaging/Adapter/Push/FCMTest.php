@@ -10,7 +10,7 @@ class FCMTest extends Base
 {
     public function testSend(): void
     {
-        $serverKey = \getenv('FCM_SERVER_KEY');
+        $serverKey = \getenv('FCM_SERVICE_ACCOUNT_JSON');
 
         $adapter = new FCMAdapter($serverKey);
 
@@ -18,18 +18,20 @@ class FCMTest extends Base
 
         $message = new Push(
             to: [$to],
-            title: 'TestTitle',
-            body: 'TestBody',
+            title: 'Test title',
+            body: 'Test body',
             data: null,
             action: null,
             sound: 'default',
             icon: null,
             color: null,
             tag: null,
-            badge: '1'
+            badge: 1
         );
 
-        $response = \json_decode($adapter->send($message), true);
+        $response = $adapter->send($message);
+
+        \var_dump($response);
 
         $this->assertResponse($response);
     }

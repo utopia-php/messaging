@@ -49,7 +49,7 @@ class Response
     {
         $this->results[] = [
             'recipient' => $recipient,
-            'status' => $error === '' ? 'success' : 'failure',
+            'status' => empty($error) ? 'success' : 'failure',
             'error' => $error,
         ];
     }

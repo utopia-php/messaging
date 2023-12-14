@@ -67,12 +67,6 @@ class APNS extends PushAdapter
             $this->authKeyId
         );
 
-        $headers = [
-            'Authorization: Bearer '.$jwt,
-            'apns-topic: '.$this->bundleId,
-            'apns-push-type: alert',
-        ];
-
         $endpoint = 'https://api.push.apple.com';
 
         if ($this->sandbox) {
@@ -80,15 +74,19 @@ class APNS extends PushAdapter
         }
 
         $urls = [];
-        foreach ($to as $token) {
+        foreach ($message->getTo() as $token) {
             $urls[] = $endpoint.'/3/device/'.$token;
         }
 
         $results = $this->requestMulti(
             method: 'POST',
             urls: $urls,
-            headers: $headers,
-            bodies: [$payload]
+            headers: [
+                'Authorization: Bearer '.$jwt,
+                'apns-topic: '.$this->bundleId,
+                'apns-push-type: alert',
+            ],
+            bodies: [\json_encode($payload)]
         );
 
         $response = new Response($this->getType());

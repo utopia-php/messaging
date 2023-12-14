@@ -53,6 +53,9 @@ class GEOSMS extends SMSAdapter
         return $result;
     }
 
+    /**
+     * @return array<string, array{deliveredTo: int, type: string, results: array<array<string, mixed>>}>
+     */
     protected function process(SMS $message): array
     {
         $results = [];
@@ -62,14 +65,14 @@ class GEOSMS extends SMSAdapter
             [$nextRecipients, $nextAdapter] = $this->getNextRecipientsAndAdapter($recipients);
 
             try {
-                $results[$nextAdapter->getName()] = json_decode($nextAdapter->send(
+                $results[$nextAdapter->getName()] = $nextAdapter->send(
                     new SMS(
                         to: $nextRecipients,
                         content: $message->getContent(),
                         from: $message->getFrom(),
                         attachments: $message->getAttachments()
                     )
-                ));
+                );
             } catch (\Exception $e) {
                 $results[$nextAdapter->getName()] = [
                     'type' => 'error',

@@ -4,12 +4,6 @@ namespace Utopia\Messaging\Helpers;
 
 class JWT
 {
-    private const ASN1_INTEGER = 0x02;
-
-    private const ASN1_SEQUENCE = 0x10;
-
-    private const ASN1_BIT_STRING = 0x03;
-
     private const ALGORITHMS = [
         'ES384' => ['openssl', OPENSSL_ALGO_SHA384],
         'ES256' => ['openssl', OPENSSL_ALGO_SHA256],
@@ -25,7 +19,9 @@ class JWT
     /**
      * Convert an array to a JWT, signed with the given key and algorithm.
      *
-     * @throws Exception
+     * @param  array<string, mixed>  $payload
+     *
+     * @throws \Exception
      */
     public static function encode(array $payload, string $key, string $algorithm, ?string $keyId = null): string
     {
@@ -55,12 +51,12 @@ class JWT
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     private static function sign(string $data, string $key, string $alg): string
     {
         if (empty(self::ALGORITHMS[$alg])) {
-            throw new Exception('Algorithm not supported');
+            throw new \Exception('Algorithm not supported');
         }
 
         [$function, $algorithm] = self::ALGORITHMS[$alg];
@@ -72,7 +68,7 @@ class JWT
                 $success = \openssl_sign($data, $signature, $key, $algorithm);
 
                 if (! $success) {
-                    throw new Exception('OpenSSL sign failed for JWT');
+                    throw new \Exception('OpenSSL sign failed for JWT');
                 }
 
                 switch ($alg) {
@@ -83,14 +79,16 @@ class JWT
                     case 'ES384':
                         $signature = self::signatureFromDER($signature, 384);
                         break;
+                    default:
+                        break;
                 }
 
                 return $signature;
             case 'hash_hmac':
                 return \hash_hmac($algorithm, $data, $key, true);
+            default:
+                throw new \Exception('Algorithm not supported');
         }
-
-        throw new Exception('Algorithm not supported');
     }
 
     /**
@@ -142,7 +140,7 @@ class JWT
         }
 
         // Value
-        if ($type === self::ASN1_BIT_STRING) {
+        if ($type === 0x03) {
             $pos++; // Skip the first contents octet (padding indicator)
             $data = \substr($der, $pos, $len - 1);
             $pos += $len - 1;

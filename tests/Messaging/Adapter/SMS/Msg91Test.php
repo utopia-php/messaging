@@ -17,7 +17,7 @@ class Msg91Test extends Base
             content: 'Test Content',
         );
 
-        $response = \json_decode($sender->send($message), true);
+        $response = $sender->send($message);
 
         $this->assertResponse($response);
     }

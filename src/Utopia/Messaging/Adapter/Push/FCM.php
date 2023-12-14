@@ -36,7 +36,7 @@ class FCM extends PushAdapter
      */
     public function getMaxMessagesPerRequest(): int
     {
-        return 500;
+        return 5000;
     }
 
     /**
@@ -56,7 +56,7 @@ class FCM extends PushAdapter
             'exp' => $now + self::DEFAULT_EXPIRY_SECONDS,
             'iat' => $now - self::DEFAULT_SKEW_SECONDS,
             'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
-            //'aud' => self::GOOGLE_TOKEN_URL,
+            'aud' => self::GOOGLE_TOKEN_URL,
         ];
 
         $jwt = JWT::encode(
@@ -65,29 +65,19 @@ class FCM extends PushAdapter
             $signingAlgorithm,
         );
 
-        //        /**
-        //         * @var array{
-        //         *     refresh_token: ?string,
-        //         *     expires_in: ?int,
-        //         *     access_token: ?string,
-        //         *     token_type: ?string,
-        //         *     id_token: ?string
-        //         * } $token
-        //         */
-        //        $token = $this->request(
-        //            method: 'POST',
-        //            url: self::GOOGLE_TOKEN_URL,
-        //            headers: [
-        //                'Content-Type: application/x-www-form-urlencoded',
-        //                "Authorization: Bearer {$jwt}",
-        //            ],
-        //            body: \http_build_query([
-        //                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        //                'assertion' => $jwt,
-        //            ])
-        //        )['response'];
-        //
-        //        $jwt = $token['access_token'];
+        $token = $this->request(
+            method: 'POST',
+            url: self::GOOGLE_TOKEN_URL,
+            headers: [
+                'Content-Type: application/x-www-form-urlencoded',
+            ],
+            body: \http_build_query([
+                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                'assertion' => $jwt,
+            ])
+        );
+
+        $accessToken = $token['response']['access_token'];
 
         $shared = [
             'message' => [
@@ -95,35 +85,36 @@ class FCM extends PushAdapter
                     'title' => $message->getTitle(),
                     'body' => $message->getBody(),
                 ],
-                'data' => $message->getData(),
             ],
         ];
-        $androidNotification = [
-            'click_action' => $message->getAction(),
-            'icon' => $message->getIcon(),
-            'color' => $message->getColor(),
-            'sound' => $message->getSound(),
-            'tag' => $message->getTag(),
-            'image' => $message->getImage(),
-        ];
-        $apnsPayloadAps = [
-            'category' => $message->getAction(),
-            'badge' => $message->getBadge(),
-            'sound' => $message->getSound(),
-        ];
-        $apnsFcmOptions = [
-            'image' => $message->getImage(),
-        ];
 
-        if (! empty(array_filter($androidNotification))) {
-            $shared['message']['android']['notification'] = $androidNotification;
+        if (! \is_null($message->getData())) {
+            $shared['message']['data'] = $message->getData();
         }
-        if (! empty(array_filter($apnsPayloadAps))) {
-            $shared['message']['apns']['payload']['aps'] = $apnsPayloadAps;
+        if (! \is_null($message->getAction())) {
+            $shared['message']['android']['notification']['click_action'] = $message->getAction();
+            $shared['message']['apns']['payload']['aps']['category'] = $message->getAction();
         }
-        if (! empty(array_filter($apnsFcmOptions))) {
+        if (! \is_null($message->getImage())) {
+            $shared['message']['android']['notification']['image'] = $message->getImage();
             $shared['message']['apns']['payload']['aps']['mutable-content'] = 1;
-            $shared['message']['apns']['fcm_options'] = $apnsFcmOptions;
+            $shared['message']['apns']['fcm_options']['image'] = $message->getImage();
+        }
+        if (! \is_null($message->getSound())) {
+            $shared['message']['android']['notification']['sound'] = $message->getSound();
+            $shared['message']['apns']['payload']['aps']['sound'] = $message->getSound();
+        }
+        if (! \is_null($message->getIcon())) {
+            $shared['message']['android']['notification']['icon'] = $message->getIcon();
+        }
+        if (! \is_null($message->getColor())) {
+            $shared['message']['android']['notification']['color'] = $message->getColor();
+        }
+        if (! \is_null($message->getTag())) {
+            $shared['message']['android']['notification']['tag'] = $message->getTag();
+        }
+        if (! \is_null($message->getBadge())) {
+            $shared['message']['apns']['payload']['aps']['badge'] = $message->getBadge();
         }
 
         $bodies = [];
@@ -139,7 +130,7 @@ class FCM extends PushAdapter
             urls: ["https://fcm.googleapis.com/v1/projects/{$credentials['project_id']}/messages:send"],
             headers: [
                 'Content-Type: application/json',
-                "Authorization: Bearer {$jwt}",
+                "Authorization: Bearer {$accessToken}",
             ],
             bodies: $bodies
         );
@@ -147,6 +138,9 @@ class FCM extends PushAdapter
         $response = new Response($this->getType());
 
         foreach ($results as $index => $result) {
+            if ($result['statusCode'] === 200) {
+                $response->incrementDeliveredTo();
+            }
             $response->addResultForRecipient(
                 $message->getTo()[$index],
                 $this->getSpecificErrorMessage($result['error'])

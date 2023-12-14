@@ -44,6 +44,7 @@ class Telesign extends SMSAdapter
         ));
 
         $response = new Response($this->getType());
+
         $result = $this->request(
             method: 'POST',
             url: 'https://rest-ww.telesign.com/v1/verify/bulk_sms',

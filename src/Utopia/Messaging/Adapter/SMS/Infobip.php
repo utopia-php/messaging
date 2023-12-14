@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
+use Utopia\Messaging\Response;
 
 // Reference Material
 // https://www.infobip.com/docs/api/channels/sms/sms-messaging/outbound-sms/send-sms-message
@@ -39,6 +40,8 @@ class Infobip extends SMSAdapter
     {
         $to = \array_map(fn ($number) => ['to' => \ltrim($number, '+')], $message->getTo());
 
+        $response = new Response($this->getType());
+
         $result = $this->request(
             method: 'POST',
             url: "https://{$this->apiBaseUrl}/sms/2/text/advanced",
@@ -55,6 +58,17 @@ class Infobip extends SMSAdapter
             ]),
         );
 
-        return $result;
+        if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to);
+            }
+        } else {
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to, 'Unknown error.');
+            }
+        }
+
+        return $response->toArray();
     }
 }

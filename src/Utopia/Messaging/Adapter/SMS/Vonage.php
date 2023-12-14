@@ -34,8 +34,6 @@ class Vonage extends SMSAdapter
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Exception
      */
     protected function process(SMS $message): array
     {

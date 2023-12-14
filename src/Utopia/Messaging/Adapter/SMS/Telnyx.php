@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
+use Utopia\Messaging\Response;
 
 class Telnyx extends SMSAdapter
 {
@@ -33,6 +34,8 @@ class Telnyx extends SMSAdapter
      */
     protected function process(SMSMessage $message): array
     {
+        $response = new Response($this->getType());
+
         $result = $this->request(
             method: 'POST',
             url: 'https://api.telnyx.com/v2/messages',
@@ -47,6 +50,17 @@ class Telnyx extends SMSAdapter
             ]),
         );
 
-        return $result;
+        if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to);
+            }
+        } else {
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to, 'Unknown error.');
+            }
+        }
+
+        return $response->toArray();
     }
 }
