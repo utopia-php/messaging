@@ -125,6 +125,8 @@ class FCM extends PushAdapter
             $bodies[] = \json_encode($body);
         }
 
+        \var_dump($bodies);
+
         $results = $this->requestMulti(
             method: 'POST',
             urls: ["https://fcm.googleapis.com/v1/projects/{$credentials['project_id']}/messages:send"],
