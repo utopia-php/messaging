@@ -62,7 +62,6 @@ abstract class Adapter
      * @param  array<string>  $headers An array of headers to send with the request.
      * @param  string|null  $body The body of the request.
      * @param  int  $timeout The timeout in seconds.
-     *
      * @return array{
      *     url: string,
      *     statusCode: int,
@@ -116,12 +115,9 @@ abstract class Adapter
     /**
      * Send multiple concurrent HTTP requests using HTTP/2 multiplexing.
      *
-     * @param string $method
-     * @param array<string> $urls
-     * @param array<string> $headers
-     * @param array<string> $bodies
-     * @param int $timeout
-     *
+     * @param  array<string>  $urls
+     * @param  array<string>  $headers
+     * @param  array<string>  $bodies
      * @return array<array{
      *     url: string,
      *     statusCode: int,

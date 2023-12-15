@@ -64,7 +64,7 @@ class FCM extends PushAdapter
             $signingKey,
             $signingAlgorithm,
         );
-        
+
         $signingKey = null;
         $payload = null;
 
