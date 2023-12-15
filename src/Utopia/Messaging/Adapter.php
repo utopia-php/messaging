@@ -27,7 +27,15 @@ abstract class Adapter
     /**
      * Send a message.
      *
-     * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}|array<string, array{deliveredTo: int, type: string, results: array<array<string, mixed>>}>
+     * @return array{
+     *     deliveredTo: int,
+     *     type: string,
+     *     results: array<array<string, mixed>>
+     * } | array<string, array{
+     *     deliveredTo: int,
+     *     type: string,
+     *     results: array<array<string, mixed>>
+     * }>
      *
      * @throws \Exception
      */
@@ -47,13 +55,20 @@ abstract class Adapter
     }
 
     /**
-     * Send an HTTP request.
+     * Send a single HTTP request.
      *
      * @param  string  $method The HTTP method to use.
      * @param  string  $url The URL to send the request to.
      * @param  array<string>  $headers An array of headers to send with the request.
      * @param  string|null  $body The body of the request.
-     * @return array{url: string, statusCode: int, response: array<string, mixed>|null, error: string|null}
+     * @param  int  $timeout The timeout in seconds.
+     *
+     * @return array{
+     *     url: string,
+     *     statusCode: int,
+     *     response: array<string, mixed>|null,
+     *     error: string|null
+     * }
      *
      * @throws \Exception If the request fails.
      */
@@ -99,10 +114,20 @@ abstract class Adapter
     }
 
     /**
-     * @param  array<string>  $urls
-     * @param  array<string>  $headers
-     * @param  array<string>  $bodies
-     * @return array<array{url: string, statusCode: int, response: array<string, mixed>|null, error: string|null}>
+     * Send multiple concurrent HTTP requests using HTTP/2 multiplexing.
+     *
+     * @param string $method
+     * @param array<string> $urls
+     * @param array<string> $headers
+     * @param array<string> $bodies
+     * @param int $timeout
+     *
+     * @return array<array{
+     *     url: string,
+     *     statusCode: int,
+     *     response: array<string, mixed>|null,
+     *     error: string|null
+     * }>
      *
      * @throws \Exception
      */

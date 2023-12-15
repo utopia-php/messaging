@@ -71,7 +71,7 @@ $message = new Push(
     content: 'Hello World'
 );
 
-$messaging = new FCM('YOUR_SERVER_KEY');
+$messaging = new FCM('YOUR_SERVICE_ACCOUNT_JSON');
 $messaging->send($message);
 ```
 
@@ -108,7 +108,7 @@ $messaging->send($message);
 
 ### Push
 - [x] [FCM](https://firebase.google.com/docs/cloud-messaging)
-- [ ] [APNS](https://developer.apple.com/documentation/usernotifications)
+- [x] [APNS](https://developer.apple.com/documentation/usernotifications)
 - [ ] [OneSignal](https://onesignal.com/)
 - [ ] [Pusher](https://pusher.com/)
 - [ ] [WebPush](https://developer.mozilla.org/en-US/docs/Web/API/Push_API)

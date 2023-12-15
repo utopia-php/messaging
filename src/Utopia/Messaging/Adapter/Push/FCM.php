@@ -64,6 +64,9 @@ class FCM extends PushAdapter
             $signingKey,
             $signingAlgorithm,
         );
+        
+        $signingKey = null;
+        $payload = null;
 
         $token = $this->request(
             method: 'POST',
@@ -143,23 +146,10 @@ class FCM extends PushAdapter
             }
             $response->addResultForRecipient(
                 $message->getTo()[$index],
-                $this->getSpecificErrorMessage($result['error'])
+                $result['response']['error']['message'] ?? ''
             );
         }
 
         return $response->toArray();
-    }
-
-    private function getSpecificErrorMessage(string $error): string
-    {
-        return match ($error) {
-            'MissingRegistration' => 'Bad Request. Missing token.',
-            'InvalidRegistration' => 'Invalid device token.',
-            'NotRegistered' => 'Expired device token.',
-            'MessageTooBig' => 'Payload is too large. Messages must be less than 4096 bytes.',
-            'DeviceMessageRateExceeded' => 'Too many requests were made to the same device token.',
-            'InternalServerError' => 'Internal server error.',
-            default => $error,
-        };
     }
 }
