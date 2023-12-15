@@ -35,7 +35,7 @@ class Sendgrid extends EmailAdapter
     /**
      * {@inheritdoc}
      */
-    protected function process(EmailMessage $message): string
+    protected function process(EmailMessage $message): array
     {
         $personalizations = [
             [
@@ -117,6 +117,6 @@ class Sendgrid extends EmailAdapter
             }
         }
 
-        return \json_encode($response->toArray());
+        return $response->toArray();
     }
 }

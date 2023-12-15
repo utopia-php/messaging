@@ -21,9 +21,9 @@ abstract class SMS extends Adapter
      * Send an SMS message.
      *
      * @param  SMSMessage  $message Message to send.
-     * @return string The response body.
+     * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
      *
      * @throws \Exception If the message fails.
      */
-    abstract protected function process(SMSMessage $message): string;
+    abstract protected function process(SMSMessage $message): array;
 }

@@ -38,7 +38,12 @@ class Discord extends Adapter
         return 1;
     }
 
-    protected function process(DiscordMessage $message): string
+    /**
+     * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
+     *
+     * @throws \Exception
+     */
+    protected function process(DiscordMessage $message): array
     {
         $query = [];
 
@@ -89,6 +94,6 @@ class Discord extends Adapter
             $response->addResultForRecipient($this->webhookId, 'Unknown Error.');
         }
 
-        return \json_encode($response->toArray());
+        return $response->toArray();
     }
 }

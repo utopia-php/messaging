@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
+use Utopia\Messaging\Response;
 
 // Reference Material
 // https://docs.clickatell.com/channels/sms-channels/sms-api-reference/#tag/SMS-API/operation/sendMessageREST_1
@@ -33,8 +34,10 @@ class Clickatell extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMSMessage $message): string
+    protected function process(SMSMessage $message): array
     {
+        $response = new Response($this->getType());
+
         $result = $this->request(
             method: 'POST',
             url: 'https://platform.clickatell.com/messages',
@@ -49,6 +52,17 @@ class Clickatell extends SMSAdapter
             ]),
         );
 
-        return \json_encode($result['response']);
+        if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to);
+            }
+        } else {
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to, 'Unknown error.');
+            }
+        }
+
+        return $response->toArray();
     }
 }

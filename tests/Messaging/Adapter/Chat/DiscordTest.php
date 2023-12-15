@@ -25,7 +25,7 @@ class DiscordTest extends Base
             wait: true
         );
 
-        $result = \json_decode($sender->send($message), true);
+        $result = $sender->send($message);
 
         $this->assertResponse($result);
     }

@@ -23,7 +23,7 @@ class Mock extends EmailAdapter
     /**
      * {@inheritdoc}
      */
-    protected function process(EmailMessage $message): string
+    protected function process(EmailMessage $message): array
     {
         $response = new Response($this->getType());
         $mail = new PHPMailer();
@@ -59,6 +59,6 @@ class Mock extends EmailAdapter
             }
         }
 
-        return \json_encode($response->toArray());
+        return $response->toArray();
     }
 }

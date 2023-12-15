@@ -32,7 +32,7 @@ class Twilio extends SMSAdapter
     /**
      * {@inheritdoc}
      */
-    protected function process(SMSMessage $message): string
+    protected function process(SMSMessage $message): array
     {
         $response = new Response($this->getType());
 
@@ -56,6 +56,6 @@ class Twilio extends SMSAdapter
             $response->addResultForRecipient($message->getTo()[0], $result['response']['message'] ?? '');
         }
 
-        return \json_encode($response->toArray());
+        return $response->toArray();
     }
 }

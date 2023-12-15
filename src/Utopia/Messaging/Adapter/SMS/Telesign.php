@@ -36,7 +36,7 @@ class Telesign extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMSMessage $message): string
+    protected function process(SMSMessage $message): array
     {
         $to = $this->formatNumbers(\array_map(
             fn ($to) => $to,
@@ -44,6 +44,7 @@ class Telesign extends SMSAdapter
         ));
 
         $response = new Response($this->getType());
+
         $result = $this->request(
             method: 'POST',
             url: 'https://rest-ww.telesign.com/v1/verify/bulk_sms',
@@ -67,7 +68,7 @@ class Telesign extends SMSAdapter
             }
         }
 
-        return \json_encode($response->toArray());
+        return $response->toArray();
     }
 
     /**

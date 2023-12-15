@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
+use Utopia\Messaging\Response;
 
 // Reference Material
 // https://developers.sinch.com/docs/sms/api-reference/
@@ -35,9 +36,11 @@ class Sinch extends SMSAdapter
      *
      * @throws \Exception
      */
-    protected function process(SMSMessage $message): string
+    protected function process(SMSMessage $message): array
     {
         $to = \array_map(fn ($number) => \ltrim($number, '+'), $message->getTo());
+
+        $response = new Response($this->getType());
 
         $result = $this->request(
             method: 'POST',
@@ -53,6 +56,17 @@ class Sinch extends SMSAdapter
             ]),
         );
 
-        return \json_encode($result['response']);
+        if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to);
+            }
+        } else {
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to, 'Unknown error.');
+            }
+        }
+
+        return $response->toArray();
     }
 }

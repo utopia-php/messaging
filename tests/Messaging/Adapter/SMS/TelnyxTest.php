@@ -19,7 +19,7 @@ class TelnyxTest extends Base
         //     from: '+15005550006'
         // );
 
-        // $result = \json_decode($sender->send($message), true);
+        // $result = $sender->send($message);
 
         // $this->assertEquals('success', $result["type"]);
 
