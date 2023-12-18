@@ -77,7 +77,7 @@ abstract class Adapter
         string $method, // Should we make default POST?
         string $url,
         array $headers = [],
-        string $body = null, // Should $body be an array? and make json_encode here?
+        string $body = null,
         int $timeout = 30
     ): array {
         $ch = \curl_init();
