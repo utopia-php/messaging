@@ -42,6 +42,7 @@ class APNS extends PushAdapter
      */
     public function process(PushMessage $message): array
     {
+        // todo: Should this function be protected?
         $payload = [
             'aps' => [
                 'alert' => [

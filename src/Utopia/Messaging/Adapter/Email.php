@@ -20,6 +20,7 @@ abstract class Email extends Adapter
     /**
      * Process an email message.
      *
+     * @param EmailMessage $message
      * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
      *
      * @throws \Exception

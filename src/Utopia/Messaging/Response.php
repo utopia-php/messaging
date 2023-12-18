@@ -80,9 +80,9 @@ class Response
     }
 
     /**
-     * @param  array<array<string, string>>  $results
+     * @return Response
      */
-    public function fromArray(array $results): self
+    public function fromArray(): self
     {
         $response = new self($this->type);
         $response->deliveredTo = $this->deliveredTo;

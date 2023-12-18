@@ -51,6 +51,8 @@ abstract class Adapter
             throw new \Exception('Adapter does not implement process method.');
         }
 
+        // Todo: It feels like send Method Should be Abstract and implemented for example in Abstract Email Layer Since Signature of message process is different?
+        // and we do need all the method_exists checks?
         return $this->process($message);
     }
 
@@ -72,10 +74,10 @@ abstract class Adapter
      * @throws \Exception If the request fails.
      */
     protected function request(
-        string $method,
+        string $method, // Should we make default POST?
         string $url,
         array $headers = [],
-        string $body = null,
+        string $body = null, // Should $body be an array? and make json_encode here?
         int $timeout = 30
     ): array {
         $ch = \curl_init();

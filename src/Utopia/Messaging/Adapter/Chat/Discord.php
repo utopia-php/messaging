@@ -55,6 +55,7 @@ class Discord extends Adapter
         }
 
         $queryString = '';
+        // Todo: can we use http_build_query?
         foreach ($query as $key => $value) {
             if (empty($queryString)) {
                 $queryString .= '?';
