@@ -35,7 +35,7 @@ abstract class Adapter
      *     deliveredTo: int,
      *     type: string,
      *     results: array<array<string, mixed>>
-     * }>
+     * }> GEOSMS adapter returns an array of results keyed by adapter name.
      *
      * @throws \Exception
      */

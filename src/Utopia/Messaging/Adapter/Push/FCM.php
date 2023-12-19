@@ -144,10 +144,20 @@ class FCM extends PushAdapter
             if ($result['statusCode'] === 200) {
                 $response->incrementDeliveredTo();
             }
-            $response->addResultForRecipient(
-                $message->getTo()[$index],
-                $result['response']['error']['message'] ?? ''
-            );
+
+            if (isset($result['response']['error'])) {
+                $response->addResultForRecipient(
+                    $message->getTo()[$index],
+                    $result['response']['error']['status'] === 'UNREGISTERED' ||
+                    $result['response']['error']['status'] === 'INVALID_ARGUMENT'
+                    ? 'Expired device token.'
+                    : $result['response']['error']['message'] ?? ''
+                );
+
+                continue;
+            }
+
+            $response->addResultForRecipient($message->getTo()[$index]);
         }
 
         return $response->toArray();
