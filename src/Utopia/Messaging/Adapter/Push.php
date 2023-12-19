@@ -17,6 +17,11 @@ abstract class Push extends Adapter
         return PushMessage::class;
     }
 
+    protected static function getExpiredErrorMessage(): string
+    {
+        return 'Expired device token.';
+    }
+
     /**
      * Send a push message.
      *

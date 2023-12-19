@@ -150,7 +150,7 @@ class FCM extends PushAdapter
                     $message->getTo()[$index],
                     $result['response']['error']['status'] === 'UNREGISTERED' ||
                     $result['response']['error']['status'] === 'INVALID_ARGUMENT'
-                    ? 'Expired device token.'
+                    ? self::getExpiredErrorMessage()
                     : $result['response']['error']['message'] ?? ''
                 );
 
