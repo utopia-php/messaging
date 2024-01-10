@@ -11,6 +11,8 @@ use Utopia\Messaging\Response;
 
 class Msg91 extends SMSAdapter
 {
+    protected const NAME = 'Msg91';
+
     /**
      * @param  string  $senderId Msg91 Sender ID
      * @param  string  $authKey Msg91 Auth Key
@@ -25,7 +27,7 @@ class Msg91 extends SMSAdapter
 
     public function getName(): string
     {
-        return 'Msg91';
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

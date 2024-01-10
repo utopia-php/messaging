@@ -9,9 +9,11 @@ use Utopia\Messaging\Response;
 
 class Mock extends EmailAdapter
 {
+    protected const NAME = 'Mock';
+
     public function getName(): string
     {
-        return 'Mock';
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int
@@ -48,7 +50,7 @@ class Mock extends EmailAdapter
             $mail->addAddress($to);
         }
 
-        if (! $mail->send()) {
+        if (!$mail->send()) {
             foreach ($message->getTo() as $to) {
                 $response->addResultForRecipient($to, $mail->ErrorInfo);
             }

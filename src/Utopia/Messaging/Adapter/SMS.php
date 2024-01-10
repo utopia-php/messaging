@@ -7,14 +7,17 @@ use Utopia\Messaging\Messages\SMS as SMSMessage;
 
 abstract class SMS extends Adapter
 {
+    protected const TYPE = 'sms';
+    protected const MESSAGE_TYPE = SMSMessage::class;
+
     public function getType(): string
     {
-        return 'sms';
+        return static::TYPE;
     }
 
     public function getMessageType(): string
     {
-        return SMSMessage::class;
+        return static::MESSAGE_TYPE;
     }
 
     /**

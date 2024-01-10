@@ -11,6 +11,8 @@ use Utopia\Messaging\Response;
 
 class Telesign extends SMSAdapter
 {
+    protected const NAME = 'Telesign';
+
     /**
      * @param  string  $username Telesign account username
      * @param  string  $password Telesign account password
@@ -23,7 +25,7 @@ class Telesign extends SMSAdapter
 
     public function getName(): string
     {
-        return 'Telesign';
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

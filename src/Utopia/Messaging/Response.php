@@ -68,7 +68,7 @@ class Response
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
      */
     public function toArray(): array
     {

@@ -9,11 +9,10 @@ use Utopia\Messaging\Response;
 
 class FCM extends PushAdapter
 {
-    private const DEFAULT_EXPIRY_SECONDS = 3600;    // 1 hour
-
-    private const DEFAULT_SKEW_SECONDS = 60;        // 1 minute
-
-    private const GOOGLE_TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
+    protected const NAME = 'FCM';
+    protected const DEFAULT_EXPIRY_SECONDS = 3600;    // 1 hour
+    protected const DEFAULT_SKEW_SECONDS = 60;        // 1 minute
+    protected const GOOGLE_TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
 
     /**
      * @param  string  $serviceAccountJSON Service account JSON file contents
@@ -28,7 +27,7 @@ class FCM extends PushAdapter
      */
     public function getName(): string
     {
-        return 'FCM';
+        return static::NAME;
     }
 
     /**
@@ -91,32 +90,32 @@ class FCM extends PushAdapter
             ],
         ];
 
-        if (! \is_null($message->getData())) {
+        if (!\is_null($message->getData())) {
             $shared['message']['data'] = $message->getData();
         }
-        if (! \is_null($message->getAction())) {
+        if (!\is_null($message->getAction())) {
             $shared['message']['android']['notification']['click_action'] = $message->getAction();
             $shared['message']['apns']['payload']['aps']['category'] = $message->getAction();
         }
-        if (! \is_null($message->getImage())) {
+        if (!\is_null($message->getImage())) {
             $shared['message']['android']['notification']['image'] = $message->getImage();
             $shared['message']['apns']['payload']['aps']['mutable-content'] = 1;
             $shared['message']['apns']['fcm_options']['image'] = $message->getImage();
         }
-        if (! \is_null($message->getSound())) {
+        if (!\is_null($message->getSound())) {
             $shared['message']['android']['notification']['sound'] = $message->getSound();
             $shared['message']['apns']['payload']['aps']['sound'] = $message->getSound();
         }
-        if (! \is_null($message->getIcon())) {
+        if (!\is_null($message->getIcon())) {
             $shared['message']['android']['notification']['icon'] = $message->getIcon();
         }
-        if (! \is_null($message->getColor())) {
+        if (!\is_null($message->getColor())) {
             $shared['message']['android']['notification']['color'] = $message->getColor();
         }
-        if (! \is_null($message->getTag())) {
+        if (!\is_null($message->getTag())) {
             $shared['message']['android']['notification']['tag'] = $message->getTag();
         }
-        if (! \is_null($message->getBadge())) {
+        if (!\is_null($message->getBadge())) {
             $shared['message']['apns']['payload']['aps']['badge'] = $message->getBadge();
         }
 
@@ -144,10 +143,20 @@ class FCM extends PushAdapter
             if ($result['statusCode'] === 200) {
                 $response->incrementDeliveredTo();
             }
-            $response->addResultForRecipient(
-                $message->getTo()[$index],
-                $result['response']['error']['message'] ?? ''
-            );
+
+            if (isset($result['response']['error'])) {
+                $response->addResultForRecipient(
+                    $message->getTo()[$index],
+                    $result['response']['error']['status'] === 'UNREGISTERED' ||
+                    $result['response']['error']['status'] === 'INVALID_ARGUMENT'
+                        ? $this->getExpiredErrorMessage()
+                        : $result['response']['error']['message'] ?? ''
+                );
+
+                continue;
+            }
+
+            $response->addResultForRecipient($message->getTo()[$index]);
         }
 
         return $response->toArray();

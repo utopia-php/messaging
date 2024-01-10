@@ -35,19 +35,19 @@ abstract class Adapter
      *     deliveredTo: int,
      *     type: string,
      *     results: array<array<string, mixed>>
-     * }>
+     * }> GEOSMS adapter returns an array of results keyed by adapter name.
      *
      * @throws \Exception
      */
     public function send(Message $message): array
     {
-        if (! \is_a($message, $this->getMessageType())) {
+        if (!\is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
         if (\method_exists($message, 'getTo') && \count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
             throw new \Exception("{$this->getName()} can only send {$this->getMaxMessagesPerRequest()} messages per request.");
         }
-        if (! \method_exists($this, 'process')) {
+        if (!\method_exists($this, 'process')) {
             throw new \Exception('Adapter does not implement process method.');
         }
 
@@ -80,7 +80,7 @@ abstract class Adapter
     ): array {
         $ch = \curl_init();
 
-        if (! \is_null($body)) {
+        if (!\is_null($body)) {
             $headers[] = 'Content-Length: '.\strlen($body);
             \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         }
@@ -173,7 +173,7 @@ abstract class Adapter
         }
 
         foreach (\array_combine($urls, $bodies) as $url => $body) {
-            if (! empty($body)) {
+            if (!empty($body)) {
                 $headers[] = 'Content-Length: '.\strlen($body);
             }
 

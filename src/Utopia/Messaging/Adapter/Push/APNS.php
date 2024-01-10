@@ -9,6 +9,8 @@ use Utopia\Messaging\Response;
 
 class APNS extends PushAdapter
 {
+    protected const NAME = 'APNS';
+
     /**
      * @return void
      */
@@ -26,7 +28,7 @@ class APNS extends PushAdapter
      */
     public function getName(): string
     {
-        return 'APNS';
+        return static::NAME;
     }
 
     /**
@@ -103,26 +105,15 @@ class APNS extends PushAdapter
                 default:
                     $response->addResultForRecipient(
                         $device,
-                        self::getSpecificErrorMessage($result['response']['reason'])
+                        $result['response']['reason'] === 'ExpiredToken' ||
+                        $result['response']['reason'] === 'BadDeviceToken'
+                            ? $this->getExpiredErrorMessage()
+                            : $result['response']['reason'],
                     );
                     break;
             }
         }
 
         return $response->toArray();
-    }
-
-    private static function getSpecificErrorMessage(string $error): string
-    {
-        return match ($error) {
-            'MissingDeviceToken' => 'Bad Request. Missing token.',
-            'BadDeviceToken' => 'Invalid device token.',
-            'ExpiredToken' => 'Expired device token.',
-            'PayloadTooLarge' => 'Payload is too large. Messages must be less than 4096 bytes.',
-            'TooManyRequests' => 'Too many requests were made to the same device token.',
-            'InternalServerError' => 'Internal server error.',
-            'PayloadEmpty' => 'Missing payload.',
-            default => $error,
-        };
     }
 }

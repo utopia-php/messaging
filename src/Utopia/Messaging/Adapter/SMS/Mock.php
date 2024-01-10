@@ -8,6 +8,8 @@ use Utopia\Messaging\Response;
 
 class Mock extends SMSAdapter
 {
+    protected const NAME = 'Mock';
+
     /**
      * @param  string  $user User ID
      * @param  string  $secret User secret
@@ -20,7 +22,7 @@ class Mock extends SMSAdapter
 
     public function getName(): string
     {
-        return 'Mock';
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

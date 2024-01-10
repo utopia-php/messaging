@@ -7,8 +7,8 @@
   "minimum-stability": "stable",
   "scripts": {
     "test": "./vendor/bin/phpunit",
-    "lint": "./vendor/bin/pint --test",
-    "format": "./vendor/bin/pint",
+    "lint": "./vendor/bin/pint --preset psr12 --test",
+    "format": "./vendor/bin/pint --preset psr12",
     "analyse": "./vendor/bin/phpstan analyse --memory-limit=2G --level=6 src tests"
   },
   "autoload": {

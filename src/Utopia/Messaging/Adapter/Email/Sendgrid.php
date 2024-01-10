@@ -8,6 +8,8 @@ use Utopia\Messaging\Response;
 
 class Sendgrid extends EmailAdapter
 {
+    protected const NAME = 'Sendgrid';
+
     /**
      * @param  string  $apiKey Your Sendgrid API key to authenticate with the API.
      * @return void
@@ -21,7 +23,7 @@ class Sendgrid extends EmailAdapter
      */
     public function getName(): string
     {
-        return 'Sendgrid';
+        return static::NAME;
     }
 
     /**
@@ -47,9 +49,9 @@ class Sendgrid extends EmailAdapter
             ],
         ];
 
-        if (! \is_null($message->getCC())) {
+        if (!\is_null($message->getCC())) {
             foreach ($message->getCC() as $cc) {
-                if (! empty($cc['name'])) {
+                if (!empty($cc['name'])) {
                     $personalizations[0]['cc'][] = [
                         'name' => $cc['name'],
                         'email' => $cc['email'],
@@ -62,9 +64,9 @@ class Sendgrid extends EmailAdapter
             }
         }
 
-        if (! \is_null($message->getBCC())) {
+        if (!\is_null($message->getBCC())) {
             foreach ($message->getBCC() as $bcc) {
-                if (! empty($bcc['name'])) {
+                if (!empty($bcc['name'])) {
                     $personalizations[0]['bcc'][] = [
                         'name' => $bcc['name'],
                         'email' => $bcc['email'],
