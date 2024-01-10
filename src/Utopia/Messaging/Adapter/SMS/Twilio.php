@@ -8,7 +8,7 @@ use Utopia\Messaging\Response;
 
 class Twilio extends SMSAdapter
 {
-    private const NAME = 'Twilio';
+    protected const NAME = 'Twilio';
 
     /**
      * @param  string  $accountSid Twilio Account SID
@@ -23,7 +23,7 @@ class Twilio extends SMSAdapter
 
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

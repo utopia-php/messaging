@@ -9,11 +9,11 @@ use Utopia\Messaging\Response;
 
 class Mock extends EmailAdapter
 {
-    private const NAME = 'Mock';
+    protected const NAME = 'Mock';
 
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

@@ -10,7 +10,7 @@ use Utopia\Messaging\Response;
 // https://www.seven.io/en/docs/gateway/http-api/sms-dispatch/
 class Seven extends SMSAdapter
 {
-    private const NAME = 'Seven';
+    protected const NAME = 'Seven';
 
     /**
      * @param  string  $apiKey Seven API token
@@ -23,7 +23,7 @@ class Seven extends SMSAdapter
 
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

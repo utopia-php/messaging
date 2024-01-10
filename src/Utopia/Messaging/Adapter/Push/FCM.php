@@ -9,10 +9,10 @@ use Utopia\Messaging\Response;
 
 class FCM extends PushAdapter
 {
-    private const NAME = 'FCM';
-    private const DEFAULT_EXPIRY_SECONDS = 3600;    // 1 hour
-    private const DEFAULT_SKEW_SECONDS = 60;        // 1 minute
-    private const GOOGLE_TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
+    protected const NAME = 'FCM';
+    protected const DEFAULT_EXPIRY_SECONDS = 3600;    // 1 hour
+    protected const DEFAULT_SKEW_SECONDS = 60;        // 1 minute
+    protected const GOOGLE_TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
 
     /**
      * @param  string  $serviceAccountJSON Service account JSON file contents
@@ -27,7 +27,7 @@ class FCM extends PushAdapter
      */
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     /**

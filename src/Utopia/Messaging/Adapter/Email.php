@@ -7,17 +7,17 @@ use Utopia\Messaging\Messages\Email as EmailMessage;
 
 abstract class Email extends Adapter
 {
-    private const TYPE = 'email';
-    private const MESSAGE_TYPE = EmailMessage::class;
+    protected const TYPE = 'email';
+    protected const MESSAGE_TYPE = EmailMessage::class;
 
     public function getType(): string
     {
-        return self::TYPE;
+        return static::TYPE;
     }
 
     public function getMessageType(): string
     {
-        return self::MESSAGE_TYPE;
+        return static::MESSAGE_TYPE;
     }
 
     /**

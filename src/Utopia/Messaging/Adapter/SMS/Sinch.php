@@ -10,7 +10,7 @@ use Utopia\Messaging\Response;
 // https://developers.sinch.com/docs/sms/api-reference/
 class Sinch extends SMSAdapter
 {
-    private const NAME = 'Sinch';
+    protected const NAME = 'Sinch';
 
     /**
      * @param  string  $servicePlanId Sinch Service plan ID
@@ -25,7 +25,7 @@ class Sinch extends SMSAdapter
 
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

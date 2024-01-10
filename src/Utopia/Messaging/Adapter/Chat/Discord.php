@@ -8,9 +8,9 @@ use Utopia\Messaging\Response;
 
 class Discord extends Adapter
 {
-    private const NAME = 'Discord';
-    private const TYPE = 'chat';
-    private const MESSAGE_TYPE = DiscordMessage::class;
+    protected const NAME = 'Discord';
+    protected const TYPE = 'chat';
+    protected const MESSAGE_TYPE = DiscordMessage::class;
 
     /**
      * @param  string  $webhookId Your Discord webhook ID.
@@ -24,17 +24,17 @@ class Discord extends Adapter
 
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getType(): string
     {
-        return self::TYPE;
+        return static::TYPE;
     }
 
     public function getMessageType(): string
     {
-        return self::MESSAGE_TYPE;
+        return static::MESSAGE_TYPE;
     }
 
     public function getMaxMessagesPerRequest(): int

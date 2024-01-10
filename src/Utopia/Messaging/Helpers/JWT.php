@@ -4,7 +4,7 @@ namespace Utopia\Messaging\Helpers;
 
 class JWT
 {
-    private const ALGORITHMS = [
+    protected const ALGORITHMS = [
         'ES384' => ['openssl', OPENSSL_ALGO_SHA384],
         'ES256' => ['openssl', OPENSSL_ALGO_SHA256],
         'ES256K' => ['openssl', OPENSSL_ALGO_SHA256],
@@ -55,11 +55,11 @@ class JWT
      */
     private static function sign(string $data, string $key, string $alg): string
     {
-        if (empty(self::ALGORITHMS[$alg])) {
+        if (empty(static::ALGORITHMS[$alg])) {
             throw new \Exception('Algorithm not supported');
         }
 
-        [$function, $algorithm] = self::ALGORITHMS[$alg];
+        [$function, $algorithm] = static::ALGORITHMS[$alg];
 
         switch ($function) {
             case 'openssl':

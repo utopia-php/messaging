@@ -10,7 +10,7 @@ use Utopia\Messaging\Response;
 // https://www.infobip.com/docs/api/channels/sms/sms-messaging/outbound-sms/send-sms-message
 class Infobip extends SMSAdapter
 {
-    private const NAME = 'Infobip';
+    protected const NAME = 'Infobip';
 
     /**
      * @param  string  $apiBaseUrl Infobip API Base Url
@@ -25,7 +25,7 @@ class Infobip extends SMSAdapter
 
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

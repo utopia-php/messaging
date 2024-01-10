@@ -9,7 +9,7 @@ use Utopia\Messaging\Response;
 
 class APNS extends PushAdapter
 {
-    private const NAME = 'APNS';
+    protected const NAME = 'APNS';
 
     /**
      * @return void
@@ -28,7 +28,7 @@ class APNS extends PushAdapter
      */
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     /**

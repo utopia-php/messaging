@@ -11,7 +11,7 @@ use Utopia\Messaging\Response;
 
 class TextMagic extends SMSAdapter
 {
-    private const NAME = 'Textmagic';
+    protected const NAME = 'Textmagic';
 
     /**
      * @param  string  $username Textmagic account username
@@ -26,7 +26,7 @@ class TextMagic extends SMSAdapter
 
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

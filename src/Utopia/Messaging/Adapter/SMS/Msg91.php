@@ -11,7 +11,7 @@ use Utopia\Messaging\Response;
 
 class Msg91 extends SMSAdapter
 {
-    private const NAME = 'Msg91';
+    protected const NAME = 'Msg91';
 
     /**
      * @param  string  $senderId Msg91 Sender ID
@@ -27,7 +27,7 @@ class Msg91 extends SMSAdapter
 
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

@@ -11,7 +11,7 @@ use Utopia\Messaging\Response;
 
 class Vonage extends SMSAdapter
 {
-    private const NAME = 'Vonage';
+    protected const NAME = 'Vonage';
 
     /**
      * @param  string  $apiKey Vonage API Key
@@ -26,7 +26,7 @@ class Vonage extends SMSAdapter
 
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

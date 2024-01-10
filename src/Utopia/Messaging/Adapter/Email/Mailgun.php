@@ -8,7 +8,7 @@ use Utopia\Messaging\Response;
 
 class Mailgun extends EmailAdapter
 {
-    private const NAME = 'Mailgun';
+    protected const NAME = 'Mailgun';
 
     /**
      * @param  string  $apiKey Your Mailgun API key to authenticate with the API.
@@ -26,7 +26,7 @@ class Mailgun extends EmailAdapter
      */
     public function getName(): string
     {
-        return self::NAME;
+        return static::NAME;
     }
 
     /**
