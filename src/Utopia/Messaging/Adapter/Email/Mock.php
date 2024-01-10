@@ -50,7 +50,7 @@ class Mock extends EmailAdapter
             $mail->addAddress($to);
         }
 
-        if (! $mail->send()) {
+        if (!$mail->send()) {
             foreach ($message->getTo() as $to) {
                 $response->addResultForRecipient($to, $mail->ErrorInfo);
             }

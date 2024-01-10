@@ -55,9 +55,9 @@ class Mailgun extends EmailAdapter
             'html' => $message->isHtml() ? $message->getContent() : null,
         ];
 
-        if (! \is_null($message->getCC())) {
+        if (!\is_null($message->getCC())) {
             foreach ($message->getCC() as $cc) {
-                if (! empty($cc['name'])) {
+                if (!empty($cc['name'])) {
                     $body['cc'] = "{$body['cc']},{$cc['name']}<{$cc['email']}>";
                 } else {
                     $body['cc'] = "{$body['cc']}, <{$cc['email']}>";
@@ -65,9 +65,9 @@ class Mailgun extends EmailAdapter
             }
         }
 
-        if (! \is_null($message->getBCC())) {
+        if (!\is_null($message->getBCC())) {
             foreach ($message->getBCC() as $bcc) {
-                if (! empty($bcc['name'])) {
+                if (!empty($bcc['name'])) {
                     $body['bcc'] = "{$body['bcc']},{$bcc['name']}<{$bcc['email']}>";
                 } else {
                     $body['bcc'] = "{$body['bcc']}, <{$bcc['email']}>";

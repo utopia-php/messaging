@@ -51,10 +51,10 @@ class Discord extends Adapter
     {
         $query = [];
 
-        if (! \is_null($message->getWait())) {
+        if (!\is_null($message->getWait())) {
             $query['wait'] = $message->getWait();
         }
-        if (! \is_null($message->getThreadId())) {
+        if (!\is_null($message->getThreadId())) {
             $query['thread_id'] = $message->getThreadId();
         }
 

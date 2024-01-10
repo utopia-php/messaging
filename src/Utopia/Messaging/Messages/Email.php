@@ -42,17 +42,17 @@ class Email implements Message
             $this->replyToEmail = $this->fromEmail;
         }
 
-        if (! \is_null($this->cc)) {
+        if (!\is_null($this->cc)) {
             foreach ($this->cc as $recipient) {
-                if (! isset($recipient['name']) || ! isset($recipient['email'])) {
+                if (!isset($recipient['name']) || !isset($recipient['email'])) {
                     throw new \InvalidArgumentException('Each recipient in cc must have a name and email');
                 }
             }
         }
 
-        if (! \is_null($this->bcc)) {
+        if (!\is_null($this->bcc)) {
             foreach ($this->bcc as $recipient) {
-                if (! isset($recipient['name']) || ! isset($recipient['email'])) {
+                if (!isset($recipient['name']) || !isset($recipient['email'])) {
                     throw new \InvalidArgumentException('Each recipient in bcc must have a name and email');
                 }
             }

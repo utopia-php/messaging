@@ -90,32 +90,32 @@ class FCM extends PushAdapter
             ],
         ];
 
-        if (! \is_null($message->getData())) {
+        if (!\is_null($message->getData())) {
             $shared['message']['data'] = $message->getData();
         }
-        if (! \is_null($message->getAction())) {
+        if (!\is_null($message->getAction())) {
             $shared['message']['android']['notification']['click_action'] = $message->getAction();
             $shared['message']['apns']['payload']['aps']['category'] = $message->getAction();
         }
-        if (! \is_null($message->getImage())) {
+        if (!\is_null($message->getImage())) {
             $shared['message']['android']['notification']['image'] = $message->getImage();
             $shared['message']['apns']['payload']['aps']['mutable-content'] = 1;
             $shared['message']['apns']['fcm_options']['image'] = $message->getImage();
         }
-        if (! \is_null($message->getSound())) {
+        if (!\is_null($message->getSound())) {
             $shared['message']['android']['notification']['sound'] = $message->getSound();
             $shared['message']['apns']['payload']['aps']['sound'] = $message->getSound();
         }
-        if (! \is_null($message->getIcon())) {
+        if (!\is_null($message->getIcon())) {
             $shared['message']['android']['notification']['icon'] = $message->getIcon();
         }
-        if (! \is_null($message->getColor())) {
+        if (!\is_null($message->getColor())) {
             $shared['message']['android']['notification']['color'] = $message->getColor();
         }
-        if (! \is_null($message->getTag())) {
+        if (!\is_null($message->getTag())) {
             $shared['message']['android']['notification']['tag'] = $message->getTag();
         }
-        if (! \is_null($message->getBadge())) {
+        if (!\is_null($message->getBadge())) {
             $shared['message']['apns']['payload']['aps']['badge'] = $message->getBadge();
         }
 
