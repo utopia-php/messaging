@@ -18,11 +18,6 @@ class Mock extends SMSAdapter
     ) {
     }
 
-    public function getName(): string
-    {
-        return 'Mock';
-    }
-
     public function getMaxMessagesPerRequest(): int
     {
         return 1000;

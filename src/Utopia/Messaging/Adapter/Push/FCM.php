@@ -9,10 +9,9 @@ use Utopia\Messaging\Response;
 
 class FCM extends PushAdapter
 {
+    private const NAME = 'FCM';
     private const DEFAULT_EXPIRY_SECONDS = 3600;    // 1 hour
-
     private const DEFAULT_SKEW_SECONDS = 60;        // 1 minute
-
     private const GOOGLE_TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
 
     /**
@@ -28,7 +27,7 @@ class FCM extends PushAdapter
      */
     public function getName(): string
     {
-        return 'FCM';
+        return self::NAME;
     }
 
     /**
@@ -150,8 +149,8 @@ class FCM extends PushAdapter
                     $message->getTo()[$index],
                     $result['response']['error']['status'] === 'UNREGISTERED' ||
                     $result['response']['error']['status'] === 'INVALID_ARGUMENT'
-                    ? self::getExpiredErrorMessage()
-                    : $result['response']['error']['message'] ?? ''
+                        ? $this->getExpiredErrorMessage()
+                        : $result['response']['error']['message'] ?? ''
                 );
 
                 continue;

@@ -7,19 +7,23 @@ use Utopia\Messaging\Messages\Push as PushMessage;
 
 abstract class Push extends Adapter
 {
+    private const TYPE = 'push';
+    private const MESSAGE_TYPE = PushMessage::class;
+    private const EXPIRED_MESSAGE = 'Expired device token.';
+
     public function getType(): string
     {
-        return 'push';
+        return self::TYPE;
     }
 
     public function getMessageType(): string
     {
-        return PushMessage::class;
+        return self::MESSAGE_TYPE;
     }
 
-    protected static function getExpiredErrorMessage(): string
+    protected function getExpiredErrorMessage(): string
     {
-        return 'Expired device token.';
+        return self::EXPIRED_MESSAGE;
     }
 
     /**

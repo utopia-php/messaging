@@ -8,6 +8,8 @@ use Utopia\Messaging\Response;
 
 class Telnyx extends SMSAdapter
 {
+    private const NAME = 'Telnyx';
+
     /**
      * @param  string  $apiKey Telnyx APIv2 Key
      */
@@ -19,7 +21,7 @@ class Telnyx extends SMSAdapter
 
     public function getName(): string
     {
-        return 'Telnyx';
+        return self::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

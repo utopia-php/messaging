@@ -10,6 +10,8 @@ use Utopia\Messaging\Response;
 // https://docs.clickatell.com/channels/sms-channels/sms-api-reference/#tag/SMS-API/operation/sendMessageREST_1
 class Clickatell extends SMSAdapter
 {
+    private const NAME = 'Clickatell';
+
     /**
      * @param  string  $apiKey Clickatell API Key
      */
@@ -21,7 +23,7 @@ class Clickatell extends SMSAdapter
 
     public function getName(): string
     {
-        return 'Clickatell';
+        return self::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

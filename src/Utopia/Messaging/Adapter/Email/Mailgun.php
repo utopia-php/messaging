@@ -8,6 +8,8 @@ use Utopia\Messaging\Response;
 
 class Mailgun extends EmailAdapter
 {
+    private const NAME = 'Mailgun';
+
     /**
      * @param  string  $apiKey Your Mailgun API key to authenticate with the API.
      * @param  string  $domain Your Mailgun domain to send messages from.
@@ -24,7 +26,7 @@ class Mailgun extends EmailAdapter
      */
     public function getName(): string
     {
-        return 'Mailgun';
+        return self::NAME;
     }
 
     /**

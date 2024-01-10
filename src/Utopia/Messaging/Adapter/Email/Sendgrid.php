@@ -8,6 +8,8 @@ use Utopia\Messaging\Response;
 
 class Sendgrid extends EmailAdapter
 {
+    private const NAME = 'Sendgrid';
+
     /**
      * @param  string  $apiKey Your Sendgrid API key to authenticate with the API.
      * @return void
@@ -21,7 +23,7 @@ class Sendgrid extends EmailAdapter
      */
     public function getName(): string
     {
-        return 'Sendgrid';
+        return self::NAME;
     }
 
     /**

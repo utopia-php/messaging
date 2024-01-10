@@ -10,6 +10,8 @@ use Utopia\Messaging\Response;
 // https://www.plivo.com/docs/sms/api/message#send-a-message
 class Plivo extends SMSAdapter
 {
+    private const NAME = 'Plivo';
+
     /**
      * @param  string  $authId Plivo Auth ID
      * @param  string  $authToken Plivo Auth Token
@@ -23,7 +25,7 @@ class Plivo extends SMSAdapter
 
     public function getName(): string
     {
-        return 'Plivo';
+        return self::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

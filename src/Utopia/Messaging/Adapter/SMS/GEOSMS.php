@@ -8,6 +8,8 @@ use Utopia\Messaging\Messages\SMS;
 
 class GEOSMS extends SMSAdapter
 {
+    private const NAME = 'GEOSMS';
+
     protected SMSAdapter $defaultAdapter;
 
     /**
@@ -22,7 +24,7 @@ class GEOSMS extends SMSAdapter
 
     public function getName(): string
     {
-        return 'GEOSMS';
+        return self::NAME;
     }
 
     public function getMaxMessagesPerRequest(): int

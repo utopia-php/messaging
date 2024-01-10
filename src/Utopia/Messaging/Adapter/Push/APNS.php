@@ -9,6 +9,8 @@ use Utopia\Messaging\Response;
 
 class APNS extends PushAdapter
 {
+    private const NAME = 'APNS';
+
     /**
      * @return void
      */
@@ -26,7 +28,7 @@ class APNS extends PushAdapter
      */
     public function getName(): string
     {
-        return 'APNS';
+        return self::NAME;
     }
 
     /**
@@ -104,8 +106,9 @@ class APNS extends PushAdapter
                     $response->addResultForRecipient(
                         $device,
                         $result['response']['reason'] === 'ExpiredToken' ||
-                        $result['response']['reason'] === 'BadDeviceToken' ?
-                        self::getExpiredErrorMessage() : $result['response']['reason'],
+                        $result['response']['reason'] === 'BadDeviceToken'
+                            ? $this->getExpiredErrorMessage()
+                            : $result['response']['reason'],
                     );
                     break;
             }
