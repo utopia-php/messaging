@@ -63,10 +63,14 @@ class SMTP extends EmailAdapter
         $mail->CharSet = 'UTF-8';
         $mail->Subject = $message->getSubject();
         $mail->Body = $message->getContent();
-        $mail->AltBody = \strip_tags($message->getContent());
         $mail->setFrom($message->getFromEmail(), $message->getFromName());
         $mail->addReplyTo($message->getReplyToEmail(), $message->getReplyToName());
         $mail->isHTML($message->isHtml());
+
+        // Strip tags misses style tags, so we use regex to remove them
+        $mail->AltBody = \preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $mail->Body);
+        $mail->AltBody = \strip_tags($mail->AltBody);
+        $mail->AltBody = \trim($mail->AltBody);
 
         foreach ($message->getTo() as $to) {
             $mail->addAddress($to);
