@@ -14,12 +14,12 @@ class Telesign extends SMSAdapter
     protected const NAME = 'Telesign';
 
     /**
-     * @param  string  $username Telesign account username
-     * @param  string  $password Telesign account password
+     * @param  string  $customerId Telesign customer ID
+     * @param  string  $apiKey Telesign API key
      */
     public function __construct(
-        private string $username,
-        private string $password
+        private string $customerId,
+        private string $apiKey
     ) {
     }
 
@@ -51,7 +51,7 @@ class Telesign extends SMSAdapter
             method: 'POST',
             url: 'https://rest-ww.telesign.com/v1/verify/bulk_sms',
             headers: [
-                'Authorization: Basic '.base64_encode("{$this->username}:{$this->password}"),
+                'Authorization: Basic '.base64_encode("{$this->customerId}:{$this->apiKey}"),
             ],
             body: \http_build_query([
                 'template' => $message->getContent(),
