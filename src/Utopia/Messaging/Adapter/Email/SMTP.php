@@ -72,16 +72,14 @@ class SMTP extends EmailAdapter
             $mail->addAddress($to);
         }
 
-        if (!$mail->send()) {
-            foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, $mail->ErrorInfo);
-            }
-            return $response->toArray();
+        $sent = $mail->send();
+
+        if ($sent) {
+            $response->setDeliveredTo(\count($message->getTo()));
         }
 
-        $response->setDeliveredTo(\count($message->getTo()));
         foreach ($message->getTo() as $to) {
-            $response->addResultForRecipient($to);
+            $response->addResultForRecipient($to, $sent ? '' : $mail->ErrorInfo);
         }
 
         return $response->toArray();
