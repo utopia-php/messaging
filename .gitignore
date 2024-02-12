@@ -2,7 +2,6 @@
 vendor
 Makefile
 .envrc
-.env
 *.p8
 
 ### Linux ###

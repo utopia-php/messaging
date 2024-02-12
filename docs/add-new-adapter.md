@@ -65,12 +65,25 @@ public function process(Email $message): string
 }
 ```
 
-The base `Adapter` class includes a helper method called `request()` that can be used to send HTTP requests to the messaging provider. It accepts the following parameters, and returns the response as a string:
+The base `Adapter` class includes a two helper functions called `request()` and `requestMulti()` that can be used to send HTTP requests to the messaging provider.
+
+The `request()` function will send a single request and accepts the following parameters:
 
 - `method` - The HTTP method to use. For example, `POST`, `GET`, `PUT`, `PATCH` or `DELETE`.
 - `url` - The URL to send the request to.
 - `headers` - An array of headers to send with the request.
-- `body` - The body of the request. It can be either a string or an array.
+- `body` - The body of the request as a string, or null if no body is required.
+- `timeout` - The timeout in seconds for the request.
+
+The `requestMulti()` function will send multiple concurrent requests via HTTP/2 multiplexing, and accepts the following parameters:
+
+- `method` - The HTTP method to use. For example, `POST`, `GET`, `PUT`, `PATCH` or `DELETE`.
+- `urls` - An array of URLs to send the requests to.
+- `headers` - An array of headers to send with the requests.
+- `bodies` - An array of bodies of the requests as strings, or an empty array if no body is required.
+- `timeout` - The timeout in seconds for the requests.
+
+`urls` and `bodies` must either be the same length, or one of them must contain only a single element. If `urls` contains only a single element, it will be used for all requests. If `bodies` contains only a single element, it will be used for all requests.
 
 The default content type of the request is `x-www-form-urlencoded`, but you can change it by adding a `Content-Type` header. No encoding is applied to the body, so you need to make sure it is encoded properly before sending the request.
 
@@ -81,10 +94,10 @@ Putting it all together, the `SendGrid` adapter should look like this:
 ```php
 <?php
 
-namespace Utopia\Messaging\Adapters\Email;
+namespace Utopia\Messaging\Adapter\Email;
 
 use Utopia\Messaging\Messages\Email;
-use Utopia\Messaging\Adapters\Email as EmailAdapter;
+use Utopia\Messaging\Adapter\Email as EmailAdapter;
 
 class Sendgrid extends EmailAdapter
 {
@@ -144,7 +157,7 @@ If everything goes well, raise a pull request and be ready to respond to any fee
 
 ## 4. Raise a pull request
 
-First of all, commit the changes with the message `Added YYY Storage adapter` and push it. This will publish a new branch to your forked version of `utopia-php/messaging`. If you visit it at `github.com/YOUR_USERNAME/messaging`, you will see a new alert saying you are ready to submit a pull request. Follow the steps GitHub provides, and at the end, you will have your pull request submitted.
+First of all, commit the changes with the message `Added YYY adapter` and push it. This will publish a new branch to your forked version of `utopia-php/messaging`. If you visit it at `github.com/YOUR_USERNAME/messaging`, you will see a new alert saying you are ready to submit a pull request. Follow the steps GitHub provides, and at the end, you will have your pull request submitted.
 
 ## 🤕 Stuck ?
 If you need any help with the contribution, feel free to head over to [our discord channel](https://appwrite.io/discord) and we'll be happy to help you out.

@@ -6,6 +6,10 @@ use Utopia\Messaging\Message;
 
 class SMS implements Message
 {
+    /**
+     * @param  array<string>  $to
+     * @param  array<string>|null  $attachments
+     */
     public function __construct(
         private array $to,
         private string $content,
@@ -15,31 +19,25 @@ class SMS implements Message
     }
 
     /**
-     * @return array
+     * @return array<string>
      */
     public function getTo(): array
     {
         return $this->to;
     }
 
-    /**
-     * @return string
-     */
     public function getContent(): string
     {
         return $this->content;
     }
 
-    /**
-     * @return string|null
-     */
     public function getFrom(): ?string
     {
         return $this->from;
     }
 
     /**
-     * @return array|null
+     * @return array<string>|null
      */
     public function getAttachments(): ?array
     {
