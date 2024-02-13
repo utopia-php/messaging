@@ -65,7 +65,7 @@ abstract class Adapter
      * @return array{
      *     url: string,
      *     statusCode: int,
-     *     response: array<string, mixed>|null,
+     *     response: array<string, mixed>|string|null,
      *     error: string|null
      * }
      *

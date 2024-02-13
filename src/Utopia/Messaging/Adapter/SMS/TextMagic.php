@@ -69,7 +69,7 @@ class TextMagic extends SMSAdapter
         } else {
             foreach ($message->getTo() as $to) {
                 if (!\is_null($result['response']['message'] ?? null)) {
-                    $response->addResultForRecipient($to, $result['response']['message'] ?? '');
+                    $response->addResultForRecipient($to, $result['response']['message']);
                 } else {
                     $response->addResultForRecipient($to, 'Unknown error');
                 }

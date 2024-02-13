@@ -98,7 +98,7 @@ class Mailgun extends EmailAdapter
             foreach ($message->getTo() as $to) {
                 if (\is_string($result['response'])) {
                     $response->addResultForRecipient($to, $result['response']);
-                } elseif (\is_array($result['response'] && isset($result['response']['message']))) {
+                } elseif (isset($result['response']['message'])) {
                     $response->addResultForRecipient($to, $result['response']['message']);
                 } else {
                     $response->addResultForRecipient($to, 'Unknown error');
