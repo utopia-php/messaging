@@ -66,7 +66,11 @@ class Telesign extends SMSAdapter
             }
         } else {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, $result['response']['errors'][0]['description']);
+                if (!\is_null($result['response']['errors'][0]['description'] ?? null)) {
+                    $response->addResultForRecipient($to, $result['response']['errors'][0]['description']);
+                } else {
+                    $response->addResultForRecipient($to, 'Unknown error');
+                }
             }
         }
 

@@ -96,7 +96,13 @@ class Mailgun extends EmailAdapter
             }
         } elseif ($statusCode >= 400 && $statusCode < 500) {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, $result['response']['message']);
+                if (\is_string($result['response'])) {
+                    $response->addResultForRecipient($to, $result['response']);
+                } elseif (\is_array($result['response'] && isset($result['response']['message']))) {
+                    $response->addResultForRecipient($to, $result['response']['message']);
+                } else {
+                    $response->addResultForRecipient($to, 'Unknown error');
+                }
             }
         }
 

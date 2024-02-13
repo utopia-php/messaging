@@ -15,11 +15,12 @@ class FCM extends PushAdapter
     protected const GOOGLE_TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
 
     /**
-     * @param  string  $serviceAccountJSON Service account JSON file contents
+     * @param string $serviceAccountJSON Service account JSON file contents
      */
     public function __construct(
         private string $serviceAccountJSON,
-    ) {
+    )
+    {
     }
 
     /**
@@ -142,21 +143,15 @@ class FCM extends PushAdapter
         foreach ($results as $index => $result) {
             if ($result['statusCode'] === 200) {
                 $response->incrementDeliveredTo();
+                $response->addResultForRecipient($message->getTo()[$index]);
+            } else {
+                $error = ($result['response']['error']['status'] ?? '') === 'UNREGISTERED' ||
+                ($result['response']['error']['status'] ?? '') === 'INVALID_ARGUMENT'
+                    ? $this->getExpiredErrorMessage()
+                    : $result['response']['error']['message'] ?? 'Unknown error';
+
+                $response->addResultForRecipient($message->getTo()[$index], $error);
             }
-
-            if (isset($result['response']['error'])) {
-                $response->addResultForRecipient(
-                    $message->getTo()[$index],
-                    $result['response']['error']['status'] === 'UNREGISTERED' ||
-                    $result['response']['error']['status'] === 'INVALID_ARGUMENT'
-                        ? $this->getExpiredErrorMessage()
-                        : $result['response']['error']['message'] ?? ''
-                );
-
-                continue;
-            }
-
-            $response->addResultForRecipient($message->getTo()[$index]);
         }
 
         return $response->toArray();
