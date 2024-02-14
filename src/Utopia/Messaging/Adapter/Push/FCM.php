@@ -144,10 +144,11 @@ class FCM extends PushAdapter
                 $response->incrementDeliveredTo();
                 $response->addResultForRecipient($message->getTo()[$index]);
             } else {
-                $error = ($result['response']['error']['status'] ?? '') === 'UNREGISTERED' ||
-                ($result['response']['error']['status'] ?? '') === 'INVALID_ARGUMENT'
-                    ? $this->getExpiredErrorMessage()
-                    : $result['response']['error']['message'] ?? 'Unknown error';
+                $error =
+                    ($result['response']['error']['status'] ?? null) === 'UNREGISTERED'
+                    || ($result['response']['error']['status'] ?? null) === 'NOT_FOUND'
+                        ? $this->getExpiredErrorMessage()
+                        : $result['response']['error']['message'] ?? 'Unknown error';
 
                 $response->addResultForRecipient($message->getTo()[$index], $error);
             }
