@@ -57,7 +57,7 @@ class Vonage extends SMSAdapter
             ]),
         );
 
-        if ($result['response']['messages'][0]['status'] === 0) {
+        if ($result['response']['messages'][0]['status'] ?? null === 0) {
             $response->setDeliveredTo(1);
             $response->addResultForRecipient($result['response']['messages'][0]['to']);
         } else {
