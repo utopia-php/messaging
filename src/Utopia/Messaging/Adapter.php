@@ -159,11 +159,8 @@ abstract class Adapter
         $urlCount = \count($urls);
         $bodyCount = \count($bodies);
 
-        if (
-            $urlCount != $bodyCount &&
-            ($urlCount == 1 && $bodyCount != 1 || $urlCount != 1 && $bodyCount == 1)
-        ) {
-            throw new \Exception('URL and body counts must be equal or 1.');
+        if (!($urlCount == $bodyCount || $urlCount == 1 || $bodyCount == 1)) {
+            throw new \Exception('URL and body counts must be equal or one must equal 1.');
         }
 
         if ($urlCount > $bodyCount) {
@@ -172,13 +169,13 @@ abstract class Adapter
             $urls = \array_pad($urls, $bodyCount, $urls[0]);
         }
 
-        foreach (\array_combine($urls, $bodies) as $url => $body) {
-            if (!empty($body)) {
-                $headers[] = 'Content-Length: '.\strlen($body);
+        for ($i = 0; $i < \count($urls); $i++) {
+            if (!empty($bodies[$i])) {
+                $headers[] = 'Content-Length: '.\strlen($bodies[$i]);
             }
 
-            \curl_setopt($ch, CURLOPT_URL, $url);
-            \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+            \curl_setopt($ch, CURLOPT_URL, $urls[$i]);
+            \curl_setopt($ch, CURLOPT_POSTFIELDS, $bodies[$i]);
             \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             \curl_multi_add_handle($mh, \curl_copy_handle($ch));
         }
