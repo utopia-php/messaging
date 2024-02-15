@@ -55,7 +55,11 @@ class Twilio extends SMSAdapter
             $response->setDeliveredTo(1);
             $response->addResultForRecipient($message->getTo()[0]);
         } else {
-            $response->addResultForRecipient($message->getTo()[0], $result['response']['message'] ?? '');
+            if (!\is_null($result['response']['message'] ?? null)) {
+                $response->addResultForRecipient($message->getTo()[0], $result['response']['message']);
+            } else {
+                $response->addResultForRecipient($message->getTo()[0], 'Unknown error');
+            }
         }
 
         return $response->toArray();

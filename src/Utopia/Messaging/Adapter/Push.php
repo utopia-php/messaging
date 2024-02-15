@@ -9,7 +9,7 @@ abstract class Push extends Adapter
 {
     protected const TYPE = 'push';
     protected const MESSAGE_TYPE = PushMessage::class;
-    protected const EXPIRED_MESSAGE = 'Expired device token.';
+    protected const EXPIRED_MESSAGE = 'Expired device token';
 
     public function getType(): string
     {

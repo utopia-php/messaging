@@ -72,7 +72,7 @@ class Msg91 extends SMSAdapter
             }
         } else {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, 'Unknown Error.');
+                $response->addResultForRecipient($to, 'Unknown error');
             }
         }
 

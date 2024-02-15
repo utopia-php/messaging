@@ -83,7 +83,11 @@ class SMTP extends EmailAdapter
         }
 
         foreach ($message->getTo() as $to) {
-            $response->addResultForRecipient($to, $sent ? '' : $mail->ErrorInfo);
+            $error = empty($mail->ErrorInfo)
+                ? 'Unknown error'
+                : $mail->ErrorInfo;
+
+            $response->addResultForRecipient($to, $sent ? '' : $error);
         }
 
         return $response->toArray();

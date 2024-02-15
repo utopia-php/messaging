@@ -57,13 +57,15 @@ class Vonage extends SMSAdapter
             ]),
         );
 
-        switch ($result['response']['messages'][0]['status']) {
-            case 0:
-                $response->setDeliveredTo(1);
-                $response->addResultForRecipient($result['response']['messages'][0]['to']);
-                break;
-            default:
+        if (($result['response']['messages'][0]['status'] ?? null) === 0) {
+            $response->setDeliveredTo(1);
+            $response->addResultForRecipient($result['response']['messages'][0]['to']);
+        } else {
+            if (!\is_null($result['response']['messages'][0]['error-text'] ?? null)) {
                 $response->addResultForRecipient($message->getTo()[0], $result['response']['messages'][0]['error-text']);
+            } else {
+                $response->addResultForRecipient($message->getTo()[0], 'Unknown error');
+            }
         }
 
         return $response->toArray();

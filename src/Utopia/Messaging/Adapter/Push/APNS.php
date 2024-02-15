@@ -103,13 +103,11 @@ class APNS extends PushAdapter
                     $response->addResultForRecipient($device);
                     break;
                 default:
-                    $response->addResultForRecipient(
-                        $device,
-                        $result['response']['reason'] === 'ExpiredToken' ||
-                        $result['response']['reason'] === 'BadDeviceToken'
-                            ? $this->getExpiredErrorMessage()
-                            : $result['response']['reason'],
-                    );
+                    $error = ($result['response']['reason'] ?? null) === 'ExpiredToken' || ($result['response']['reason'] ?? null) === 'BadDeviceToken'
+                        ? $this->getExpiredErrorMessage()
+                        : $result['response']['reason'];
+
+                    $response->addResultForRecipient($device, $error);
                     break;
             }
         }

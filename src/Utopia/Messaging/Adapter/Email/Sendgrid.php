@@ -110,12 +110,18 @@ class Sendgrid extends EmailAdapter
 
         if ($statusCode === 202) {
             $response->setDeliveredTo(\count($message->getTo()));
-            foreach ($message->getTo() as $recipient) {
-                $response->addResultForRecipient($recipient);
+            foreach ($message->getTo() as $to) {
+                $response->addResultForRecipient($to);
             }
         } else {
-            foreach ($message->getTo() as $recipient) {
-                $response->addResultForRecipient($recipient, $result['response']['errors'][0]['message']);
+            foreach ($message->getTo() as $to) {
+                if (\is_string($result['response'])) {
+                    $response->addResultForRecipient($to, $result['response']);
+                } elseif (!\is_null($result['response']['errors'][0]['message'] ?? null)) {
+                    $response->addResultForRecipient($to, $result['response']['errors'][0]['message']);
+                } else {
+                    $response->addResultForRecipient($to, 'Unknown error');
+                }
             }
         }
 
