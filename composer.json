@@ -24,13 +24,13 @@
   "require": {
     "php": ">=8.0.0",
     "ext-curl": "*",
-    "ext-openssl": "*"
+    "ext-openssl": "*",
+    "phpmailer/phpmailer": "6.9.1"
   },
   "require-dev": {
-    "phpunit/phpunit": "9.6.10",
-    "phpmailer/phpmailer": "6.8.*",
-    "laravel/pint": "1.13.*",
-    "phpstan/phpstan": "1.10.*"
+    "phpunit/phpunit": "10.5.10",
+    "laravel/pint": "1.13.11",
+    "phpstan/phpstan": "1.10.58"
   },
   "config": {
     "platform": {
