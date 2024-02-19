@@ -79,6 +79,41 @@ class Sendgrid extends EmailAdapter
             }
         }
 
+        $attachments = [];
+
+        if (!\is_null($message->getAttachments())) {
+            foreach ($message->getAttachments() as $attachment) {
+                $attachments[] = [
+                    'content' => $attachment->getContent(),
+                    'filename' => $attachment->getName(),
+                    'type' => $attachment->getType(),
+                    'disposition' => $attachment->getDisposition(),
+                ];
+            }
+        }
+
+        $body = [
+            'personalizations' => $personalizations,
+            'reply_to' => [
+                'name' => $message->getReplyToName(),
+                'email' => $message->getReplyToEmail(),
+            ],
+            'from' => [
+                'name' => $message->getFromName(),
+                'email' => $message->getFromEmail(),
+            ],
+            'content' => [
+                [
+                    'type' => $message->isHtml() ? 'text/html' : 'text/plain',
+                    'value' => $message->getContent(),
+                ],
+            ],
+        ];
+
+        if (!empty($attachments)) {
+            $body['attachments'] = $attachments;
+        }
+
         $response = new Response($this->getType());
         $result = $this->request(
             method: 'POST',
@@ -87,23 +122,7 @@ class Sendgrid extends EmailAdapter
                 'Authorization: Bearer '.$this->apiKey,
                 'Content-Type: application/json',
             ],
-            body: \json_encode([
-                'personalizations' => $personalizations,
-                'reply_to' => [
-                    'name' => $message->getReplyToName(),
-                    'email' => $message->getReplyToEmail(),
-                ],
-                'from' => [
-                    'name' => $message->getFromName(),
-                    'email' => $message->getFromEmail(),
-                ],
-                'content' => [
-                    [
-                        'type' => $message->isHtml() ? 'text/html' : 'text/plain',
-                        'value' => $message->getContent(),
-                    ],
-                ],
-            ]),
+            body: \json_encode($body),
         );
 
         $statusCode = $result['statusCode'];
