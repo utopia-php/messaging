@@ -60,7 +60,7 @@ abstract class Adapter
      * @param  string  $method The HTTP method to use.
      * @param  string  $url The URL to send the request to.
      * @param  array<string>  $headers An array of headers to send with the request.
-     * @param  string|array|null  $body The body of the request.
+     * @param  string|array<string, mixed>|null  $body The body of the request.
      * @param  int  $timeout The timeout in seconds.
      * @return array{
      *     url: string,

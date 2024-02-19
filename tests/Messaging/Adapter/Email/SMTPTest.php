@@ -2,7 +2,6 @@
 
 namespace Utopia\Tests\Adapter\Email;
 
-use Utopia\Messaging\Adapter\Email\Mock;
 use Utopia\Messaging\Adapter\Email\SMTP;
 use Utopia\Messaging\Messages\Email;
 use Utopia\Messaging\Messages\Email\Attachment;
