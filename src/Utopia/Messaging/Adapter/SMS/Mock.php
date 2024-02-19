@@ -59,11 +59,11 @@ class Mock extends SMSAdapter
         if ($result['statusCode'] === 200) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         } else {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, 'Unknown Error.');
+                $response->addResult($to, 'Unknown Error.');
             }
         }
 

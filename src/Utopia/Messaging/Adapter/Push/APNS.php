@@ -100,14 +100,14 @@ class APNS extends PushAdapter
             switch ($statusCode) {
                 case 200:
                     $response->incrementDeliveredTo();
-                    $response->addResultForRecipient($device);
+                    $response->addResult($device);
                     break;
                 default:
                     $error = ($result['response']['reason'] ?? null) === 'ExpiredToken' || ($result['response']['reason'] ?? null) === 'BadDeviceToken'
                         ? $this->getExpiredErrorMessage()
                         : $result['response']['reason'];
 
-                    $response->addResultForRecipient($device, $error);
+                    $response->addResult($device, $error);
                     break;
             }
         }

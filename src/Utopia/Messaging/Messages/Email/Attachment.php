@@ -4,12 +4,15 @@ namespace Utopia\Messaging\Messages\Email;
 
 class Attachment
 {
+    /**
+     * @param string $name  The name of the file.
+     * @param string $path  The content of the file.
+     * @param string $type  The MIME type of the file.
+     */
     public function __construct(
         private string $name,
-        private string $content,
+        private string $path,
         private string $type,
-        private string $disposition = 'attachment',
-        private string $encoding = 'base64'
     ) {
     }
 
@@ -18,23 +21,13 @@ class Attachment
         return $this->name;
     }
 
-    public function getContent(): string
+    public function getPath(): string
     {
-        return $this->content;
+        return $this->path;
     }
 
     public function getType(): string
     {
         return $this->type;
-    }
-
-    public function getDisposition(): string
-    {
-        return $this->disposition;
-    }
-
-    public function getEncoding(): string
-    {
-        return $this->encoding;
     }
 }

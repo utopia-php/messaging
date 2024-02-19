@@ -10,6 +10,8 @@ abstract class Email extends Adapter
     protected const TYPE = 'email';
     protected const MESSAGE_TYPE = EmailMessage::class;
 
+    protected const MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+
     public function getType(): string
     {
         return static::TYPE;

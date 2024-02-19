@@ -4,6 +4,7 @@ namespace Utopia\Tests\Adapter\Email;
 
 use Utopia\Messaging\Adapter\Email\Sendgrid;
 use Utopia\Messaging\Messages\Email;
+use Utopia\Messaging\Messages\Email\Attachment;
 use Utopia\Tests\Adapter\Base;
 
 class SendgridTest extends Base
@@ -41,22 +42,17 @@ class SendgridTest extends Base
         $content = 'Test Content';
         $fromEmail = \getenv('TEST_FROM_EMAIL');
 
-        $image = \file_get_contents(__DIR__ . '/../../../assets/image.png');
-        $image = \base64_encode($image);
-
-        $attachment = new Email\Attachment(
-            name: 'image.png',
-            content: $image,
-            type: 'image/png'
-        );
-
         $message = new Email(
             to: [$to],
             subject: $subject,
             content: $content,
             fromName: 'Tester',
             fromEmail: $fromEmail,
-            attachments: [$attachment],
+            attachments: [new Attachment(
+                name: 'image.png',
+                path: __DIR__ . '/../../../assets/image.png',
+                type: 'image/png'
+            )],
         );
 
         $response = $sender->send($message);

@@ -52,12 +52,12 @@ class Mock extends EmailAdapter
 
         if (!$mail->send()) {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, $mail->ErrorInfo);
+                $response->addResult($to, $mail->ErrorInfo);
             }
         } else {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         }
 

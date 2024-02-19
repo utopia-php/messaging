@@ -82,12 +82,22 @@ class Sendgrid extends EmailAdapter
         $attachments = [];
 
         if (!\is_null($message->getAttachments())) {
+            $size = 0;
+
+            foreach ($message->getAttachments() as $attachment) {
+                $size += \filesize($attachment->getPath());
+            }
+
+            if ($size > self::MAX_ATTACHMENT_BYTES) {
+                throw new \Exception('Attachments size exceeds the maximum allowed size of 25MB');
+            }
+
             foreach ($message->getAttachments() as $attachment) {
                 $attachments[] = [
-                    'content' => $attachment->getContent(),
+                    'content' => \base64_encode(\file_get_contents($attachment->getPath())),
                     'filename' => $attachment->getName(),
                     'type' => $attachment->getType(),
-                    'disposition' => $attachment->getDisposition(),
+                    'disposition' => 'attachment',
                 ];
             }
         }
@@ -130,16 +140,16 @@ class Sendgrid extends EmailAdapter
         if ($statusCode === 202) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         } else {
             foreach ($message->getTo() as $to) {
                 if (\is_string($result['response'])) {
-                    $response->addResultForRecipient($to, $result['response']);
+                    $response->addResult($to, $result['response']);
                 } elseif (!\is_null($result['response']['errors'][0]['message'] ?? null)) {
-                    $response->addResultForRecipient($to, $result['response']['errors'][0]['message']);
+                    $response->addResult($to, $result['response']['errors'][0]['message']);
                 } else {
-                    $response->addResultForRecipient($to, 'Unknown error');
+                    $response->addResult($to, 'Unknown error');
                 }
             }
         }

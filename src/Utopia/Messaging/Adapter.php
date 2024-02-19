@@ -60,7 +60,7 @@ abstract class Adapter
      * @param  string  $method The HTTP method to use.
      * @param  string  $url The URL to send the request to.
      * @param  array<string>  $headers An array of headers to send with the request.
-     * @param  string|null  $body The body of the request.
+     * @param  string|array|null  $body The body of the request.
      * @param  int  $timeout The timeout in seconds.
      * @return array{
      *     url: string,
@@ -75,14 +75,17 @@ abstract class Adapter
         string $method,
         string $url,
         array $headers = [],
-        string $body = null,
+        string|array $body = null,
         int $timeout = 30
     ): array {
         $ch = \curl_init();
 
         if (!\is_null($body)) {
-            $headers[] = 'Content-Length: '.\strlen($body);
             \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+
+            if (\is_string($body)) {
+                $headers[] = 'Content-Length: '.\strlen($body);
+            }
         }
 
         \curl_setopt_array($ch, [
