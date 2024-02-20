@@ -73,10 +73,10 @@ class FCM extends PushAdapter
             headers: [
                 'Content-Type: application/x-www-form-urlencoded',
             ],
-            body: \http_build_query([
+            body: [
                 'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                 'assertion' => $jwt,
-            ])
+            ]
         );
 
         $accessToken = $token['response']['access_token'];
