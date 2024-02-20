@@ -73,7 +73,7 @@ class Discord extends Adapter
             headers: [
                 'Content-Type: application/json',
             ],
-            body: \json_encode([
+            body: [
                 'content' => $message->getContent(),
                 'username' => $message->getUsername(),
                 'avatar_url' => $message->getAvatarUrl(),
@@ -84,7 +84,7 @@ class Discord extends Adapter
                 'attachments' => $message->getAttachments(),
                 'flags' => $message->getFlags(),
                 'thread_name' => $message->getThreadName(),
-            ]),
+            ],
         );
 
         $statusCode = $result['statusCode'];

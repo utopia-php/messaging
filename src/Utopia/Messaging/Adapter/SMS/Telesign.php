@@ -51,12 +51,13 @@ class Telesign extends SMSAdapter
             method: 'POST',
             url: 'https://rest-ww.telesign.com/v1/verify/bulk_sms',
             headers: [
+                'Content-Type: application/x-www-form-urlencoded',
                 'Authorization: Basic '.base64_encode("{$this->customerId}:{$this->apiKey}"),
             ],
-            body: \http_build_query([
+            body: [
                 'template' => $message->getContent(),
                 'recipients' => $to,
-            ]),
+            ],
         );
 
         if ($result['statusCode'] === 200) {

@@ -84,11 +84,12 @@ class APNS extends PushAdapter
             method: 'POST',
             urls: $urls,
             headers: [
+                'Content-Type: application/json',
                 'Authorization: Bearer '.$jwt,
                 'apns-topic: '.$this->bundleId,
                 'apns-push-type: alert',
             ],
-            bodies: [\json_encode($payload)]
+            bodies: [$payload]
         );
 
         $response = new Response($this->getType());

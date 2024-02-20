@@ -124,7 +124,7 @@ class FCM extends PushAdapter
         foreach ($message->getTo() as $to) {
             $body = $shared;
             $body['message']['token'] = $to;
-            $bodies[] = \json_encode($body);
+            $bodies[] = $body;
         }
 
         $results = $this->requestMulti(

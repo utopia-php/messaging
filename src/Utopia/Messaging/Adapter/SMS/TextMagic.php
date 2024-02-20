@@ -51,14 +51,15 @@ class TextMagic extends SMSAdapter
             method: 'POST',
             url: 'https://rest.textmagic.com/api/v2/messages',
             headers: [
-                "X-TM-Username: {$this->username}",
-                "X-TM-Key: {$this->apiKey}",
+                'Content-Type: application/x-www-form-urlencoded',
+                'X-TM-Username: ' . $this->username,
+                'X-TM-Key: '. $this->apiKey,
             ],
-            body: \http_build_query([
+            body: [
                 'text' => $message->getContent(),
                 'from' => \ltrim($this->from ?? $message->getFrom(), '+'),
                 'phones' => \implode(',', $to),
-            ]),
+            ],
         );
 
         if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {

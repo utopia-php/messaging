@@ -132,7 +132,7 @@ class Sendgrid extends EmailAdapter
                 'Authorization: Bearer '.$this->apiKey,
                 'Content-Type: application/json',
             ],
-            body: \json_encode($body),
+            body: $body,
         );
 
         $statusCode = $result['statusCode'];

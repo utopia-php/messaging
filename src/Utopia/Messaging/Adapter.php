@@ -75,10 +75,21 @@ abstract class Adapter
         string $method,
         string $url,
         array $headers = [],
-        string|array $body = null,
+        array $body = null,
         int $timeout = 30
     ): array {
         $ch = \curl_init();
+
+        foreach ($headers as $header) {
+            if (\str_contains('application/json', $header)) {
+                $body = \json_encode($body);
+                break;
+            }
+            if (\str_contains('application/x-www-form-urlencoded', $header)) {
+                $body = \http_build_query($body);
+                break;
+            }
+        }
 
         if (!\is_null($body)) {
             \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
@@ -120,7 +131,7 @@ abstract class Adapter
      *
      * @param  array<string>  $urls
      * @param  array<string>  $headers
-     * @param  array<string>  $bodies
+     * @param  array<array<string, mixed>>  $bodies
      * @return array<array{
      *     url: string,
      *     statusCode: int,
@@ -139,6 +150,21 @@ abstract class Adapter
     ): array {
         if (empty($urls)) {
             throw new \Exception('No URLs provided. Must provide at least one URL.');
+        }
+
+        foreach ($headers as $header) {
+            if (\str_contains('application/json', $header)) {
+                foreach ($bodies as $i => $body) {
+                    $bodies[$i] = \json_encode($body);
+                }
+                break;
+            }
+            if (\str_contains('application/x-www-form-urlencoded', $header)) {
+                foreach ($bodies as $i => $body) {
+                    $bodies[$i] = \http_build_query($body);
+                }
+                break;
+            }
         }
 
         $sh = \curl_share_init();

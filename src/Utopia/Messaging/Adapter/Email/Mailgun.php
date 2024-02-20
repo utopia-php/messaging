@@ -110,7 +110,6 @@ class Mailgun extends EmailAdapter
             $headers[] = 'Content-Type: multipart/form-data';
         } else {
             $headers[] = 'Content-Type: application/x-www-form-urlencoded';
-            $body = \http_build_query($body);
         }
 
         $result = $this->request(

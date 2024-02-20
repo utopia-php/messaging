@@ -48,14 +48,14 @@ class Sinch extends SMSAdapter
             method: 'POST',
             url: "https://sms.api.sinch.com/xms/v1/{$this->servicePlanId}/batches",
             headers: [
+                'Content-Type: application/json',
                 'Authorization: Bearer '.$this->apiToken,
-                'content-type: application/json',
             ],
-            body: \json_encode([
+            body: [
                 'from' => $this->from ?? $message->getFrom(),
                 'to' => $to,
                 'body' => $message->getContent(),
-            ]),
+            ],
         );
 
         if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {

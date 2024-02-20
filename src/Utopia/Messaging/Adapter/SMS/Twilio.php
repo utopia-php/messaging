@@ -42,13 +42,14 @@ class Twilio extends SMSAdapter
             method: 'POST',
             url: "https://api.twilio.com/2010-04-01/Accounts/{$this->accountSid}/Messages.json",
             headers: [
+                'Content-Type: application/x-www-form-urlencoded',
                 'Authorization: Basic '.base64_encode("{$this->accountSid}:{$this->authToken}"),
             ],
-            body: \http_build_query([
+            body: [
                 'Body' => $message->getContent(),
                 'From' => $this->from ?? $message->getFrom(),
                 'To' => $message->getTo()[0],
-            ]),
+            ],
         );
 
         if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
