@@ -55,24 +55,24 @@ class Msg91 extends SMSAdapter
             method: 'POST',
             url: 'https://api.msg91.com/api/v5/flow/',
             headers: [
-                'content-type: application/json',
-                "authkey: {$this->authKey}",
+                'Content-Type: application/json',
+                'Authkey: '. $this->authKey,
             ],
-            body: \json_encode([
+            body: [
                 'sender' => $this->senderId,
                 'template_id' => $this->templateId,
                 'recipients' => $recipients,
-            ]),
+            ],
         );
 
         if ($result['statusCode'] === 200) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         } else {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, 'Unknown error');
+                $response->addResult($to, 'Unknown error');
             }
         }
 

@@ -46,23 +46,24 @@ class Plivo extends SMSAdapter
             method: 'POST',
             url: "https://api.plivo.com/v1/Account/{$this->authId}/Message/",
             headers: [
+                'Content-Type: application/x-www-form-urlencoded',
                 'Authorization: Basic '.base64_encode("{$this->authId}:{$this->authToken}"),
             ],
-            body: \http_build_query([
+            body: [
                 'text' => $message->getContent(),
                 'src' => $this->from ?? $message->getFrom() ?? 'Plivo',
                 'dst' => \implode('<', $message->getTo()),
-            ]),
+            ],
         );
 
         if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         } else {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, 'Unknown error.');
+                $response->addResult($to, 'Unknown error.');
             }
         }
 

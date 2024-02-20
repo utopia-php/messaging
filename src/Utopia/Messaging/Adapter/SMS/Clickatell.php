@@ -44,24 +44,24 @@ class Clickatell extends SMSAdapter
             method: 'POST',
             url: 'https://platform.clickatell.com/messages',
             headers: [
-                'content-type: application/json',
+                'Content-Type: application/json',
                 'Authorization: '.$this->apiKey,
             ],
-            body: \json_encode([
+            body: [
                 'content' => $message->getContent(),
                 'from' => $this->from ?? $message->getFrom(),
                 'to' => $message->getTo(),
-            ]),
+            ],
         );
 
         if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         } else {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, 'Unknown error.');
+                $response->addResult($to, 'Unknown error.');
             }
         }
 

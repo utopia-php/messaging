@@ -45,25 +45,25 @@ class Mock extends SMSAdapter
             method: 'POST',
             url: 'http://request-catcher:5000/mock-sms',
             headers: [
-                'content-type: application/json',
-                "x-username: {$this->user}",
-                "x-key: {$this->secret}",
+                'Content-Type: application/json',
+                "X-Username: {$this->user}",
+                "X-Key: {$this->secret}",
             ],
-            body: \json_encode([
+            body: [
                 'message' => $message->getContent(),
                 'from' => $message->getFrom(),
                 'to' => \implode(',', $message->getTo()),
-            ]),
+            ],
         );
 
         if ($result['statusCode'] === 200) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         } else {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, 'Unknown Error.');
+                $response->addResult($to, 'Unknown Error.');
             }
         }
 

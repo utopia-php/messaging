@@ -60,7 +60,7 @@ abstract class Adapter
      * @param  string  $method The HTTP method to use.
      * @param  string  $url The URL to send the request to.
      * @param  array<string>  $headers An array of headers to send with the request.
-     * @param  string|null  $body The body of the request.
+     * @param  array<string, mixed>|null  $body The body of the request.
      * @param  int  $timeout The timeout in seconds.
      * @return array{
      *     url: string,
@@ -75,14 +75,28 @@ abstract class Adapter
         string $method,
         string $url,
         array $headers = [],
-        string $body = null,
+        array $body = null,
         int $timeout = 30
     ): array {
         $ch = \curl_init();
 
+        foreach ($headers as $header) {
+            if (\str_contains($header, 'application/json')) {
+                $body = \json_encode($body);
+                break;
+            }
+            if (\str_contains($header, 'application/x-www-form-urlencoded')) {
+                $body = \http_build_query($body);
+                break;
+            }
+        }
+
         if (!\is_null($body)) {
-            $headers[] = 'Content-Length: '.\strlen($body);
             \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+
+            if (\is_string($body)) {
+                $headers[] = 'Content-Length: '.\strlen($body);
+            }
         }
 
         \curl_setopt_array($ch, [
@@ -117,7 +131,7 @@ abstract class Adapter
      *
      * @param  array<string>  $urls
      * @param  array<string>  $headers
-     * @param  array<string>  $bodies
+     * @param  array<array<string, mixed>>  $bodies
      * @return array<array{
      *     url: string,
      *     statusCode: int,
@@ -136,6 +150,21 @@ abstract class Adapter
     ): array {
         if (empty($urls)) {
             throw new \Exception('No URLs provided. Must provide at least one URL.');
+        }
+
+        foreach ($headers as $header) {
+            if (\str_contains($header, 'application/json')) {
+                foreach ($bodies as $i => $body) {
+                    $bodies[$i] = \json_encode($body);
+                }
+                break;
+            }
+            if (\str_contains($header, 'application/x-www-form-urlencoded')) {
+                foreach ($bodies as $i => $body) {
+                    $bodies[$i] = \http_build_query($body);
+                }
+                break;
+            }
         }
 
         $sh = \curl_share_init();

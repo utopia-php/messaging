@@ -45,26 +45,21 @@ class Response
         return $this->type;
     }
 
-    public function addResultForRecipient(string $recipient, string $error = ''): void
-    {
-        $this->results[] = [
-            'recipient' => $recipient,
-            'status' => empty($error) ? 'success' : 'failure',
-            'error' => $error,
-        ];
-    }
-
-    public function popFromResults(): void
-    {
-        array_pop($this->results);
-    }
-
     /**
      * @return array<array<string, string>>
      */
     public function getDetails(): array
     {
         return $this->results;
+    }
+
+    public function addResult(string $recipient, string $error = ''): void
+    {
+        $this->results[] = [
+            'recipient' => $recipient,
+            'status' => empty($error) ? 'success' : 'failure',
+            'error' => $error,
+        ];
     }
 
     /**
@@ -77,17 +72,5 @@ class Response
             'type' => $this->type,
             'results' => $this->results,
         ];
-    }
-
-    /**
-     * @param  array<array<string, string>>  $results
-     */
-    public function fromArray(array $results): self
-    {
-        $response = new self($this->type);
-        $response->deliveredTo = $this->deliveredTo;
-        $response->results = $this->results;
-
-        return $response;
     }
 }

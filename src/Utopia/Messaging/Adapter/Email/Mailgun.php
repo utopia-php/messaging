@@ -53,6 +53,7 @@ class Mailgun extends EmailAdapter
             'subject' => $message->getSubject(),
             'text' => $message->isHtml() ? null : $message->getContent(),
             'html' => $message->isHtml() ? $message->getContent() : null,
+            'h:Reply-To: '."{$message->getReplyToName()}<{$message->getReplyToEmail()}>",
         ];
 
         if (!\is_null($message->getCC())) {
@@ -75,16 +76,47 @@ class Mailgun extends EmailAdapter
             }
         }
 
+        $isMultipart = false;
+
+        if (!\is_null($message->getAttachments())) {
+            $size = 0;
+
+            foreach ($message->getAttachments() as $attachment) {
+                $size += \filesize($attachment->getPath());
+            }
+
+            if ($size > self::MAX_ATTACHMENT_BYTES) {
+                throw new \Exception('Attachments size exceeds the maximum allowed size of ');
+            }
+
+            foreach ($message->getAttachments() as $index => $attachment) {
+                $isMultipart = true;
+
+                $body["attachment[$index]"] = \curl_file_create(
+                    $attachment->getPath(),
+                    $attachment->getType(),
+                    $attachment->getName(),
+                );
+            }
+        }
+
         $response = new Response($this->getType());
+
+        $headers = [
+            'Authorization: Basic ' . \base64_encode("api:$this->apiKey"),
+        ];
+
+        if ($isMultipart) {
+            $headers[] = 'Content-Type: multipart/form-data';
+        } else {
+            $headers[] = 'Content-Type: application/x-www-form-urlencoded';
+        }
 
         $result = $this->request(
             method: 'POST',
-            url: "https://$domain/v3/{$this->domain}/messages",
-            headers: [
-                'Authorization: Basic '.base64_encode('api:'.$this->apiKey),
-                'h:Reply-To: '."{$message->getReplyToName()}<{$message->getReplyToEmail()}>",
-            ],
-            body: \http_build_query($body),
+            url: "https://$domain/v3/$this->domain/messages",
+            headers: $headers,
+            body: $body,
         );
 
         $statusCode = $result['statusCode'];
@@ -92,16 +124,16 @@ class Mailgun extends EmailAdapter
         if ($statusCode >= 200 && $statusCode < 300) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         } elseif ($statusCode >= 400 && $statusCode < 500) {
             foreach ($message->getTo() as $to) {
                 if (\is_string($result['response'])) {
-                    $response->addResultForRecipient($to, $result['response']);
+                    $response->addResult($to, $result['response']);
                 } elseif (isset($result['response']['message'])) {
-                    $response->addResultForRecipient($to, $result['response']['message']);
+                    $response->addResult($to, $result['response']['message']);
                 } else {
-                    $response->addResultForRecipient($to, 'Unknown error');
+                    $response->addResult($to, 'Unknown error');
                 }
             }
         }

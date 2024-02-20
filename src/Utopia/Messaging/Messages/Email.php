@@ -3,6 +3,7 @@
 namespace Utopia\Messaging\Messages;
 
 use Utopia\Messaging\Message;
+use Utopia\Messaging\Messages\Email\Attachment;
 
 class Email implements Message
 {
@@ -16,7 +17,7 @@ class Email implements Message
      * @param  array<array<string,string>>|null  $bcc . The BCC recipients of the email. Each recipient should be an array containing a "name" and an "email" key.
      * @param  string|null  $replyToName The name of the reply to.
      * @param  string|null  $replyToEmail The email address of the reply to.
-     * @param  array<string, mixed>|null  $attachments The attachments of the email.
+     * @param  array<Attachment>|null  $attachments The attachments of the email.
      * @param  bool  $html Whether the message is HTML or not.
      *
      * @throws \InvalidArgumentException

@@ -51,25 +51,26 @@ class Telesign extends SMSAdapter
             method: 'POST',
             url: 'https://rest-ww.telesign.com/v1/verify/bulk_sms',
             headers: [
+                'Content-Type: application/x-www-form-urlencoded',
                 'Authorization: Basic '.base64_encode("{$this->customerId}:{$this->apiKey}"),
             ],
-            body: \http_build_query([
+            body: [
                 'template' => $message->getContent(),
                 'recipients' => $to,
-            ]),
+            ],
         );
 
         if ($result['statusCode'] === 200) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         } else {
             foreach ($message->getTo() as $to) {
                 if (!\is_null($result['response']['errors'][0]['description'] ?? null)) {
-                    $response->addResultForRecipient($to, $result['response']['errors'][0]['description']);
+                    $response->addResult($to, $result['response']['errors'][0]['description']);
                 } else {
-                    $response->addResultForRecipient($to, 'Unknown error');
+                    $response->addResult($to, 'Unknown error');
                 }
             }
         }

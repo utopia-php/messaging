@@ -42,24 +42,24 @@ class Telnyx extends SMSAdapter
             method: 'POST',
             url: 'https://api.telnyx.com/v2/messages',
             headers: [
-                'Authorization: Bearer '.$this->apiKey,
                 'Content-Type: application/json',
+                'Authorization: Bearer '.$this->apiKey,
             ],
-            body: \json_encode([
+            body: [
                 'text' => $message->getContent(),
                 'from' => $this->from ?? $message->getFrom(),
                 'to' => $message->getTo()[0],
-            ]),
+            ],
         );
 
         if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to);
+                $response->addResult($to);
             }
         } else {
             foreach ($message->getTo() as $to) {
-                $response->addResultForRecipient($to, 'Unknown error.');
+                $response->addResult($to, 'Unknown error.');
             }
         }
 

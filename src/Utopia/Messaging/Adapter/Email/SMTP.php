@@ -76,6 +76,38 @@ class SMTP extends EmailAdapter
             $mail->addAddress($to);
         }
 
+        if (!empty($message->getCC())) {
+            foreach ($message->getCC() as $cc) {
+                $mail->addCC($cc['email'], $cc['name']);
+            }
+        }
+
+        if (!empty($message->getBCC())) {
+            foreach ($message->getBCC() as $bcc) {
+                $mail->addBCC($bcc['email'], $bcc['name']);
+            }
+        }
+
+        if (!empty($message->getAttachments())) {
+            $size = 0;
+
+            foreach ($message->getAttachments() as $attachment) {
+                $size += \filesize($attachment->getPath());
+            }
+
+            if ($size > self::MAX_ATTACHMENT_BYTES) {
+                throw new \Exception('Attachments size exceeds the maximum allowed size of 25MB');
+            }
+
+            foreach ($message->getAttachments() as $attachment) {
+                $mail->addStringAttachment(
+                    string: \file_get_contents($attachment->getPath()),
+                    filename: $attachment->getName(),
+                    type: $attachment->getType()
+                );
+            }
+        }
+
         $sent = $mail->send();
 
         if ($sent) {
@@ -87,7 +119,7 @@ class SMTP extends EmailAdapter
                 ? 'Unknown error'
                 : $mail->ErrorInfo;
 
-            $response->addResultForRecipient($to, $sent ? '' : $error);
+            $response->addResult($to, $sent ? '' : $error);
         }
 
         return $response->toArray();

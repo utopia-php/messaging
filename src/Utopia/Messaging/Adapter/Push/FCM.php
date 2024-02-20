@@ -73,10 +73,10 @@ class FCM extends PushAdapter
             headers: [
                 'Content-Type: application/x-www-form-urlencoded',
             ],
-            body: \http_build_query([
+            body: [
                 'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                 'assertion' => $jwt,
-            ])
+            ]
         );
 
         $accessToken = $token['response']['access_token'];
@@ -124,7 +124,7 @@ class FCM extends PushAdapter
         foreach ($message->getTo() as $to) {
             $body = $shared;
             $body['message']['token'] = $to;
-            $bodies[] = \json_encode($body);
+            $bodies[] = $body;
         }
 
         $results = $this->requestMulti(
@@ -142,7 +142,7 @@ class FCM extends PushAdapter
         foreach ($results as $index => $result) {
             if ($result['statusCode'] === 200) {
                 $response->incrementDeliveredTo();
-                $response->addResultForRecipient($message->getTo()[$index]);
+                $response->addResult($message->getTo()[$index]);
             } else {
                 $error =
                     ($result['response']['error']['status'] ?? null) === 'UNREGISTERED'
@@ -150,7 +150,7 @@ class FCM extends PushAdapter
                         ? $this->getExpiredErrorMessage()
                         : $result['response']['error']['message'] ?? 'Unknown error';
 
-                $response->addResultForRecipient($message->getTo()[$index], $error);
+                $response->addResult($message->getTo()[$index], $error);
             }
         }
 

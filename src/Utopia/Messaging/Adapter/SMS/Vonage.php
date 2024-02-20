@@ -48,23 +48,26 @@ class Vonage extends SMSAdapter
         $result = $this->request(
             method: 'POST',
             url: 'https://rest.nexmo.com/sms/json',
-            body: \http_build_query([
+            headers: [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            ],
+            body: [
                 'text' => $message->getContent(),
                 'from' => $this->from ?? $message->getFrom(),
                 'to' => $to[0], //\implode(',', $to),
                 'api_key' => $this->apiKey,
                 'api_secret' => $this->apiSecret,
-            ]),
+            ],
         );
 
         if (($result['response']['messages'][0]['status'] ?? null) === 0) {
             $response->setDeliveredTo(1);
-            $response->addResultForRecipient($result['response']['messages'][0]['to']);
+            $response->addResult($result['response']['messages'][0]['to']);
         } else {
             if (!\is_null($result['response']['messages'][0]['error-text'] ?? null)) {
-                $response->addResultForRecipient($message->getTo()[0], $result['response']['messages'][0]['error-text']);
+                $response->addResult($message->getTo()[0], $result['response']['messages'][0]['error-text']);
             } else {
-                $response->addResultForRecipient($message->getTo()[0], 'Unknown error');
+                $response->addResult($message->getTo()[0], 'Unknown error');
             }
         }
 

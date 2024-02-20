@@ -73,7 +73,7 @@ class Discord extends Adapter
             headers: [
                 'Content-Type: application/json',
             ],
-            body: \json_encode([
+            body: [
                 'content' => $message->getContent(),
                 'username' => $message->getUsername(),
                 'avatar_url' => $message->getAvatarUrl(),
@@ -84,18 +84,18 @@ class Discord extends Adapter
                 'attachments' => $message->getAttachments(),
                 'flags' => $message->getFlags(),
                 'thread_name' => $message->getThreadName(),
-            ]),
+            ],
         );
 
         $statusCode = $result['statusCode'];
 
         if ($statusCode >= 200 && $statusCode < 300) {
             $response->setDeliveredTo(1);
-            $response->addResultForRecipient($this->webhookId);
+            $response->addResult($this->webhookId);
         } elseif ($statusCode >= 400 && $statusCode < 500) {
-            $response->addResultForRecipient($this->webhookId, 'Bad Request.');
+            $response->addResult($this->webhookId, 'Bad Request.');
         } else {
-            $response->addResultForRecipient($this->webhookId, 'Unknown Error.');
+            $response->addResult($this->webhookId, 'Unknown Error.');
         }
 
         return $response->toArray();
