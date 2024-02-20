@@ -81,11 +81,11 @@ abstract class Adapter
         $ch = \curl_init();
 
         foreach ($headers as $header) {
-            if (\str_contains('application/json', $header)) {
+            if (\str_contains($header, 'application/json')) {
                 $body = \json_encode($body);
                 break;
             }
-            if (\str_contains('application/x-www-form-urlencoded', $header)) {
+            if (\str_contains($header, 'application/x-www-form-urlencoded')) {
                 $body = \http_build_query($body);
                 break;
             }
@@ -153,13 +153,13 @@ abstract class Adapter
         }
 
         foreach ($headers as $header) {
-            if (\str_contains('application/json', $header)) {
+            if (\str_contains($header, 'application/json')) {
                 foreach ($bodies as $i => $body) {
                     $bodies[$i] = \json_encode($body);
                 }
                 break;
             }
-            if (\str_contains('application/x-www-form-urlencoded', $header)) {
+            if (\str_contains($header, 'application/x-www-form-urlencoded')) {
                 foreach ($bodies as $i => $body) {
                     $bodies[$i] = \http_build_query($body);
                 }
