@@ -2,6 +2,11 @@
 
 namespace Utopia\Messaging;
 
+
+use Exception;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberUtil;
+
 abstract class Adapter
 {
     /**
@@ -139,7 +144,7 @@ abstract class Adapter
      *     error: string|null
      * }>
      *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function requestMulti(
         string $method,
@@ -247,5 +252,27 @@ abstract class Adapter
         \curl_share_close($sh);
 
         return $responses;
+    }
+
+
+    /**
+     * @throws Exception
+     */
+    public function getCountryCode(string $phone): string
+    {
+        if (empty($phone)) {
+            throw new Exception('No phone number was passed.');
+        }
+
+        $helper = PhoneNumberUtil::getInstance();
+
+        try {
+            return  $helper
+                ->parse($phone)
+                ->getCountryCode();
+
+        } catch (NumberParseException $e) {
+            throw new Exception("Error parsing phone: " . $e->getMessage());
+        }
     }
 }
