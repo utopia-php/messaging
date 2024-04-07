@@ -255,9 +255,11 @@ abstract class Adapter
 
 
     /**
+     * @param string $phone
+     * @return int|null
      * @throws Exception
      */
-    public function getCountryCode(string $phone): string
+    public function getCountryCode(string $phone): ?int
     {
         if (empty($phone)) {
             throw new Exception('No phone number was passed.');
