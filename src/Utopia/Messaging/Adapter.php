@@ -2,7 +2,6 @@
 
 namespace Utopia\Messaging;
 
-
 use Exception;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberUtil;
