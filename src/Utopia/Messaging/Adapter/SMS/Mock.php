@@ -2,6 +2,9 @@
 
 namespace Utopia\Messaging\Adapter\SMS;
 
+use Exception;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberUtil;
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 use Utopia\Messaging\Response;
@@ -68,5 +71,28 @@ class Mock extends SMSAdapter
         }
 
         return $response->toArray();
+    }
+
+    /**
+     * @param string $phone
+     * @return int|null
+     * @throws Exception
+     */
+    public function getCountryCode(string $phone): ?int
+    {
+        if (empty($phone)) {
+            throw new \Exception('No phone number was passed.');
+        }
+
+        $helper = PhoneNumberUtil::getInstance();
+
+        try {
+            return  $helper
+                ->parse($phone)
+                ->getCountryCode();
+
+        } catch (NumberParseException $e) {
+            throw new \Exception("Error parsing phone: " . $e->getMessage());
+        }
     }
 }
