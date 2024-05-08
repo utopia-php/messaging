@@ -2,9 +2,6 @@
 
 namespace Utopia\Messaging\Adapter\SMS;
 
-use Exception;
-use libphonenumber\NumberParseException;
-use libphonenumber\PhoneNumberUtil;
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 use Utopia\Messaging\Response;
@@ -72,5 +69,4 @@ class Mock extends SMSAdapter
 
         return $response->toArray();
     }
-
 }
