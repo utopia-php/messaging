@@ -262,7 +262,7 @@ abstract class Adapter
     public function getCountryCode(string $phone): ?int
     {
         if (empty($phone)) {
-            throw new Exception('No phone number was passed.');
+            throw new Exception('$phone cannot be empty.');
         }
 
         $helper = PhoneNumberUtil::getInstance();
