@@ -267,7 +267,7 @@ abstract class Adapter
         $helper = PhoneNumberUtil::getInstance();
 
         try {
-            return  $helper
+            return $helper
                 ->parse($phone)
                 ->getCountryCode();
 
