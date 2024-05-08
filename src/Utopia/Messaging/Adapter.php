@@ -3,7 +3,6 @@
 namespace Utopia\Messaging;
 
 use Exception;
-use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberUtil;
 
 abstract class Adapter
@@ -272,8 +271,8 @@ abstract class Adapter
                 ->parse($phone)
                 ->getCountryCode();
 
-        } catch (NumberParseException $e) {
-            throw new Exception("Error parsing phone: " . $e->getMessage());
+        } catch (\Throwable $th) {
+            throw new Exception("Error parsing phone: " . $th->getMessage());
         }
     }
 }
