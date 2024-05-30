@@ -17,7 +17,8 @@ class Twilio extends SMSAdapter
     public function __construct(
         private string $accountSid,
         private string $authToken,
-        private ?string $from = null
+        private ?string $from = null,
+        private ?string $messagingServiceSid = null
     ) {
     }
 
@@ -48,6 +49,7 @@ class Twilio extends SMSAdapter
             body: [
                 'Body' => $message->getContent(),
                 'From' => $this->from ?? $message->getFrom(),
+                'MessagingServiceSid' => $this->messagingServiceSid ?? null,
                 'To' => $message->getTo()[0],
             ],
         );
