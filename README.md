@@ -87,7 +87,7 @@ $messaging->send($message);
 - [ ] [Postmark](https://postmarkapp.com/)
 - [ ] [SparkPost](https://www.sparkpost.com/)
 - [ ] [SendinBlue](https://www.sendinblue.com/)
-- [ ] [MailSlurp](https://www.mailslurp.com/)
+- [x] [MailSlurp](https://www.mailslurp.com/)
 - [ ] [ElasticEmail](https://elasticemail.com/)
 - [ ] [SES](https://aws.amazon.com/ses/)
 
