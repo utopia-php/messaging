@@ -573,6 +573,11 @@ class CallingCode
         self::ZIMBABWE => true,
     ];
 
+    public static function getAll(): array
+    {
+        return array_keys(self::CODES);
+    }
+
     public static function fromPhoneNumber(string $number): ?string
     {
         $digits = str_replace(['+', ' ', '(', ')', '-'], '', $number);
