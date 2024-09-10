@@ -3,7 +3,6 @@
 namespace Utopia\Messaging;
 
 use Exception;
-use libphonenumber\PhoneNumberUtil;
 
 abstract class Adapter
 {
@@ -250,29 +249,5 @@ abstract class Adapter
         \curl_share_close($sh);
 
         return $responses;
-    }
-
-
-    /**
-     * @param string $phone
-     * @return int|null
-     * @throws Exception
-     */
-    public function getCountryCode(string $phone): ?int
-    {
-        if (empty($phone)) {
-            throw new Exception('$phone cannot be empty.');
-        }
-
-        $helper = PhoneNumberUtil::getInstance();
-
-        try {
-            return $helper
-                ->parse($phone)
-                ->getCountryCode();
-
-        } catch (\Throwable $th) {
-            throw new Exception("Error parsing phone: " . $th->getMessage());
-        }
     }
 }
