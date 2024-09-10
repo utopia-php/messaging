@@ -581,7 +581,7 @@ class CallingCode
      * @return int|null
      * @throws Exception
      */
-    public function getCallingCode(string $phone): ?int
+    public static function fromPhoneNumber(string $phone): ?int
     {
         if (empty($phone)) {
             throw new Exception('$phone cannot be empty.');

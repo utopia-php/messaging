@@ -2,7 +2,7 @@
 
 namespace Utopia\Tests\Adapter\SMS\GEOSMS;
 
-use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
+use Utopia\Messaging\Adapter\SMS\Util\CallingCode;
 use Utopia\Tests\Adapter\Base;
 
 class CallingCodeTest extends Base
