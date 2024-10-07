@@ -17,8 +17,8 @@ class EmailTest extends Base
         $content = 'Test Content';
         $fromName = 'Test Sender';
         $fromEmail = 'sender@localhost.test';
-        $cc = [['email' => 'tester@localhost.test']];
-        $bcc = [['name' => 'Tester2', 'email' => 'tester2@localhost.test']];
+        $cc = [['email' => 'tester2@localhost.test']];
+        $bcc = [['name' => 'Tester3', 'email' => 'tester3@localhost.test']];
 
         $message = new Email(
             to: [$to],
@@ -41,7 +41,6 @@ class EmailTest extends Base
         $this->assertEquals($subject, $lastEmail['subject']);
         $this->assertEquals($content, \trim($lastEmail['text']));
         $this->assertEquals($cc[0]['email'], $lastEmail['cc'][0]['address']);
-        $this->assertEquals($bcc[0]['email'], $lastEmail['bcc'][0]['address']);
-        $this->assertEquals($bcc[0]['name'], $lastEmail['bcc'][0]['name']);
+        $this->assertEquals($bcc[0]['email'], $lastEmail['envelope']['to'][2]['address']);
     }
 }
