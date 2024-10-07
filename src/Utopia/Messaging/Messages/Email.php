@@ -45,16 +45,16 @@ class Email implements Message
 
         if (!\is_null($this->cc)) {
             foreach ($this->cc as $recipient) {
-                if (!isset($recipient['name']) || !isset($recipient['email'])) {
-                    throw new \InvalidArgumentException('Each recipient in cc must have a name and email');
+                if (!isset($recipient['email'])) {
+                    throw new \InvalidArgumentException('Each CC recipient must have at least an email');
                 }
             }
         }
 
         if (!\is_null($this->bcc)) {
             foreach ($this->bcc as $recipient) {
-                if (!isset($recipient['name']) || !isset($recipient['email'])) {
-                    throw new \InvalidArgumentException('Each recipient in bcc must have a name and email');
+                if (!isset($recipient['email'])) {
+                    throw new \InvalidArgumentException('Each BCC recipient must have at least an email');
                 }
             }
         }

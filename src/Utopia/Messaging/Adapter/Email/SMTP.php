@@ -78,13 +78,13 @@ class SMTP extends EmailAdapter
 
         if (!empty($message->getCC())) {
             foreach ($message->getCC() as $cc) {
-                $mail->addCC($cc['email'], $cc['name']);
+                $mail->addCC($cc['email'], $cc['name'] ?? '');
             }
         }
 
         if (!empty($message->getBCC())) {
             foreach ($message->getBCC() as $bcc) {
-                $mail->addBCC($bcc['email'], $bcc['name']);
+                $mail->addBCC($bcc['email'], $bcc['name'] ?? '');
             }
         }
 
