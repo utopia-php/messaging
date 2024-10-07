@@ -24,6 +24,8 @@ class MailgunTest extends Base
         $subject = 'Test Subject';
         $content = 'Test Content';
         $fromEmail = 'sender@'.$domain;
+        $cc = [['email' => \getenv('TEST_CC_EMAIL')]];
+        $bcc = [['name' => \getenv('TEST_BCC_NAME'), 'email' => \getenv('TEST_BCC_EMAIL')]];
 
         $message = new Email(
             to: [$to],
@@ -31,6 +33,8 @@ class MailgunTest extends Base
             content: $content,
             fromName: 'Test Sender',
             fromEmail: $fromEmail,
+            cc: $cc,
+            bcc: $bcc,
         );
 
         $response = $sender->send($message);

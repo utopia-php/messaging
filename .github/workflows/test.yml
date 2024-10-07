@@ -36,6 +36,9 @@ jobs:
         MSG_91_FROM: ${{ secrets.MSG_91_FROM }}
         TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
         TEST_FROM_EMAIL: ${{ secrets.TEST_FROM_EMAIL }}
+        TEST_CC_EMAIL: ${{ secrets.TEST_CC_EMAIL }}
+        TEST_BCC_EMAIL: ${{ secrets.TEST_BCC_EMAIL }}
+        TEST_BCC_NAME: ${{ secrets.TEST_BCC_NAME }}
         VONAGE_API_KEY: ${{ secrets.VONAGE_API_KEY }}
         VONAGE_API_SECRET: ${{ secrets.VONAGE_API_SECRET }}
         VONAGE_TO: ${{ secrets.VONAGE_TO }}

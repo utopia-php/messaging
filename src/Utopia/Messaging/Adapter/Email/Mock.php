@@ -50,6 +50,18 @@ class Mock extends EmailAdapter
             $mail->addAddress($to);
         }
 
+        if (!empty($message->getCC())) {
+            foreach ($message->getCC() as $cc) {
+                $mail->addCC($cc['email'], $cc['name'] ?? '');
+            }
+        }
+
+        if (!empty($message->getBCC())) {
+            foreach ($message->getBCC() as $bcc) {
+                $mail->addBCC($bcc['email'], $bcc['name'] ?? '');
+            }
+        }
+
         if (!$mail->send()) {
             foreach ($message->getTo() as $to) {
                 $response->addResult($to, $mail->ErrorInfo);
