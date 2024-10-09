@@ -77,8 +77,8 @@ class Mailgun extends EmailAdapter
                         ? "{$bcc['name']}<{$bcc['email']}>"
                         : $bcc['email'];
 
-                    $body['cc'] = !empty($body['cc'])
-                        ? "{$body['cc']},{$bccString}"
+                    $body['bcc'] = !empty($body['bcc'])
+                        ? "{$body['bcc']},{$bccString}"
                         : $bccString;
                 }
             }
