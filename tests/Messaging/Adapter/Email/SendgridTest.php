@@ -18,6 +18,8 @@ class SendgridTest extends Base
         $subject = 'Test Subject';
         $content = 'Test Content';
         $fromEmail = \getenv('TEST_FROM_EMAIL');
+        $cc = [['email' => \getenv('TEST_CC_EMAIL')]];
+        $bcc = [['name' => \getenv('TEST_BCC_NAME'), 'email' => \getenv('TEST_BCC_EMAIL')]];
 
         $message = new Email(
             to: [$to],
@@ -25,6 +27,8 @@ class SendgridTest extends Base
             content: $content,
             fromName: 'Tester',
             fromEmail: $fromEmail,
+            cc: $cc,
+            bcc: $bcc,
         );
 
         $response = $sender->send($message);

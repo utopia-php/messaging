@@ -58,20 +58,28 @@ class Mailgun extends EmailAdapter
 
         if (!\is_null($message->getCC())) {
             foreach ($message->getCC() as $cc) {
-                if (!empty($cc['name'])) {
-                    $body['cc'] = "{$body['cc']},{$cc['name']}<{$cc['email']}>";
-                } else {
-                    $body['cc'] = "{$body['cc']}, <{$cc['email']}>";
+                if (!empty($cc['email'])) {
+                    $ccString = !empty($cc['name'])
+                        ? "{$cc['name']}<{$cc['email']}>"
+                        : $cc['email'];
+
+                    $body['cc'] = !empty($body['cc'])
+                        ? "{$body['cc']},{$ccString}"
+                        : $ccString;
                 }
             }
         }
 
         if (!\is_null($message->getBCC())) {
             foreach ($message->getBCC() as $bcc) {
-                if (!empty($bcc['name'])) {
-                    $body['bcc'] = "{$body['bcc']},{$bcc['name']}<{$bcc['email']}>";
-                } else {
-                    $body['bcc'] = "{$body['bcc']}, <{$bcc['email']}>";
+                if (!empty($bcc['email'])) {
+                    $bccString = !empty($bcc['name'])
+                        ? "{$bcc['name']}<{$bcc['email']}>"
+                        : $bcc['email'];
+
+                    $body['bcc'] = !empty($body['bcc'])
+                        ? "{$body['bcc']},{$bccString}"
+                        : $bccString;
                 }
             }
         }
