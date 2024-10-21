@@ -209,6 +209,7 @@ abstract class Adapter
             \curl_setopt($ch, CURLOPT_URL, $urls[$i]);
             \curl_setopt($ch, CURLOPT_POSTFIELDS, $bodies[$i]);
             \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            \curl_setopt($ch, CURLOPT_PRIVATE, $i);
             \curl_multi_add_handle($mh, \curl_copy_handle($ch));
         }
 
@@ -236,6 +237,7 @@ abstract class Adapter
             }
 
             $responses[] = [
+                'index' => \curl_getinfo($ch, CURLINFO_PRIVATE),
                 'url' => \curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
                 'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
                 'response' => $response,
