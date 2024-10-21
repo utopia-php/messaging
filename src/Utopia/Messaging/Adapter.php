@@ -136,6 +136,7 @@ abstract class Adapter
      * @param  array<string>  $headers
      * @param  array<array<string, mixed>>  $bodies
      * @return array<array{
+     *     index: int,
      *     url: string,
      *     statusCode: int,
      *     response: array<string, mixed>|null,
@@ -237,7 +238,7 @@ abstract class Adapter
             }
 
             $responses[] = [
-                'index' => \curl_getinfo($ch, CURLINFO_PRIVATE),
+                'index' => (int)\curl_getinfo($ch, CURLINFO_PRIVATE),
                 'url' => \curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
                 'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
                 'response' => $response,
