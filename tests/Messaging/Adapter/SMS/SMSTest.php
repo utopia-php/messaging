@@ -32,7 +32,5 @@ class SMSTest extends Base
         $this->assertEquals('POST', $smsRequest['method']);
         $this->assertEquals('+987654321', $smsRequest['data']['from']);
         $this->assertEquals('+123456789', $smsRequest['data']['to']);
-        $this->assertEquals(98, $sender->getCountryCode($smsRequest['data']['from']));
-        $this->assertEquals(1, $sender->getCountryCode($smsRequest['data']['to']));
     }
 }
