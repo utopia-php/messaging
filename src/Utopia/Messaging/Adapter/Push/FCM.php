@@ -139,10 +139,10 @@ class FCM extends PushAdapter
 
         $response = new Response($this->getType());
 
-        foreach ($results as $index => $result) {
+        foreach ($results as $result) {
             if ($result['statusCode'] === 200) {
                 $response->incrementDeliveredTo();
-                $response->addResult($message->getTo()[$index]);
+                $response->addResult($message->getTo()[$result['index']]);
             } else {
                 $error =
                     ($result['response']['error']['status'] ?? null) === 'UNREGISTERED'
@@ -150,7 +150,7 @@ class FCM extends PushAdapter
                         ? $this->getExpiredErrorMessage()
                         : $result['response']['error']['message'] ?? 'Unknown error';
 
-                $response->addResult($message->getTo()[$index], $error);
+                $response->addResult($message->getTo()[$result['index']], $error);
             }
         }
 
