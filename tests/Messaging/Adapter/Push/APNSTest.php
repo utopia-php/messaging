@@ -27,7 +27,8 @@ class APNSTest extends Base
             icon: null,
             color: null,
             tag: null,
-            badge: 1
+            badge: 1,
+            contentAvailable: true
         );
 
         $response = $adapter->send($message);

@@ -118,6 +118,9 @@ class FCM extends PushAdapter
         if (!\is_null($message->getBadge())) {
             $shared['message']['apns']['payload']['aps']['badge'] = $message->getBadge();
         }
+        if (!\is_null($message->getContentAvailable())) {
+            $shared['message']['apns']['payload']['aps']['content-available'] = (int)$message->getContentAvailable();
+        }
 
         $bodies = [];
 

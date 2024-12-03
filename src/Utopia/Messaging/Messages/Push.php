@@ -31,6 +31,7 @@ class Push implements Message
         private ?string $color = null,
         private ?string $tag = null,
         private ?int $badge = null,
+        private ?bool $contentAvailable = null
     ) {
     }
 
@@ -98,5 +99,10 @@ class Push implements Message
     public function getBadge(): ?int
     {
         return $this->badge;
+    }
+
+    public function getContentAvailable(): ?bool
+    {
+        return $this->contentAvailable;
     }
 }

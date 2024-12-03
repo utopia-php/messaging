@@ -53,6 +53,7 @@ class APNS extends PushAdapter
                 'badge' => $message->getBadge(),
                 'sound' => $message->getSound(),
                 'data' => $message->getData(),
+                'content-available' => (int)$message->getContentAvailable(),
             ],
         ];
 
