@@ -5,6 +5,7 @@ namespace Utopia\Messaging\Adapter\Push;
 use Utopia\Messaging\Adapter\Push as PushAdapter;
 use Utopia\Messaging\Helpers\JWT;
 use Utopia\Messaging\Messages\Push as PushMessage;
+use Utopia\Messaging\Priority;
 use Utopia\Messaging\Response;
 
 class APNS extends PushAdapter
@@ -44,18 +45,44 @@ class APNS extends PushAdapter
      */
     public function process(PushMessage $message): array
     {
-        $payload = [
-            'aps' => [
-                'alert' => [
-                    'title' => $message->getTitle(),
-                    'body' => $message->getBody(),
-                ],
-                'badge' => $message->getBadge(),
-                'sound' => $message->getSound(),
-                'data' => $message->getData(),
-                'content-available' => (int)$message->getContentAvailable(),
-            ],
-        ];
+        $payload = [];
+
+        if (!\is_null($message->getTitle())) {
+            $payload['aps']['alert']['title'] = $message->getTitle();
+        }
+        if (!\is_null($message->getBody())) {
+            $payload['aps']['alert']['body'] = $message->getBody();
+        }
+        if (!\is_null($message->getData())) {
+            $payload['aps']['data'] = $message->getData();
+        }
+        if (!\is_null($message->getAction())) {
+            $payload['aps']['category'] = $message->getAction();
+        }
+        if (!\is_null($message->getCritical())) {
+            $payload['aps']['sound']['critical'] = 1;
+            $payload['aps']['sound']['name'] = 'default';
+            $payload['aps']['sound']['volume'] = 1.0;
+        }
+        if (!\is_null($message->getSound())) {
+            if (!\is_null($message->getCritical())) {
+                $payload['aps']['sound']['name'] = $message->getSound();
+            } else {
+                $payload['aps']['sound'] = $message->getSound();
+            }
+        }
+        if (!\is_null($message->getBadge())) {
+            $payload['aps']['badge'] = $message->getBadge();
+        }
+        if (!\is_null($message->getContentAvailable())) {
+            $payload['aps']['content-available'] = (int)$message->getContentAvailable();
+        }
+        if (!\is_null($message->getPriority())) {
+            $payload['headers']['apns-priority'] = match ($message->getPriority()) {
+                Priority::HIGH => '10',
+                Priority::NORMAL => '5',
+            };
+        }
 
         $claims = [
             'iss' => $this->teamId,   // Issuer

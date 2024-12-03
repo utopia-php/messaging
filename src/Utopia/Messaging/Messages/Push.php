@@ -3,13 +3,14 @@
 namespace Utopia\Messaging\Messages;
 
 use Utopia\Messaging\Message;
+use Utopia\Messaging\Priority;
 
 class Push implements Message
 {
     /**
      * @param  array<string>  $to The recipients of the push notification.
-     * @param  string  $title The title of the push notification.
-     * @param  string  $body The body of the push notification.
+     * @param  string|null  $title The title of the push notification.
+     * @param  string|null  $body The body of the push notification.
      * @param  array<string, mixed>|null  $data This parameter specifies the custom key-value pairs of the message's payload. For example, with data:{"score":"3x1"}:<br><br>On Apple platforms, if the message is sent via APNs, it represents the custom data fields. If it is sent via FCM, it would be represented as key value dictionary in AppDelegate application:didReceiveRemoteNotification:.<br><br>On Android, this would result in an intent extra named score with the string value 3x1.<br><br>The key should not be a reserved word ("from", "message_type", or any word starting with "google" or "gcm"). Do not use any of the words defined in this table (such as collapse_key).<br><br>Values in string types are recommended. You have to convert values in objects or other non-string data types (e.g., integers or booleans) to string.
      * @param  string|null  $action The action associated with a user click on the notification.<br><br>On Android, this is the activity to launch.<br><br>On iOS, this is the category to launch.
      * @param  string|null  $sound The sound to play when the device receives the notification.<br><br>On Android, sound files must reside in /res/raw/.<br><br>On iOS, sounds files must reside in the main bundle of the client app or in the Library/Sounds folder of the app's data container.
@@ -18,11 +19,14 @@ class Push implements Message
      * @param  string|null  $color <b>Android only</b>. The icon color of the push notification, expressed in #rrggbb format.
      * @param  string|null  $tag <b>Android only</b>. Identifier used to replace existing notifications in the notification drawer.<br><br>If not specified, each request creates a new notification.<br><br>If specified and a notification with the same tag is already being shown, the new notification replaces the existing one in the notification drawer.
      * @param  int|null  $badge <b>iOS only</b>. The value of the badge on the home screen app icon. If not specified, the badge is not changed. If set to 0, the badge is removed.
+     * @param  bool|null  $contentAvailable <b>iOS only</b>. When set to true, the notification is silent (no sounds or vibrations) and the content-available flag is set to 1. If not specified, the notification is not silent.
+     * @param  bool|null  $critical <b>iOS only</b>. When set to true, if the app is granted the critical alert capability, the notification is displayed using Apple's critical alert option. If not specified, the notification is not displayed using Apple's critical alert option.
+     * @param  Priority|null  $priority The priority of the message. Valid values are "normal" and "high". On iOS, these correspond to APNs priority 5 and 10.<br><br>By default, notification messages are sent with high priority, and data messages are sent with normal priority.
      */
     public function __construct(
         private array $to,
-        private string $title,
-        private string $body,
+        private ?string $title = null,
+        private ?string $body = null,
         private ?array $data = null,
         private ?string $action = null,
         private ?string $sound = null,
@@ -31,8 +35,17 @@ class Push implements Message
         private ?string $color = null,
         private ?string $tag = null,
         private ?int $badge = null,
-        private ?bool $contentAvailable = null
+        private ?bool $contentAvailable = null,
+        private ?bool $critical = null,
+        private ?Priority $priority = null,
     ) {
+        if (
+            $title === null
+            && $body === null
+            && $data === null
+        ) {
+            throw new \Exception('At least one of the following parameters must be set: title, body, data');
+        }
     }
 
     /**
@@ -48,12 +61,12 @@ class Push implements Message
         return null;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function getBody(): string
+    public function getBody(): ?string
     {
         return $this->body;
     }
@@ -104,5 +117,15 @@ class Push implements Message
     public function getContentAvailable(): ?bool
     {
         return $this->contentAvailable;
+    }
+
+    public function getCritical(): ?bool
+    {
+        return $this->critical;
+    }
+
+    public function getPriority(): ?Priority
+    {
+        return $this->priority;
     }
 }
