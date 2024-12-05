@@ -3,16 +3,18 @@
 namespace Utopia\Tests\Adapter\Push;
 
 use Utopia\Messaging\Adapter;
-use Utopia\Messaging\Adapter\Push\APNS as APNSAdapter;
 use Utopia\Messaging\Messages\Push;
 use Utopia\Messaging\Priority;
 use Utopia\Tests\Adapter\Base as TestBase;
 
 abstract class Base extends TestBase
 {
-    private Adapter $adapter;
+    protected Adapter $adapter;
 
-    protected abstract function getTo(): array;
+    /**
+     * @return array<string>
+     */
+    abstract protected function getTo(): array;
 
     public function testSend(): void
     {
