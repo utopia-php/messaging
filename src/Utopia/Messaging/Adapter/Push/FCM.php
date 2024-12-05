@@ -5,6 +5,7 @@ namespace Utopia\Messaging\Adapter\Push;
 use Utopia\Messaging\Adapter\Push as PushAdapter;
 use Utopia\Messaging\Helpers\JWT;
 use Utopia\Messaging\Messages\Push as PushMessage;
+use Utopia\Messaging\Priority;
 use Utopia\Messaging\Response;
 
 class FCM extends PushAdapter
@@ -81,15 +82,14 @@ class FCM extends PushAdapter
 
         $accessToken = $token['response']['access_token'];
 
-        $shared = [
-            'message' => [
-                'notification' => [
-                    'title' => $message->getTitle(),
-                    'body' => $message->getBody(),
-                ],
-            ],
-        ];
+        $shared = [];
 
+        if (!\is_null($message->getTitle())) {
+            $shared['message']['notification']['title'] = $message->getTitle();
+        }
+        if (!\is_null($message->getBody())) {
+            $shared['message']['notification']['body'] = $message->getBody();
+        }
         if (!\is_null($message->getData())) {
             $shared['message']['data'] = $message->getData();
         }
@@ -102,9 +102,17 @@ class FCM extends PushAdapter
             $shared['message']['apns']['payload']['aps']['mutable-content'] = 1;
             $shared['message']['apns']['fcm_options']['image'] = $message->getImage();
         }
+        if (!\is_null($message->getCritical())) {
+            $shared['message']['apns']['payload']['aps']['sound']['critical'] = 1;
+        }
         if (!\is_null($message->getSound())) {
             $shared['message']['android']['notification']['sound'] = $message->getSound();
-            $shared['message']['apns']['payload']['aps']['sound'] = $message->getSound();
+
+            if (!\is_null($message->getCritical())) {
+                $shared['message']['apns']['payload']['aps']['sound']['name'] = $message->getSound();
+            } else {
+                $shared['message']['apns']['payload']['aps']['sound'] = $message->getSound();
+            }
         }
         if (!\is_null($message->getIcon())) {
             $shared['message']['android']['notification']['icon'] = $message->getIcon();
@@ -117,6 +125,19 @@ class FCM extends PushAdapter
         }
         if (!\is_null($message->getBadge())) {
             $shared['message']['apns']['payload']['aps']['badge'] = $message->getBadge();
+        }
+        if (!\is_null($message->getContentAvailable())) {
+            $shared['message']['apns']['payload']['aps']['content-available'] = (int)$message->getContentAvailable();
+        }
+        if (!\is_null($message->getPriority())) {
+            $shared['message']['android']['priority'] = match ($message->getPriority()) {
+                Priority::HIGH => 'high',
+                Priority::NORMAL => 'normal'
+            };
+            $shared['message']['apns']['headers']['apns-priority'] = match ($message->getPriority()) {
+                Priority::HIGH => '10',
+                Priority::NORMAL => '5',
+            };
         }
 
         $bodies = [];
