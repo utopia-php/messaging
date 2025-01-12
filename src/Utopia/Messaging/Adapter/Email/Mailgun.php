@@ -55,6 +55,11 @@ class Mailgun extends EmailAdapter
             'html' => $message->isHtml() ? $message->getContent() : null,
             'h:Reply-To: '."{$message->getReplyToName()}<{$message->getReplyToEmail()}>",
         ];
+        
+        // sending batch emails, https://documentation.mailgun.com/docs/mailgun/user-manual/sending-messages/#batch-sending
+        if (\count($message->getTo()) > 1) {
+            $body['recipient-variables'] = json_encode(array_fill_keys($message->getTo(), []));
+        }
 
         if (!\is_null($message->getCC())) {
             foreach ($message->getCC() as $cc) {
