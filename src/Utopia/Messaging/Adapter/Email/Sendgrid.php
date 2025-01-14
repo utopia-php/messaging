@@ -39,15 +39,13 @@ class Sendgrid extends EmailAdapter
      */
     protected function process(EmailMessage $message): array
     {
-        $personalizations = [
-            [
-                'to' => \array_map(
-                    fn ($to) => ['email' => $to],
-                    $message->getTo()
-                ),
+        $personalizations = \array_map(
+            fn ($to) => [
+                'to' => [['email' => $to]],
                 'subject' => $message->getSubject(),
             ],
-        ];
+            $message->getTo()
+        );
 
         if (!\is_null($message->getCC())) {
             foreach ($message->getCC() as $cc) {
