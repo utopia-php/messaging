@@ -39,6 +39,7 @@ class Sendgrid extends EmailAdapter
      */
     protected function process(EmailMessage $message): array
     {
+        // https://www.twilio.com/docs/sendgrid/for-developers/sending-email/personalizations#-Sending-Two-Different-Emails-to-Two-Different-Groups-of-Recipients
         $personalizations = \array_map(
             fn ($to) => [
                 'to' => [['email' => $to]],
