@@ -8,7 +8,7 @@ use Utopia\Messaging\Response;
 
 /**
  * Fast2SMS Adapter for sending SMS messages using Fast2SMS API
- * 
+ *
  * This adapter supports both DLT (Distributed Ledger Technology) and Quick SMS routes
  * For API documentation, see: https://docs.fast2sms.com
  */
@@ -25,7 +25,7 @@ class Fast2SMS extends SMSAdapter
      * @param string $messageId Your DLT approved Message ID template. Required for DLT route
      * @param string[] $variableValues Array of values for variables in DLT template message. Optional for DLT route
      * @param bool $useDLT Whether to use DLT route (true) or Quick SMS route (false)
-     * 
+     *
      * @see https://docs.fast2sms.com/#dlt-sms
      * @see https://docs.fast2sms.com/#quick-sms
      */
@@ -67,7 +67,7 @@ class Fast2SMS extends SMSAdapter
     protected function process(SMSMessage $message): array
     {
         $numbers = implode(',', $message->getTo());
-        
+
         $payload = [
             'numbers' => $numbers,
             'flash' => 0,
@@ -77,7 +77,7 @@ class Fast2SMS extends SMSAdapter
             $payload['route'] = 'dlt';
             $payload['sender_id'] = $this->senderId;
             $payload['message'] = $this->messageId;
-            
+
             if (!empty($this->variableValues)) {
                 $payload['variables_values'] = implode('|', $this->variableValues);
             }
@@ -100,9 +100,8 @@ class Fast2SMS extends SMSAdapter
 
         var_dump($result);
 
-        
+
         $res = $result['response'];
-        // Fast2SMS returns 200 status code for successful requests
         if ($result['statusCode'] === 200) {
             if (isset($res['return']) && $res['return'] === true) {
                 $response->setDeliveredTo(\count($message->getTo()));
@@ -110,7 +109,7 @@ class Fast2SMS extends SMSAdapter
                     $response->addResult($to);
                 }
             } else {
-                $errorMessage = $res['message'] ?? 'Unknown error';
+                $errorMessage = $res['message'] . ' Status Code: ' . $res['status_code'] ?? 'Unknown error';
                 foreach ($message->getTo() as $to) {
                     $response->addResult($to, $errorMessage);
                 }

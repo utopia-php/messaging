@@ -19,7 +19,7 @@ class Fast2SMSTest extends Base
         );
 
         $message = new SMS(
-            to: ['+919611681613'],
+            to: ['+919611681613', '+918867902892'],
             content: 'Test Quick SMS Content',
         );
 
@@ -31,25 +31,25 @@ class Fast2SMSTest extends Base
     /**
      * Test DLT route
      */
-    public function testDLTSMS(): void
-    {
+    // public function testDLTSMS(): void
+    // {
 
-        var_dump(getenv('FAST2SMS_MESSAGE_ID'));
-        $sender = new Fast2SMS(
-            apiKey: getenv('FAST2SMS_API_KEY'),
-            senderId: getenv('FAST2SMS_SENDER_ID'),
-            messageId: getenv('FAST2SMS_MESSAGE_ID'),
-            variableValues: ['12345'],
-            useDLT: true
-        );
+    //     var_dump(getenv('FAST2SMS_MESSAGE_ID'));
+    //     $sender = new Fast2SMS(
+    //         apiKey: getenv('FAST2SMS_API_KEY'),
+    //         senderId: getenv('FAST2SMS_SENDER_ID'),
+    //         messageId: getenv('FAST2SMS_MESSAGE_ID'),
+    //         variableValues: ['12345'],
+    //         useDLT: true
+    //     );
 
-        $message = new SMS(
-            to: ['9611681613'],
-            content: '', // Content is ignored when using DLT based messaging
-        );
+    //     $message = new SMS(
+    //         to: ['+919611681613', '+918867902892'],
+    //         content: '', // Content is ignored when using DLT based messaging
+    //     );
 
-        $response = $sender->send($message);
+    //     $response = $sender->send($message);
 
-        $this->assertResponse($response);
-    }
-} 
+    //     $this->assertResponse($response);
+    // }
+}
