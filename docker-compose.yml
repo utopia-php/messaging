@@ -38,7 +38,11 @@ services:
       - VONAGE_FROM
       - DISCORD_WEBHOOK_ID
       - DISCORD_WEBHOOK_TOKEN
-      
+      - FAST2SMS_API_KEY
+      - FAST2SMS_SENDER_ID
+      - FAST2SMS_MESSAGE_ID
+      - FAST2SMS_TO
+
   maildev:
     image: appwrite/mailcatcher:1.0.0
     ports:
