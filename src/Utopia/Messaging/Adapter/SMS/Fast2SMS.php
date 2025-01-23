@@ -62,7 +62,7 @@ class Fast2SMS extends SMSAdapter
      * Process the SMS message and send it using Fast2SMS API
      *
      * @param SMSMessage $message The SMS message to be processed
-     * @return array The response from the API
+     * @return array<string, mixed> The response from the API
      */
     protected function process(SMSMessage $message): array
     {
@@ -98,25 +98,16 @@ class Fast2SMS extends SMSAdapter
             body: $payload
         );
 
-        var_dump($result);
-
-
         $res = $result['response'];
-        if ($result['statusCode'] === 200) {
-            if (isset($res['return']) && $res['return'] === true) {
-                $response->setDeliveredTo(\count($message->getTo()));
-                foreach ($message->getTo() as $to) {
-                    $response->addResult($to);
-                }
-            } else {
-                $errorMessage = $res['message'] . ' Status Code: ' . $res['status_code'] ?? 'Unknown error';
-                foreach ($message->getTo() as $to) {
-                    $response->addResult($to, $errorMessage);
-                }
+        if ($result['statusCode'] === 200 && isset($res['return']) && $res['return'] === true) {
+            $response->setDeliveredTo(\count($message->getTo()));
+            foreach ($message->getTo() as $to) {
+                $response->addResult($to);
             }
         } else {
+            $errorMessage = $res['message'] ?? 'Unknown error' . ' Status Code: ' . ($res['status_code'] ?? 'Unknown');
             foreach ($message->getTo() as $to) {
-                $response->addResult($to, $res['message'] . ' Status Code: ' . $res['status_code']);
+                $response->addResult($to, $errorMessage);
             }
         }
 
