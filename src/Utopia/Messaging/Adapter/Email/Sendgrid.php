@@ -100,8 +100,6 @@ class Sendgrid extends EmailAdapter
             }
         }
 
-        fwrite(STDOUT, json_encode($personalizations, JSON_PRETTY_PRINT));
-
         $body = [
             'personalizations' => $personalizations,
             'reply_to' => [
