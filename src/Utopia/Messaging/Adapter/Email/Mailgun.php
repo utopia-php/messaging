@@ -39,6 +39,10 @@ class Mailgun extends EmailAdapter
 
     /**
      * {@inheritdoc}
+     *
+     * Uses Mailgun's batch sending feature to send multiple emails at once.
+     *
+     * @link https://documentation.mailgun.com/docs/mailgun/user-manual/sending-messages/#batch-sending
      */
     protected function process(EmailMessage $message): array
     {
@@ -56,7 +60,6 @@ class Mailgun extends EmailAdapter
             'h:Reply-To: '."{$message->getReplyToName()}<{$message->getReplyToEmail()}>",
         ];
 
-        // sending batch emails, https://documentation.mailgun.com/docs/mailgun/user-manual/sending-messages/#batch-sending
         if (\count($message->getTo()) > 1) {
             $body['recipient-variables'] = json_encode(array_fill_keys($message->getTo(), []));
         }
