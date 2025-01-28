@@ -71,8 +71,6 @@ class Fast2SMS extends SMSAdapter
         );
         $numbers = implode(',', $numbers);
 
-        var_dump($numbers);
-
         $payload = [
             'numbers' => $numbers,
             'flash' => 0,
