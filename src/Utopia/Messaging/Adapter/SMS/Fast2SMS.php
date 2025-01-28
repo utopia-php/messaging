@@ -3,6 +3,7 @@
 namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
+use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 use Utopia\Messaging\Response;
 
@@ -23,7 +24,6 @@ class Fast2SMS extends SMSAdapter
      * @param string $apiKey Your Fast2SMS API authorization key
      * @param string $senderId Your 3-6 letter DLT approved Sender ID (e.g., "FSTSMS"). Required for DLT route
      * @param string $messageId Your DLT approved Message ID template. Required for DLT route
-     * @param string[] $variableValues Array of values for variables in DLT template message. Optional for DLT route
      * @param bool $useDLT Whether to use DLT route (true) or Quick SMS route (false)
      *
      * @see https://docs.fast2sms.com/#dlt-sms
@@ -33,7 +33,6 @@ class Fast2SMS extends SMSAdapter
         private string $apiKey,
         private string $senderId = '',
         private string $messageId = '',
-        private array $variableValues = [],
         private bool $useDLT = false
     ) {
     }
@@ -66,7 +65,11 @@ class Fast2SMS extends SMSAdapter
      */
     protected function process(SMSMessage $message): array
     {
-        $numbers = implode(',', $message->getTo());
+        $numbers = array_map(
+            fn ($number) => $this->removeCountryCode($number),
+            $message->getTo()
+        );
+        $numbers = implode(',', $numbers);
 
         $payload = [
             'numbers' => $numbers,
@@ -77,10 +80,7 @@ class Fast2SMS extends SMSAdapter
             $payload['route'] = 'dlt';
             $payload['sender_id'] = $this->senderId;
             $payload['message'] = $this->messageId;
-
-            if (!empty($this->variableValues)) {
-                $payload['variables_values'] = implode('|', $this->variableValues);
-            }
+            $payload['variables_values'] = $message->getContent();
         } else {
             $payload['route'] = 'q';
             $payload['message'] = $message->getContent();
@@ -112,5 +112,25 @@ class Fast2SMS extends SMSAdapter
         }
 
         return $response->toArray();
+    }
+
+    /**
+     * Removes country code from a phone number
+     * Fast2SMS expects Indian phone numbers without the country code
+     *
+     * @param string $number Phone number with potential country code
+     * @return string Phone number without country code
+     */
+    private function removeCountryCode(string $number): string
+    {
+        // Remove any non-digit characters
+        $digits = preg_replace('/[^0-9]/', '', $number);
+
+        $code = CallingCode::fromPhoneNumber($number);
+        if ($code !== null) {
+            return substr($digits, strlen($code));
+        }
+
+        return $digits;
     }
 }

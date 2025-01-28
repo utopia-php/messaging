@@ -37,13 +37,12 @@ class Fast2SMSTest extends Base
             apiKey: getenv('FAST2SMS_API_KEY'),
             senderId: getenv('FAST2SMS_SENDER_ID'),
             messageId: getenv('FAST2SMS_MESSAGE_ID'),
-            variableValues: ['12345'],
             useDLT: true
         );
 
         $message = new SMS(
             to: [getenv('FAST2SMS_TO')],
-            content: '', // Content is ignored when using DLT based messaging
+            content: '12345',
         );
 
         $response = $sender->send($message);
