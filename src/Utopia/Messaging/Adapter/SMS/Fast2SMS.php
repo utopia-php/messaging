@@ -3,6 +3,7 @@
 namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
+use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 use Utopia\Messaging\Response;
 
@@ -65,7 +66,7 @@ class Fast2SMS extends SMSAdapter
     protected function process(SMSMessage $message): array
     {
         $numbers = array_map(
-            fn($number) => $this->removeCountryCode($number),
+            fn ($number) => $this->removeCountryCode($number),
             $message->getTo()
         );
         $numbers = implode(',', $numbers);
@@ -118,21 +119,20 @@ class Fast2SMS extends SMSAdapter
     /**
      * Removes country code from a phone number
      * Fast2SMS expects Indian phone numbers without the country code
-     * 
+     *
      * @param string $number Phone number with potential country code
      * @return string Phone number without country code
      */
-    private function removeCountryCode(string $number): string 
+    private function removeCountryCode(string $number): string
     {
         // Remove any non-digit characters
         $digits = preg_replace('/[^0-9]/', '', $number);
-        
-        // Extract country code using CallingCode utility
-        $code = \Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode::fromPhoneNumber($number);
+
+        $code = CallingCode::fromPhoneNumber($number);
         if ($code !== null) {
             return substr($digits, strlen($code));
         }
-        
+
         return $digits;
     }
 }
