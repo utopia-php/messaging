@@ -35,48 +35,46 @@ class Sendgrid extends EmailAdapter
     }
 
     /**
-     * {@inheritdoc}
-     */
+    * {@inheritdoc}
+    *
+    * Uses Sendgrid's personalization recipient variables to send multiple emails at once.
+    *
+    * @link https://www.twilio.com/docs/sendgrid/for-developers/sending-email/personalizations#-Sending-Two-Different-Emails-to-Two-Different-Groups-of-Recipients
+    */
     protected function process(EmailMessage $message): array
     {
-        $personalizations = [
-            [
-                'to' => \array_map(
-                    fn ($to) => ['email' => $to],
-                    $message->getTo()
-                ),
+        $personalizations = \array_map(
+            fn ($to) => [
+                'to' => [['email' => $to]],
                 'subject' => $message->getSubject(),
             ],
-        ];
+            $message->getTo()
+        );
 
-        if (!\is_null($message->getCC())) {
-            foreach ($message->getCC() as $cc) {
-                if (!empty($cc['name'])) {
-                    $personalizations[0]['cc'][] = [
-                        'name' => $cc['name'],
-                        'email' => $cc['email'],
-                    ];
-                } else {
-                    $personalizations[0]['cc'][] = [
-                        'email' => $cc['email'],
-                    ];
+        if (!empty($message->getCC())) {
+            foreach ($personalizations as &$personalization) {
+                foreach ($message->getCC() as $cc) {
+                    $entry = ['email' => $cc['email']];
+                    if (!empty($cc['name'])) {
+                        $entry['name'] = $cc['name'];
+                    }
+                    $personalization['cc'][] = $entry;
                 }
             }
+            unset($personalization);
         }
 
-        if (!\is_null($message->getBCC())) {
-            foreach ($message->getBCC() as $bcc) {
-                if (!empty($bcc['name'])) {
-                    $personalizations[0]['bcc'][] = [
-                        'name' => $bcc['name'],
-                        'email' => $bcc['email'],
-                    ];
-                } else {
-                    $personalizations[0]['bcc'][] = [
-                        'email' => $bcc['email'],
-                    ];
+        if (!empty($message->getBCC())) {
+            foreach ($personalizations as &$personalization) {
+                foreach ($message->getBCC() as $bcc) {
+                    $entry = ['email' => $bcc['email']];
+                    if (!empty($bcc['name'])) {
+                        $entry['name'] = $bcc['name'];
+                    }
+                    $personalization['bcc'][] = $entry;
                 }
             }
+            unset($personalization);
         }
 
         $attachments = [];
