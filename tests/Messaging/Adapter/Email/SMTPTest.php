@@ -27,13 +27,7 @@ class SMTPTest extends Base
             subject: $subject,
             content: $content,
             fromName: $fromName,
-            fromEmail: $fromEmail,
-            bcc: [
-                [
-                    'email' => 'tester2@localhost.test',
-                    'name' => 'Test Recipient 2',
-                ],
-            ],
+            fromEmail: $fromEmail
         );
 
         $response = $sender->send($message);
