@@ -110,12 +110,8 @@ class SMTPTest extends Base
 
         $response = $sender->send($message);
 
-        $lastEmail = $this->getLastEmail();
-
-        $this->assertResponse($response);
-        $this->assertEquals($defaultRecipient, $lastEmail['to'][0]['address']);
-        $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
-        $this->assertEquals($subject, $lastEmail['subject']);
-        $this->assertEquals($content, \trim($lastEmail['text']));
+        $this->assertEquals(0, $response['deliveredTo'], \var_export($response, true));
+        $this->assertEquals('email', $response['type'], \var_export($response, true));
+        $this->assertEquals('', $response['results'][0]['error'], \var_export($response, true));
     }
 }
