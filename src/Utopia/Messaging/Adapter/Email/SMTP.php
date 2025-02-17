@@ -19,6 +19,7 @@ class SMTP extends EmailAdapter
      * @param string $smtpSecure SMTP Secure prefix. Can be '', 'ssl' or 'tls'
      * @param bool $smtpAutoTLS Enable/disable SMTP AutoTLS feature. Defaults to false.
      * @param string $xMailer The value to use for the X-Mailer header.
+     * @param string $defaultRecipient The default recipient to use for the email.
      */
     public function __construct(
         private string $host,
@@ -27,7 +28,8 @@ class SMTP extends EmailAdapter
         private string $password = '',
         private string $smtpSecure = '',
         private bool $smtpAutoTLS = false,
-        private string $xMailer = ''
+        private string $xMailer = '',
+        private string $defaultRecipient = ''
     ) {
         if (!\in_array($this->smtpSecure, ['', 'ssl', 'tls'])) {
             throw new \InvalidArgumentException('Invalid SMTP secure prefix. Must be "", "ssl" or "tls"');
@@ -71,6 +73,14 @@ class SMTP extends EmailAdapter
         $mail->AltBody = \preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $mail->Body);
         $mail->AltBody = \strip_tags($mail->AltBody);
         $mail->AltBody = \trim($mail->AltBody);
+
+        if (empty($message->getTo())) {
+            if (empty($message->getBCC()) || empty($this->defaultRecipient)) {
+                throw new \Exception('Email requires either "to" recipients or both BCC and a default recipient configurations');
+            }
+
+            $mail->addAddress($this->defaultRecipient);
+        }
 
         foreach ($message->getTo() as $to) {
             $mail->addAddress($to);

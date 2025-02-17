@@ -78,4 +78,44 @@ class SMTPTest extends Base
         $this->assertEquals($subject, $lastEmail['subject']);
         $this->assertEquals($content, \trim($lastEmail['text']));
     }
+
+    public function testSendEmailOnlyBCC(): void
+    {
+        $defaultRecipient = \getenv('SMTP_DEFAULT_RECIPIENT') ?? 'placeholder@localhost.test';
+        $sender = new SMTP(
+            host: 'maildev',
+            port: 1025,
+            defaultRecipient: $defaultRecipient,
+        );
+
+        $subject = 'Test Subject';
+        $content = 'Test Content';
+        $fromName = 'Test Sender';
+        $fromEmail = 'sender@localhost.test';
+        $bcc = [
+            [
+                'email' => 'tester@localhost.test',
+                'name' => 'Test Recipient',
+            ],
+        ];
+
+        $message = new Email(
+            to: [],
+            subject: $subject,
+            content: $content,
+            fromName: $fromName,
+            fromEmail: $fromEmail,
+            bcc: $bcc,
+        );
+
+        $response = $sender->send($message);
+
+        $lastEmail = $this->getLastEmail();
+
+        $this->assertResponse($response);
+        $this->assertEquals($defaultRecipient, $lastEmail['to'][0]['address']);
+        $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
+        $this->assertEquals($subject, $lastEmail['subject']);
+        $this->assertEquals($content, \trim($lastEmail['text']));
+    }
 }

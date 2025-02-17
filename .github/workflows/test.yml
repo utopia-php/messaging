@@ -14,6 +14,7 @@ jobs:
     - run: git checkout HEAD^2
     - name: Run Tests 
       env:
+        SMTP_DEFAULT_RECIPIENT: ${{ secrets.SMTP_DEFAULT_RECIPIENT }}
         MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
         MAILGUN_DOMAIN: ${{ secrets.MAILGUN_DOMAIN }}
         SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}

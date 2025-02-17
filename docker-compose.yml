@@ -7,6 +7,7 @@ services:
       - ./tests:/usr/local/src/tests
       - ./phpunit.xml:/usr/local/src/phpunit.xml
     environment:
+      - SMTP_DEFAULT_RECIPIENT
       - MAILGUN_API_KEY
       - MAILGUN_DOMAIN
       - SENDGRID_API_KEY
