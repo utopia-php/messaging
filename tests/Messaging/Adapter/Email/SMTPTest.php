@@ -28,6 +28,12 @@ class SMTPTest extends Base
             content: $content,
             fromName: $fromName,
             fromEmail: $fromEmail,
+            bcc: [
+                [
+                    'email' => 'tester2@localhost.test',
+                    'name' => 'Test Recipient 2',
+                ],
+            ],
         );
 
         $response = $sender->send($message);
@@ -53,7 +59,6 @@ class SMTPTest extends Base
         $content = 'Test Content';
         $fromName = 'Test Sender';
         $fromEmail = 'sender@localhost.test';
-
 
         $message = new Email(
             to: [$to],
@@ -94,8 +99,8 @@ class SMTPTest extends Base
         $fromEmail = 'sender@localhost.test';
         $bcc = [
             [
-                'email' => 'tester@localhost.test',
-                'name' => 'Test Recipient',
+                'email' => 'tester2@localhost.test',
+                'name' => 'Test Recipient 2',
             ],
         ];
 
@@ -110,8 +115,11 @@ class SMTPTest extends Base
 
         $response = $sender->send($message);
 
-        $this->assertEquals(0, $response['deliveredTo'], \var_export($response, true));
-        $this->assertEquals('email', $response['type'], \var_export($response, true));
-        $this->assertEquals('', $response['results'][0]['error'], \var_export($response, true));
+        $lastEmail = $this->getLastEmail();
+
+        $this->assertResponse($response);
+        $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
+        $this->assertEquals($subject, $lastEmail['subject']);
+        $this->assertEquals($content, \trim($lastEmail['text']));
     }
 }

@@ -122,6 +122,10 @@ class SMTP extends EmailAdapter
 
         if ($sent) {
             $response->setDeliveredTo(\count($message->getTo()));
+
+            if (empty($message->getTo())) {
+                $response->setDeliveredTo(\count($message->getBCC()));
+            }
         }
 
         foreach ($message->getTo() as $to) {
@@ -130,6 +134,12 @@ class SMTP extends EmailAdapter
                 : $mail->ErrorInfo;
 
             $response->addResult($to, $sent ? '' : $error);
+        }
+
+        if (empty($message->getTo())) {
+            foreach ($message->getBCC() as $bcc) {
+                $response->addResult($bcc['email'], $sent ? '' : 'Unknown error');
+            }
         }
 
         return $response->toArray();
