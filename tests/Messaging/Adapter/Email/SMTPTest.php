@@ -27,7 +27,7 @@ class SMTPTest extends Base
             subject: $subject,
             content: $content,
             fromName: $fromName,
-            fromEmail: $fromEmail
+            fromEmail: $fromEmail,
         );
 
         $response = $sender->send($message);
