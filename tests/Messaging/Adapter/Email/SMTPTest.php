@@ -81,7 +81,7 @@ class SMTPTest extends Base
 
     public function testSendEmailOnlyBCC(): void
     {
-        $defaultRecipient = \getenv('SMTP_DEFAULT_RECIPIENT') ?? 'placeholder@localhost.test';
+        $defaultRecipient = \getenv('SMTP_DEFAULT_RECIPIENT') ?: 'placeholder@localhost.test';
         $sender = new SMTP(
             host: 'maildev',
             port: 1025,
