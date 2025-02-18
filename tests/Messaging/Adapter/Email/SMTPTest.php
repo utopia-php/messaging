@@ -85,6 +85,7 @@ class SMTPTest extends Base
             port: 1025,
         );
 
+        $defaultRecipient = 'tester@localhost.test';
         $subject = 'Test Subject';
         $content = 'Test Content';
         $fromName = 'Test Sender';
@@ -95,7 +96,6 @@ class SMTPTest extends Base
                 'name' => 'Test Recipient 2',
             ],
         ];
-        $defaultRecipient = \getenv('SMTP_DEFAULT_RECIPIENT') ?: 'tester@localhost.test';
 
         $message = new Email(
             to: [],
