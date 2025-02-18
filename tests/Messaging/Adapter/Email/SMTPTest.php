@@ -54,7 +54,6 @@ class SMTPTest extends Base
         $fromName = 'Test Sender';
         $fromEmail = 'sender@localhost.test';
 
-
         $message = new Email(
             to: [$to],
             subject: $subject,
@@ -74,6 +73,45 @@ class SMTPTest extends Base
 
         $this->assertResponse($response);
         $this->assertEquals($to, $lastEmail['to'][0]['address']);
+        $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
+        $this->assertEquals($subject, $lastEmail['subject']);
+        $this->assertEquals($content, \trim($lastEmail['text']));
+    }
+
+    public function testSendEmailOnlyBCC(): void
+    {
+        $sender = new SMTP(
+            host: 'maildev',
+            port: 1025,
+        );
+
+        $defaultRecipient = 'tester@localhost.test';
+        $subject = 'Test Subject';
+        $content = 'Test Content';
+        $fromName = 'Test Sender';
+        $fromEmail = 'sender@localhost.test';
+        $bcc = [
+            [
+                'email' => 'tester2@localhost.test',
+                'name' => 'Test Recipient 2',
+            ],
+        ];
+
+        $message = new Email(
+            to: [],
+            subject: $subject,
+            content: $content,
+            fromName: $fromName,
+            fromEmail: $fromEmail,
+            bcc: $bcc,
+            defaultRecipient: $defaultRecipient,
+        );
+
+        $response = $sender->send($message);
+
+        $lastEmail = $this->getLastEmail();
+
+        $this->assertResponse($response);
         $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
         $this->assertEquals($subject, $lastEmail['subject']);
         $this->assertEquals($content, \trim($lastEmail['text']));

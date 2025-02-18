@@ -27,7 +27,7 @@ class SMTP extends EmailAdapter
         private string $password = '',
         private string $smtpSecure = '',
         private bool $smtpAutoTLS = false,
-        private string $xMailer = ''
+        private string $xMailer = '',
     ) {
         if (!\in_array($this->smtpSecure, ['', 'ssl', 'tls'])) {
             throw new \InvalidArgumentException('Invalid SMTP secure prefix. Must be "", "ssl" or "tls"');
@@ -72,6 +72,14 @@ class SMTP extends EmailAdapter
         $mail->AltBody = \strip_tags($mail->AltBody);
         $mail->AltBody = \trim($mail->AltBody);
 
+        if (empty($message->getTo())) {
+            if (empty($message->getBCC()) && empty($message->getDefaultRecipient())) {
+                throw new \Exception('Email requires either "to" recipients or both BCC and a default recipient configurations');
+            }
+
+            $mail->addAddress($message->getDefaultRecipient());
+        }
+
         foreach ($message->getTo() as $to) {
             $mail->addAddress($to);
         }
@@ -111,7 +119,8 @@ class SMTP extends EmailAdapter
         $sent = $mail->send();
 
         if ($sent) {
-            $response->setDeliveredTo(\count($message->getTo()));
+            $totalDelivered = \count($message->getTo()) + \count($message->getCC() ?: []) + \count($message->getBCC() ?: []);
+            $response->setDeliveredTo($totalDelivered);
         }
 
         foreach ($message->getTo() as $to) {
@@ -120,6 +129,22 @@ class SMTP extends EmailAdapter
                 : $mail->ErrorInfo;
 
             $response->addResult($to, $sent ? '' : $error);
+        }
+
+        foreach ($message->getCC() as $cc) {
+            $error = empty($mail->ErrorInfo)
+                ? 'Unknown error'
+                : $mail->ErrorInfo;
+
+            $response->addResult($cc['email'], $sent ? '' : $error);
+        }
+
+        foreach ($message->getBCC() as $bcc) {
+            $error = empty($mail->ErrorInfo)
+                ? 'Unknown error'
+                : $mail->ErrorInfo;
+
+            $response->addResult($bcc['email'], $sent ? '' : $error);
         }
 
         return $response->toArray();
