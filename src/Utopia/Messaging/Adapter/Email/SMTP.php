@@ -19,7 +19,6 @@ class SMTP extends EmailAdapter
      * @param string $smtpSecure SMTP Secure prefix. Can be '', 'ssl' or 'tls'
      * @param bool $smtpAutoTLS Enable/disable SMTP AutoTLS feature. Defaults to false.
      * @param string $xMailer The value to use for the X-Mailer header.
-     * @param string $defaultRecipient The default recipient to use for the email.
      */
     public function __construct(
         private string $host,
@@ -29,7 +28,6 @@ class SMTP extends EmailAdapter
         private string $smtpSecure = '',
         private bool $smtpAutoTLS = false,
         private string $xMailer = '',
-        private string $defaultRecipient = ''
     ) {
         if (!\in_array($this->smtpSecure, ['', 'ssl', 'tls'])) {
             throw new \InvalidArgumentException('Invalid SMTP secure prefix. Must be "", "ssl" or "tls"');
@@ -75,11 +73,11 @@ class SMTP extends EmailAdapter
         $mail->AltBody = \trim($mail->AltBody);
 
         if (empty($message->getTo())) {
-            if (empty($message->getBCC()) || empty($this->defaultRecipient)) {
+            if (empty($message->getBCC()) && empty($message->getDefaultRecipient())) {
                 throw new \Exception('Email requires either "to" recipients or both BCC and a default recipient configurations');
             }
 
-            $mail->addAddress($this->defaultRecipient);
+            $mail->addAddress($message->getDefaultRecipient());
         }
 
         foreach ($message->getTo() as $to) {
@@ -121,11 +119,8 @@ class SMTP extends EmailAdapter
         $sent = $mail->send();
 
         if ($sent) {
-            $response->setDeliveredTo(\count($message->getTo()));
-
-            if (empty($message->getTo())) {
-                $response->setDeliveredTo(\count($message->getBCC()));
-            }
+            $totalDelivered = \count($message->getTo() ?? []) + \count($message->getCC() ?? []) + \count($message->getBCC() ?? []);
+            $response->setDeliveredTo($totalDelivered);
         }
 
         foreach ($message->getTo() as $to) {
@@ -136,10 +131,20 @@ class SMTP extends EmailAdapter
             $response->addResult($to, $sent ? '' : $error);
         }
 
-        if (empty($message->getTo())) {
-            foreach ($message->getBCC() as $bcc) {
-                $response->addResult($bcc['email'], $sent ? '' : 'Unknown error');
-            }
+        foreach ($message->getCC() as $cc) {
+            $error = empty($mail->ErrorInfo)
+                ? 'Unknown error'
+                : $mail->ErrorInfo;
+
+            $response->addResult($cc['email'], $sent ? '' : $error);
+        }
+
+        foreach ($message->getBCC() as $bcc) {
+            $error = empty($mail->ErrorInfo)
+                ? 'Unknown error'
+                : $mail->ErrorInfo;
+
+            $response->addResult($bcc['email'], $sent ? '' : $error);
         }
 
         return $response->toArray();

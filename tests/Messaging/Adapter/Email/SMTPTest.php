@@ -80,11 +80,9 @@ class SMTPTest extends Base
 
     public function testSendEmailOnlyBCC(): void
     {
-        $defaultRecipient = \getenv('SMTP_DEFAULT_RECIPIENT') ?: 'tester@localhost.test';
         $sender = new SMTP(
             host: 'maildev',
             port: 1025,
-            defaultRecipient: $defaultRecipient,
         );
 
         $subject = 'Test Subject';
@@ -97,6 +95,7 @@ class SMTPTest extends Base
                 'name' => 'Test Recipient 2',
             ],
         ];
+        $defaultRecipient = \getenv('SMTP_DEFAULT_RECIPIENT') ?: 'tester@localhost.test';
 
         $message = new Email(
             to: [],
@@ -105,6 +104,7 @@ class SMTPTest extends Base
             fromName: $fromName,
             fromEmail: $fromEmail,
             bcc: $bcc,
+            defaultRecipient: $defaultRecipient,
         );
 
         $response = $sender->send($message);
