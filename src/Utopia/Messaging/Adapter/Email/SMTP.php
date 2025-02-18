@@ -119,7 +119,7 @@ class SMTP extends EmailAdapter
         $sent = $mail->send();
 
         if ($sent) {
-            $totalDelivered = \count($message->getTo() ?? []) + \count($message->getCC() ?? []) + \count($message->getBCC() ?? []);
+            $totalDelivered = \count($message->getTo()) + \count($message->getCC() ?: []) + \count($message->getBCC() ?: []);
             $response->setDeliveredTo($totalDelivered);
         }
 
