@@ -49,6 +49,9 @@ jobs:
         FAST2SMS_SENDER_ID: ${{ secrets.FAST2SMS_SENDER_ID }}
         FAST2SMS_MESSAGE_ID: ${{ secrets.FAST2SMS_MESSAGE_ID }}
         FAST2SMS_TO: ${{ secrets.FAST2SMS_TO }}
+        INFORU_USERNAME: ${{ secrets.INFORU_USERNAME }}
+        INFORU_API_TOKEN: ${{ secrets.INFORU_API_TOKEN }}
+        INFORU_SENDER: ${{ secrets.INFORU_SENDER }}
       run: |
         docker compose up -d --build
         sleep 5
