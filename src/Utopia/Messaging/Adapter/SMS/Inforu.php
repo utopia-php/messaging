@@ -13,12 +13,10 @@ class Inforu extends SMSAdapter
     protected const NAME = 'Inforu';
 
     /**
-     * @param string $username Inforu username
      * @param string $apiToken Inforu API token
      * @param string $sender Sender name/number
      */
     public function __construct(
-        private string $username,
         private string $apiToken,
         private string $sender
     ) {
@@ -48,12 +46,14 @@ class Inforu extends SMSAdapter
             $message->getTo()
         );
 
+        fwrite(STDOUT, json_encode($recipients, JSON_PRETTY_PRINT));
+
         $result = $this->request(
             method: 'POST',
             url: 'https://capi.inforu.co.il/api/v2/SMS/SendSms',
             headers: [
                 'Content-Type: application/json',
-                'Authorization: Basic ' . base64_encode("{$this->username}:{$this->apiToken}"),
+                'Authorization: Basic ' . $this->apiToken,
             ],
             body: [
                 'Data' => [
@@ -72,7 +72,7 @@ class Inforu extends SMSAdapter
                 $response->addResult($to);
             }
         } else {
-            $errorMessage = $result['response']['DetailedDescription'] ?? 'Unknown error';
+            $errorMessage = $result['response']['StatusDescription'] ?? 'Unknown error';
             foreach ($message->getTo() as $to) {
                 $response->addResult($to, $errorMessage);
             }

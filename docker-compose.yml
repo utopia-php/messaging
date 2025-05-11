@@ -42,7 +42,6 @@ services:
       - FAST2SMS_SENDER_ID
       - FAST2SMS_MESSAGE_ID
       - FAST2SMS_TO
-      - INFORU_USERNAME
       - INFORU_API_TOKEN
       - INFORU_SENDER
 

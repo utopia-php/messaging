@@ -14,14 +14,14 @@ class InforuTest extends Base
     public function testSendSMS(): void
     {
         $sender = new Inforu(
-            username: \getenv('INFORU_USERNAME'),
             apiToken: \getenv('INFORU_API_TOKEN'),
             sender: \getenv('INFORU_SENDER')
         );
 
         $message = new SMS(
-            to: [\getenv('INFORU_TO')],
-            content: 'Test Content'
+            to: ['0541234567'],
+            content: 'Test Content',
+            from: '+987654321'
         );
 
         $response = $sender->send($message);
