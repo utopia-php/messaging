@@ -15,13 +15,12 @@ class InforuTest extends Base
     {
         $sender = new Inforu(
             apiToken: \getenv('INFORU_API_TOKEN'),
-            sender: \getenv('INFORU_SENDER')
+            senderId: \getenv('INFORU_SENDER_ID')
         );
 
         $message = new SMS(
             to: ['0541234567'],
             content: 'Test Content',
-            from: '+987654321'
         );
 
         $response = $sender->send($message);

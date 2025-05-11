@@ -14,11 +14,11 @@ class Inforu extends SMSAdapter
 
     /**
      * @param string $apiToken Inforu API token
-     * @param string $sender Sender name/number
+     * @param string $senderId Sender ID
      */
     public function __construct(
         private string $apiToken,
-        private string $sender
+        private string $senderId
     ) {
     }
 
@@ -60,7 +60,7 @@ class Inforu extends SMSAdapter
                     'Message' => $message->getContent(),
                     'Recipients' => $recipients,
                     'Settings' => [
-                        'Sender' => $this->sender,
+                        'Sender' => $this->senderId,
                     ],
                 ],
             ],

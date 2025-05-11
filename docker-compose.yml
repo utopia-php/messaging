@@ -43,7 +43,7 @@ services:
       - FAST2SMS_MESSAGE_ID
       - FAST2SMS_TO
       - INFORU_API_TOKEN
-      - INFORU_SENDER
+      - INFORU_SENDER_ID
 
   maildev:
     image: appwrite/mailcatcher:1.0.0
