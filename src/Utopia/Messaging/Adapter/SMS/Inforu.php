@@ -17,8 +17,8 @@ class Inforu extends SMSAdapter
      * @param string $senderId Sender ID
      */
     public function __construct(
+        private string $senderId,
         private string $apiToken,
-        private string $senderId
     ) {
     }
 
@@ -45,8 +45,6 @@ class Inforu extends SMSAdapter
             fn ($number) => ['Phone' => ltrim($number, '+')],
             $message->getTo()
         );
-
-        fwrite(STDOUT, json_encode($recipients, JSON_PRETTY_PRINT));
 
         $result = $this->request(
             method: 'POST',

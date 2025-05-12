@@ -14,8 +14,8 @@ class InforuTest extends Base
     public function testSendSMS(): void
     {
         $sender = new Inforu(
+            senderId: \getenv('INFORU_SENDER_ID'),
             apiToken: \getenv('INFORU_API_TOKEN'),
-            senderId: \getenv('INFORU_SENDER_ID')
         );
 
         $message = new SMS(
