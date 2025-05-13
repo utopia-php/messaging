@@ -11,15 +11,20 @@ class Discord extends Adapter
     protected const NAME = 'Discord';
     protected const TYPE = 'chat';
     protected const MESSAGE_TYPE = DiscordMessage::class;
+    protected string $webhookId = '';
 
     /**
-     * @param  string  $webhookId Your Discord webhook ID.
-     * @param  string  $webhookToken Your Discord webhook token.
+     * @param  string  $webhookURL Your Discord webhook URL.
      */
     public function __construct(
-        private string $webhookId,
-        private string $webhookToken,
+        private string $webhookURL
     ) {
+        $parts = explode('/webhooks/', $webhookURL);
+        if (count($parts) >= 2) {
+            $webhookParts = explode('/', $parts[1]);
+            $this->webhookId = $webhookParts[0];
+        }
+
     }
 
     public function getName(): string
@@ -69,7 +74,7 @@ class Discord extends Adapter
         $response = new Response($this->getType());
         $result = $this->request(
             method: 'POST',
-            url: "https://discord.com/api/webhooks/{$this->webhookId}/{$this->webhookToken}{$queryString}",
+            url: "{$this->webhookURL}{$queryString}",
             headers: [
                 'Content-Type: application/json',
             ],
