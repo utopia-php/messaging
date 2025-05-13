@@ -10,13 +10,9 @@ class DiscordTest extends Base
 {
     public function testSendMessage(): void
     {
-        $id = \getenv('DISCORD_WEBHOOK_ID');
-        $token = \getenv('DISCORD_WEBHOOK_TOKEN');
+        $url = \getenv('DISCORD_WEBHOOK_URL');
 
-        $sender = new Discord(
-            webhookId: $id,
-            webhookToken: $token
-        );
+        $sender = new Discord($url);
 
         $content = 'Test Content';
 
