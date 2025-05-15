@@ -5,21 +5,47 @@ namespace Utopia\Messaging\Adapter\Chat;
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Messages\Discord as DiscordMessage;
 use Utopia\Messaging\Response;
+use InvalidArgumentException;
 
 class Discord extends Adapter
 {
     protected const NAME = 'Discord';
     protected const TYPE = 'chat';
     protected const MESSAGE_TYPE = DiscordMessage::class;
+    protected string $webhookId = '';
 
     /**
-     * @param  string  $webhookId Your Discord webhook ID.
-     * @param  string  $webhookToken Your Discord webhook token.
+     * @param  string  $webhookURL Your Discord webhook URL.
+     * @throws InvalidArgumentException When webhook URL is invalid
      */
     public function __construct(
-        private string $webhookId,
-        private string $webhookToken,
+        private string $webhookURL
     ) {
+        // Validate URL format
+        if (!filter_var($webhookURL, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException('Invalid Discord webhook URL format.');
+        }
+
+        // Validate URL uses https scheme
+        $urlParts = parse_url($webhookURL);
+        if (!isset($urlParts['scheme']) || $urlParts['scheme'] !== 'https') {
+            throw new InvalidArgumentException('Discord webhook URL must use HTTPS scheme.');
+        }
+
+        // Validate host is discord.com
+        if (!isset($urlParts['host']) || $urlParts['host'] !== 'discord.com') {
+            throw new InvalidArgumentException('Discord webhook URL must use discord.com as host.');
+        }
+
+        // Extract and validate webhook ID
+        $parts = explode('/webhooks/', $urlParts['path']);
+        if (count($parts) >= 2) {
+            $webhookParts = explode('/', $parts[1]);
+            $this->webhookId = $webhookParts[0];
+        }
+        if (empty($this->webhookId)) {
+            throw new InvalidArgumentException('Discord webhook ID cannot be empty.');
+        }
     }
 
     public function getName(): string
@@ -69,7 +95,7 @@ class Discord extends Adapter
         $response = new Response($this->getType());
         $result = $this->request(
             method: 'POST',
-            url: "https://discord.com/api/webhooks/{$this->webhookId}/{$this->webhookToken}{$queryString}",
+            url: "{$this->webhookURL}{$queryString}",
             headers: [
                 'Content-Type: application/json',
             ],
