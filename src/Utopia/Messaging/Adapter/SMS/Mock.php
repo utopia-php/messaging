@@ -10,6 +10,8 @@ class Mock extends SMSAdapter
 {
     protected const NAME = 'Mock';
 
+    protected string $url = 'http://request-catcher:5000/mock-sms';
+
     /**
      * @param  string  $user User ID
      * @param  string  $secret User secret
@@ -23,6 +25,17 @@ class Mock extends SMSAdapter
     public function getName(): string
     {
         return static::NAME;
+    }
+
+    public function getEndpoint(): string
+    {
+        return $this->url;
+    }
+
+    public function setEndpoint(string $url): self
+    {
+        $this->url = $url;
+        return $this;
     }
 
     public function getMaxMessagesPerRequest(): int
@@ -43,7 +56,7 @@ class Mock extends SMSAdapter
 
         $result = $this->request(
             method: 'POST',
-            url: 'http://request-catcher:5000/mock-sms',
+            url: $this->url,
             headers: [
                 'Content-Type: application/json',
                 "X-Username: {$this->user}",
