@@ -78,8 +78,9 @@ abstract class Adapter
         string $method,
         string $url,
         array $headers = [],
-        array $body = null,
-        int $timeout = 30
+        ?array $body = null,
+        int $timeout = 30,
+        int $connectTimeout = 10
     ): array {
         $ch = \curl_init();
 
@@ -109,6 +110,7 @@ abstract class Adapter
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_USERAGENT => "Appwrite {$this->getName()} Message Sender",
             CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_CONNECTTIMEOUT => $connectTimeout,
         ]);
 
         $response = \curl_exec($ch);
@@ -149,7 +151,8 @@ abstract class Adapter
         array $urls,
         array $headers = [],
         array $bodies = [],
-        int $timeout = 30
+        int $timeout = 30,
+        int $connectTimeout = 10
     ): array {
         if (empty($urls)) {
             throw new \Exception('No URLs provided. Must provide at least one URL.');
@@ -186,6 +189,7 @@ abstract class Adapter
             CURLOPT_FORBID_REUSE => false,
             CURLOPT_FRESH_CONNECT => false,
             CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_CONNECTTIMEOUT => $connectTimeout,
         ]);
 
         $urlCount = \count($urls);
