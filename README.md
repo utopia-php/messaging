@@ -106,6 +106,7 @@ $messaging->send($message);
 - [x] [Seven](https://www.seven.io/)
 - [ ] [SmsGlobal](https://www.smsglobal.com/)
 - [x] [Inforu](https://www.inforu.co.il/)
+- [x] [SMS Gateway for Android™](https://sms-gate.app/)
 
 ### Push
 - [x] [FCM](https://firebase.google.com/docs/cloud-messaging)
