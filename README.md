@@ -111,6 +111,7 @@ $messaging->send($message);
 - [x] [Seven](https://www.seven.io/)
 - [ ] [SmsGlobal](https://www.smsglobal.com/)
 - [x] [Inforu](https://www.inforu.co.il/)
+- [x] [Taqnyat](https://www.taqnyat.sa/)
 
 ### Push
 - [x] [FCM](https://firebase.google.com/docs/cloud-messaging)
