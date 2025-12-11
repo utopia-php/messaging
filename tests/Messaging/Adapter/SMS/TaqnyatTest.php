@@ -13,10 +13,22 @@ class TaqnyatTest extends Base
      */
     public function testSendSMS(): void
     {
-        $sender = new Taqnyat(\getenv('TAQNYAT_API_KEY'), \getenv('TAQNYAT_SENDER_ID'));
+        // Environment variables
+        $apiKey = \getenv('TAQNYAT_API_KEY');
+        $senderId = \getenv('TAQNYAT_SENDER_ID');
+        $to = \getenv('TAQNYAT_TO');
+
+        if (!$apiKey || !$senderId || !$to) {
+            $this->markTestSkipped('TAQNYAT credentials not configured');
+        }
+
+        $sender = new Taqnyat(
+            apiKey: $apiKey,
+            senderId: $senderId
+        );
 
         $message = new SMS(
-            to: [\getenv('TAQNYAT_TO')],
+            to: [$to],
             content: 'Test Content',
         );
 
