@@ -22,7 +22,7 @@
     }
   },
   "require": {
-    "php": ">=8.0.0",
+    "php": ">=8.1",
     "ext-curl": "*",
     "ext-openssl": "*",
     "phpmailer/phpmailer": "6.9.1",

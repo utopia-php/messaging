@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\Email;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use Utopia\Messaging\Adapter\Email as EmailAdapter;
+use Utopia\Messaging\Exception\AuthenticationException;
 use Utopia\Messaging\Messages\Email as EmailMessage;
 use Utopia\Messaging\Response;
 
@@ -19,7 +20,8 @@ class SMTP extends EmailAdapter
      * @param string $smtpSecure SMTP Secure prefix. Can be '', 'ssl' or 'tls'
      * @param bool $smtpAutoTLS Enable/disable SMTP AutoTLS feature. Defaults to false.
      * @param string $xMailer The value to use for the X-Mailer header.
-     * @param int $timeout SMTP timeout in seconds.
+     * @param int $connectTimeout SMTP connection timeout in seconds.
+     * @param int $timelimit Timelimit for each individual SMTP command in seconds.
      */
     public function __construct(
         private string $host,
@@ -29,7 +31,8 @@ class SMTP extends EmailAdapter
         private string $smtpSecure = '',
         private bool $smtpAutoTLS = false,
         private string $xMailer = '',
-        private int $timeout = 30
+        private int $connectTimeout = 10,
+        private int $timelimit = 30
     ) {
         if (!\in_array($this->smtpSecure, ['', 'ssl', 'tls'])) {
             throw new \InvalidArgumentException('Invalid SMTP secure prefix. Must be "", "ssl" or "tls"');
@@ -62,7 +65,8 @@ class SMTP extends EmailAdapter
         $mail->Password = $this->password;
         $mail->SMTPSecure = $this->smtpSecure;
         $mail->SMTPAutoTLS = $this->smtpAutoTLS;
-        $mail->Timeout = $this->timeout;
+        $mail->Timeout = $this->connectTimeout;
+        $mail->getSMTPInstance()->Timelimit = $this->timelimit;
         $mail->CharSet = 'UTF-8';
         $mail->Subject = $message->getSubject();
         $mail->Body = $message->getContent();
@@ -112,6 +116,13 @@ class SMTP extends EmailAdapter
         }
 
         $sent = $mail->send();
+
+        if (!$sent && !empty($mail->ErrorInfo)) {
+            $errorInfo = \strtolower($mail->ErrorInfo);
+            if ($errorInfo === 'authenticate') {
+                throw new AuthenticationException('SMTP Error: Could not authenticate');
+            }
+        }
 
         if ($sent) {
             $totalDelivered = \count($message->getTo()) + \count($message->getCC() ?: []) + \count($message->getBCC() ?: []);

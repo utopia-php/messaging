@@ -3,6 +3,7 @@
 namespace Utopia\Tests\Adapter\Email;
 
 use Utopia\Messaging\Adapter\Email\SMTP;
+use Utopia\Messaging\Exception\AuthenticationException;
 use Utopia\Messaging\Messages\Email;
 use Utopia\Messaging\Messages\Email\Attachment;
 use Utopia\Tests\Adapter\Base;
@@ -113,5 +114,34 @@ class SMTPTest extends Base
         $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
         $this->assertEquals($subject, $lastEmail['subject']);
         $this->assertEquals($content, \trim($lastEmail['text']));
+    }
+
+    public function testSendEmailWithAuthenticationFailure(): void
+    {
+        $this->expectException(AuthenticationException::class);
+        $this->expectExceptionMessage('SMTP Error: Could not authenticate');
+
+        $sender = new SMTP(
+            host: 'maildev',
+            port: 1025,
+            username: 'invalid_user',
+            password: 'invalid_password',
+        );
+
+        $to = 'tester@localhost.test';
+        $subject = 'Test Subject';
+        $content = 'Test Content';
+        $fromName = 'Test Sender';
+        $fromEmail = 'sender@localhost.test';
+
+        $message = new Email(
+            to: [$to],
+            subject: $subject,
+            content: $content,
+            fromName: $fromName,
+            fromEmail: $fromEmail,
+        );
+
+        $sender->send($message);
     }
 }
