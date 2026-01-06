@@ -108,11 +108,11 @@ class ResendTest extends Base
 
         $response = $this->sender->send($message);
 
-        $this->assertEquals(2, $response['deliveredTo'], \var_export($response, true));
-        $this->assertEquals('', $response['results'][0]['error'], \var_export($response, true));
-        $this->assertEquals('success', $response['results'][0]['status'], \var_export($response, true));
-        $this->assertEquals('', $response['results'][1]['error'], \var_export($response, true));
-        $this->assertEquals('success', $response['results'][1]['status'], \var_export($response, true));
+        $this->assertSame(2, $response['deliveredTo'], \var_export($response, true));
+        $this->assertSame('', $response['results'][0]['error'], \var_export($response, true));
+        $this->assertSame('success', $response['results'][0]['status'], \var_export($response, true));
+        $this->assertSame('', $response['results'][1]['error'], \var_export($response, true));
+        $this->assertSame('success', $response['results'][1]['status'], \var_export($response, true));
     }
 
     public function testSendEmailWithAttachmentsThrowsException(): void

@@ -35,10 +35,10 @@ class SMTPTest extends Base
         $lastEmail = $this->getLastEmail();
 
         $this->assertResponse($response);
-        $this->assertEquals($to, $lastEmail['to'][0]['address']);
-        $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
-        $this->assertEquals($subject, $lastEmail['subject']);
-        $this->assertEquals($content, \trim($lastEmail['text']));
+        $this->assertSame($to, $lastEmail['to'][0]['address']);
+        $this->assertSame($fromEmail, $lastEmail['from'][0]['address']);
+        $this->assertSame($subject, $lastEmail['subject']);
+        $this->assertSame($content, \trim($lastEmail['text']));
     }
 
     public function testSendEmailWithAttachment(): void
@@ -72,10 +72,10 @@ class SMTPTest extends Base
         $lastEmail = $this->getLastEmail();
 
         $this->assertResponse($response);
-        $this->assertEquals($to, $lastEmail['to'][0]['address']);
-        $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
-        $this->assertEquals($subject, $lastEmail['subject']);
-        $this->assertEquals($content, \trim($lastEmail['text']));
+        $this->assertSame($to, $lastEmail['to'][0]['address']);
+        $this->assertSame($fromEmail, $lastEmail['from'][0]['address']);
+        $this->assertSame($subject, $lastEmail['subject']);
+        $this->assertSame($content, \trim($lastEmail['text']));
     }
 
     public function testSendEmailOnlyBCC(): void
@@ -110,8 +110,8 @@ class SMTPTest extends Base
         $lastEmail = $this->getLastEmail();
 
         $this->assertResponse($response);
-        $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
-        $this->assertEquals($subject, $lastEmail['subject']);
-        $this->assertEquals($content, \trim($lastEmail['text']));
+        $this->assertSame($fromEmail, $lastEmail['from'][0]['address']);
+        $this->assertSame($subject, $lastEmail['subject']);
+        $this->assertSame($content, \trim($lastEmail['text']));
     }
 }

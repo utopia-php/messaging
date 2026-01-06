@@ -20,8 +20,8 @@ class TelnyxTest extends Base
         // );
 
         // $result = $sender->send($message);
-
-        // $this->assertEquals('success', $result["type"]);
+        //
+        // $this->assertSame('success', $result["type"]);
 
         $this->markTestSkipped('Telnyx had no testing numbers available at this time.');
     }

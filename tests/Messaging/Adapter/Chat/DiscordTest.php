@@ -82,6 +82,6 @@ class DiscordTest extends Base
         $property = $reflector->getProperty('webhookId');
         $property->setAccessible(true);
 
-        $this->assertEquals($webhookId, $property->getValue($discord), 'Webhook ID was not correctly extracted');
+        $this->assertSame($webhookId, $property->getValue($discord), 'Webhook ID was not correctly extracted');
     }
 }

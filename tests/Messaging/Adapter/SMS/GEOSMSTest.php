@@ -29,8 +29,8 @@ class GEOSMSTest extends Base
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(1, count($result));
-        $this->assertEquals('success', $result['default']['results'][0]['status']);
+        $this->assertSame(1, count($result));
+        $this->assertSame('success', $result['default']['results'][0]['status']);
     }
 
     public function testSendSMSUsingLocalAdapter(): void
@@ -54,8 +54,8 @@ class GEOSMSTest extends Base
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(1, count($result));
-        $this->assertEquals('success', $result['local']['results'][0]['status']);
+        $this->assertSame(1, count($result));
+        $this->assertSame('success', $result['local']['results'][0]['status']);
     }
 
     public function testSendSMSUsingLocalAdapterAndDefault(): void
@@ -81,9 +81,9 @@ class GEOSMSTest extends Base
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(2, count($result));
-        $this->assertEquals('success', $result['local']['results'][0]['status']);
-        $this->assertEquals('success', $result['default']['results'][0]['status']);
+        $this->assertSame(2, count($result));
+        $this->assertSame('success', $result['local']['results'][0]['status']);
+        $this->assertSame('success', $result['default']['results'][0]['status']);
     }
 
     public function testSendSMSUsingGroupedLocalAdapter(): void
@@ -108,7 +108,7 @@ class GEOSMSTest extends Base
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(1, count($result));
-        $this->assertEquals('success', $result['local']['results'][0]['status']);
+        $this->assertSame(1, count($result));
+        $this->assertSame('success', $result['local']['results'][0]['status']);
     }
 }

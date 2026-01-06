@@ -25,14 +25,14 @@ class SMSTest extends Base
 
         $smsRequest = $this->getLastRequest();
 
-        $this->assertEquals('http://request-catcher:5000/mock-sms', $smsRequest['url']);
-        $this->assertEquals('Appwrite Mock Message Sender', $smsRequest['headers']['User-Agent']);
-        $this->assertEquals('username', $smsRequest['headers']['X-Username']);
-        $this->assertEquals('password', $smsRequest['headers']['X-Key']);
-        $this->assertEquals('POST', $smsRequest['method']);
-        $this->assertEquals('+987654321', $smsRequest['data']['from']);
-        $this->assertEquals('+123456789', $smsRequest['data']['to']);
-        $this->assertEquals(98, $sender->getCountryCode($smsRequest['data']['from']));
-        $this->assertEquals(1, $sender->getCountryCode($smsRequest['data']['to']));
+        $this->assertSame('http://request-catcher:5000/mock-sms', $smsRequest['url']);
+        $this->assertSame('Appwrite Mock Message Sender', $smsRequest['headers']['User-Agent']);
+        $this->assertSame('username', $smsRequest['headers']['X-Username']);
+        $this->assertSame('password', $smsRequest['headers']['X-Key']);
+        $this->assertSame('POST', $smsRequest['method']);
+        $this->assertSame('+987654321', $smsRequest['data']['from']);
+        $this->assertSame('+123456789', $smsRequest['data']['to']);
+        $this->assertSame(98, $sender->getCountryCode($smsRequest['data']['from']));
+        $this->assertSame(1, $sender->getCountryCode($smsRequest['data']['to']));
     }
 }
