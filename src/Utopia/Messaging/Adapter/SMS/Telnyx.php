@@ -11,20 +11,27 @@ class Telnyx extends SMSAdapter
     protected const NAME = 'Telnyx';
 
     /**
-     * @param  string  $apiKey Telnyx APIv2 Key
+     * @param string $apiKey Telnyx API Key
+     * @param string $from Telnyx phone number or profile ID
      */
     public function __construct(
         private string $apiKey,
-        private ?string $from = null
+        private string $from,
     ) {
         parent::__construct();
     }
 
+    /**
+     * Get adapter name.
+     */
     public function getName(): string
     {
         return static::NAME;
     }
 
+    /**
+     * Get max messages per request.
+     */
     public function getMaxMessagesPerRequest(): int
     {
         return 1;
@@ -32,35 +39,31 @@ class Telnyx extends SMSAdapter
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \Exception
      */
     protected function process(SMSMessage $message): array
     {
         $response = new Response($this->getType());
 
-        $result = $this->request(
-            method: 'POST',
-            url: 'https://api.telnyx.com/v2/messages',
-            headers: [
-                'Content-Type: application/json',
-                'Authorization: Bearer '.$this->apiKey,
-            ],
-            body: [
-                'text' => $message->getContent(),
-                'from' => $this->from ?? $message->getFrom(),
-                'to' => $message->getTo()[0],
-            ],
-        );
+        foreach ($message->getTo() as $to) {
+            $result = $this->request(
+                method: 'POST',
+                url: 'https://api.telnyx.com/v2/messages',
+                headers: [
+                    'Content-Type: application/json',
+                    "Authorization: Bearer {$this->apiKey}",
+                ],
+                body: [
+                    'from' => $this->from,
+                    'to' => $to,
+                    'text' => $message->getContent(),
+                ]
+            );
 
-        if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
-            $response->setDeliveredTo(\count($message->getTo()));
-            foreach ($message->getTo() as $to) {
+            if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
+                $response->incrementDeliveredTo();
                 $response->addResult($to);
-            }
-        } else {
-            foreach ($message->getTo() as $to) {
-                $response->addResult($to, 'Unknown error.');
+            } else {
+                $response->addResult($to, $result['response']['errors'][0]['detail'] ?? 'Unknown error');
             }
         }
 
