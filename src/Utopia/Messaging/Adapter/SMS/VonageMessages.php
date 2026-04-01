@@ -55,6 +55,7 @@ class VonageMessages extends SMSAdapter
     {
         $to = \ltrim($message->getTo()[0], '+');
         $from = $this->from ?? $message->getFrom();
+        $from = $from !== null ? \ltrim($from, '+') : null;
 
         $response = new Response($this->getType());
 
@@ -62,8 +63,6 @@ class VonageMessages extends SMSAdapter
             $response->addResult($message->getTo()[0], 'The "from" field is required for the Vonage Messages API.');
             return $response->toArray();
         }
-
-        $from = \ltrim($from, '+');
 
         $result = $this->request(
             method: 'POST',
