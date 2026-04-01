@@ -15,9 +15,10 @@ class VonageMessagesTest extends Base
     {
         $apiKey = \getenv('VONAGE_API_KEY');
         $apiSecret = \getenv('VONAGE_API_SECRET');
+        $to = \getenv('VONAGE_TO');
 
-        if (!$apiKey || !$apiSecret) {
-            $this->markTestSkipped('Vonage Messages credentials are not available.');
+        if (!$apiKey || !$apiSecret || !$to) {
+            $this->markTestSkipped('Vonage Messages credentials or recipient are not available.');
         }
 
         $sender = new VonageMessages(
@@ -27,9 +28,39 @@ class VonageMessagesTest extends Base
         );
 
         $message = new SMS(
-            to: [\getenv('VONAGE_TO')],
+            to: [$to],
             content: 'Test Content',
             from: \getenv('VONAGE_FROM')
+        );
+
+        $response = $sender->send($message);
+
+        $this->assertResponse($response);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function testSendSMSWithFallbackFrom(): void
+    {
+        $apiKey = \getenv('VONAGE_API_KEY');
+        $apiSecret = \getenv('VONAGE_API_SECRET');
+        $to = \getenv('VONAGE_TO');
+        $from = \getenv('VONAGE_FROM');
+
+        if (!$apiKey || !$apiSecret || !$to || !$from) {
+            $this->markTestSkipped('Vonage Messages credentials or sender/recipient are not available.');
+        }
+
+        $sender = new VonageMessages(
+            apiKey: $apiKey,
+            apiSecret: $apiSecret,
+        );
+
+        $message = new SMS(
+            to: [$to],
+            content: 'Test Content',
+            from: $from
         );
 
         $response = $sender->send($message);

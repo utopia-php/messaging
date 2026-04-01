@@ -21,9 +21,12 @@ trait VonageMessagesBase
      */
     protected function getApiEndpoint(): string
     {
-        return 'https://api.nexmo.com/v1/messages';
+        return 'https://api.vonage.com/v1/messages';
     }
 
+    /**
+     * @todo Implement JWT authentication for non-SMS channels
+     */
     protected function getAuthorizationHeader(): string
     {
         return 'Basic ' . \base64_encode("{$this->apiKey}:{$this->apiSecret}");

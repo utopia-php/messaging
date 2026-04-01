@@ -26,9 +26,7 @@ class VonageMessages extends SMSAdapter
      * @param  string  $apiSecret Vonage API Secret
      */
     public function __construct(
-        /** @phpstan-ignore property.onlyWritten */
         private string $apiKey,
-        /** @phpstan-ignore property.onlyWritten */
         private string $apiSecret,
         private ?string $from = null
     ) {
@@ -53,6 +51,13 @@ class VonageMessages extends SMSAdapter
         $from = $this->from ?? $message->getFrom();
 
         $response = new Response($this->getType());
+
+        if (empty($from)) {
+            $response->addResult($message->getTo()[0], 'The "from" field is required for the Vonage Messages API.');
+            return $response->toArray();
+        }
+
+        $from = \ltrim($from, '+');
 
         $result = $this->request(
             method: 'POST',
