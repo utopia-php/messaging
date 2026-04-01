@@ -25,6 +25,8 @@ trait VonageMessagesBase
     }
 
     /**
+     * Get the authorization header value for the API request.
+     *
      * @todo Implement JWT authentication for non-SMS channels
      */
     protected function getAuthorizationHeader(): string

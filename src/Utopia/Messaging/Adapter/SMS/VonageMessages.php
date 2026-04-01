@@ -32,11 +32,17 @@ class VonageMessages extends SMSAdapter
     ) {
     }
 
+    /**
+     * Get adapter name.
+     */
     public function getName(): string
     {
         return static::NAME;
     }
 
+    /**
+     * Get max messages per request.
+     */
     public function getMaxMessagesPerRequest(): int
     {
         return 1;
