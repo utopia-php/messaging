@@ -30,7 +30,6 @@ class VonageMessagesTest extends Base
         $message = new SMS(
             to: [$to],
             content: 'Test Content',
-            from: \getenv('VONAGE_FROM')
         );
 
         $response = $sender->send($message);
@@ -46,7 +45,7 @@ class VonageMessagesTest extends Base
         $apiKey = \getenv('VONAGE_API_KEY');
         $apiSecret = \getenv('VONAGE_API_SECRET');
         $to = \getenv('VONAGE_TO');
-        $from = \getenv('VONAGE_FROM');
+        $from = \getenv('VONAGE_FROM') ?: null;
 
         if (!$apiKey || !$apiSecret || !$to || !$from) {
             $this->markTestSkipped('Vonage Messages credentials or sender/recipient are not available.');
@@ -60,7 +59,7 @@ class VonageMessagesTest extends Base
         $message = new SMS(
             to: [$to],
             content: 'Test Content',
-            from: $from
+            from: $from,
         );
 
         $response = $sender->send($message);
