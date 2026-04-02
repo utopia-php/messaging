@@ -37,7 +37,7 @@ class Messenger
      *                                            At least one adapter must be provided.
      *                                            All adapters must support the same message type.
      *
-     * @throws \InvalidArgumentException If no adapters are provided or adapters have mixed types.
+     * @throws \InvalidArgumentException If no adapters are provided, an array element is not an adapter, or adapters have mixed types.
      */
     public function __construct(Adapter|array $adapters)
     {
@@ -47,6 +47,18 @@ class Messenger
 
         if (empty($adapters)) {
             throw new \InvalidArgumentException('At least one adapter must be provided.');
+        }
+
+        foreach ($adapters as $index => $adapter) {
+            if (! $adapter instanceof Adapter) {
+                throw new \InvalidArgumentException(
+                    'All elements must be instances of Adapter, but element '
+                    .$index
+                    .' is '
+                    .\get_debug_type($adapter)
+                    .'.'
+                );
+            }
         }
 
         $this->validateAdapters($adapters);
@@ -76,31 +88,38 @@ class Messenger
         $messageType = $this->adapters[0]->getMessageType();
 
         if (! \is_a($message, $messageType)) {
-            throw new \Exception(sprintf(
-                'Invalid message type. Expected "%s", got "%s".',
-                $messageType,
-                get_class($message)
-            ));
+            throw new \Exception(
+                'Invalid message type. Expected "'
+                .$messageType
+                .'", got "'
+                .\get_class($message)
+                .'".'
+            );
         }
 
         foreach ($this->adapters as $index => $adapter) {
             try {
                 return $adapter->send($message);
             } catch (\Exception $e) {
-                $errors[] = sprintf(
-                    '%s (adapter %d): %s',
-                    $adapter->getName(),
-                    $index + 1,
-                    $e->getMessage()
-                );
+                $errors[] = $adapter->getName()
+                    .' (adapter '
+                    .($index + 1)
+                    .'): '
+                    .$e->getMessage();
             }
         }
 
-        throw new \Exception(sprintf(
-            "All %d adapters failed:\n%s",
-            count($this->adapters),
-            implode("\n", $errors)
-        ));
+        $adapterCount = \count($this->adapters);
+        $adapterLabel = $adapterCount === 1 ? 'adapter' : 'adapters';
+
+        throw new \Exception(
+            'All '
+            .$adapterCount
+            .' '
+            .$adapterLabel
+            ." failed:\n"
+            .\implode("\n", $errors)
+        );
     }
 
     /**
@@ -151,25 +170,33 @@ class Messenger
         $expectedType = $firstAdapter->getType();
         $expectedMessageType = $firstAdapter->getMessageType();
 
-        foreach ($adapters as $index => $adapter) {
+        foreach (\array_slice($adapters, 1, preserve_keys: true) as $index => $adapter) {
             if ($adapter->getType() !== $expectedType) {
-                throw new \InvalidArgumentException(sprintf(
-                    'All adapters must be of the same type. Expected "%s", but adapter %d (%s) has type "%s".',
-                    $expectedType,
-                    $index + 1,
-                    $adapter->getName(),
-                    $adapter->getType()
-                ));
+                throw new \InvalidArgumentException(
+                    'All adapters must be of the same type. Expected "'
+                    .$expectedType
+                    .'", but adapter '
+                    .($index + 1)
+                    .' ('
+                    .$adapter->getName()
+                    .') has type "'
+                    .$adapter->getType()
+                    .'".'
+                );
             }
 
             if ($adapter->getMessageType() !== $expectedMessageType) {
-                throw new \InvalidArgumentException(sprintf(
-                    'All adapters must support the same message type. Expected "%s", but adapter %d (%s) supports "%s".',
-                    $expectedMessageType,
-                    $index + 1,
-                    $adapter->getName(),
-                    $adapter->getMessageType()
-                ));
+                throw new \InvalidArgumentException(
+                    'All adapters must support the same message type. Expected "'
+                    .$expectedMessageType
+                    .'", but adapter '
+                    .($index + 1)
+                    .' ('
+                    .$adapter->getName()
+                    .') supports "'
+                    .$adapter->getMessageType()
+                    .'".'
+                );
             }
         }
     }

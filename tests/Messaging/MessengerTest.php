@@ -164,10 +164,34 @@ class MessengerTest extends TestCase
         );
 
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('All 1 adapters failed');
+        $this->expectExceptionMessage('All 1 adapter failed');
         $this->expectExceptionMessage('OnlyAdapter (adapter 1): Network error');
 
         $messenger->send($message);
+    }
+
+    public function test_accepts_single_adapter_instance(): void
+    {
+        $adapter = $this->createMock(Adapter::class);
+        $adapter->method('getName')->willReturn('OnlyAdapter');
+        $adapter->method('getType')->willReturn('sms');
+        $adapter->method('getMessageType')->willReturn(SMS::class);
+        $adapter->method('getMaxMessagesPerRequest')->willReturn(100);
+        $adapter->method('send')->willReturn([
+            'deliveredTo' => 1,
+            'type' => 'sms',
+            'results' => [['recipient' => '+1234567890', 'status' => 'success', 'error' => '']],
+        ]);
+
+        $messenger = new Messenger($adapter);
+
+        $result = $messenger->send(new SMS(
+            to: ['+1234567890'],
+            content: 'Test message'
+        ));
+
+        $this->assertEquals(1, $result['deliveredTo']);
+        $this->assertEquals('success', $result['results'][0]['status']);
     }
 
     public function test_rejects_empty_adapter_list(): void
@@ -176,6 +200,17 @@ class MessengerTest extends TestCase
         $this->expectExceptionMessage('At least one adapter must be provided');
 
         new Messenger([]);
+    }
+
+    public function test_rejects_non_adapter_array_element(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('All elements must be instances of Adapter, but element 1 is string.');
+
+        new Messenger([
+            $this->createMock(Adapter::class),
+            'not-an-adapter',
+        ]);
     }
 
     public function test_rejects_mixed_adapter_types(): void
