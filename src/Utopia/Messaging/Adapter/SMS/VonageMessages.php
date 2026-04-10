@@ -3,7 +3,6 @@
 namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
-use Utopia\Messaging\Adapter\VonageMessagesBase;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 use Utopia\Messaging\Response;
 
@@ -17,8 +16,6 @@ use Utopia\Messaging\Response;
  */
 class VonageMessages extends SMSAdapter
 {
-    use VonageMessagesBase;
-
     protected const NAME = 'Vonage Messages';
 
     /**
@@ -30,6 +27,39 @@ class VonageMessages extends SMSAdapter
         private string $apiSecret,
         private ?string $from = null
     ) {
+    }
+
+    /**
+     * Get the API endpoint for the Vonage Messages API.
+     */
+    protected function getApiEndpoint(): string
+    {
+        return 'https://api.vonage.com/v1/messages';
+    }
+
+    /**
+     * Get the authorization header value for the API request.
+     *
+     * @todo Implement JWT authentication for non-SMS channels
+     */
+    protected function getAuthorizationHeader(): string
+    {
+        return 'Basic ' . \base64_encode("{$this->apiKey}:{$this->apiSecret}");
+    }
+
+    /**
+     * Build the request headers for the Messages API.
+     *
+     * @return array<string>
+     */
+    protected function getRequestHeaders(): array
+    {
+        return [
+            "Authorization: {$this->getAuthorizationHeader()}",
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'User-Agent: Utopia Messaging',
+        ];
     }
 
     /**
