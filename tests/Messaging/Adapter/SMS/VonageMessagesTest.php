@@ -8,9 +8,7 @@ use Utopia\Tests\Adapter\Base;
 
 class VonageMessagesTest extends Base
 {
-    /**
-     * @throws \Exception
-     */
+    // Tests sending an SMS with the 'from' number set directly in the adapter.
     public function testSendSMS(): void
     {
         $apiKey = \getenv('VONAGE_API_KEY');
@@ -37,9 +35,7 @@ class VonageMessagesTest extends Base
         $this->assertResponse($response);
     }
 
-    /**
-     * @throws \Exception
-     */
+    // Tests sending an SMS where the 'from' number is provided by the message object.
     public function testSendSMSWithFallbackFrom(): void
     {
         $apiKey = \getenv('VONAGE_API_KEY');

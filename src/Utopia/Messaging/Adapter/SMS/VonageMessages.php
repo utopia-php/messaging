@@ -6,22 +6,14 @@ use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 use Utopia\Messaging\Response;
 
-/**
- * Vonage Messages API SMS Adapter.
- *
- * Uses the newer Vonage Messages API (V1) instead of the older SMS API.
- * The Messages API is cheaper and supports multiple message types.
- *
- * Reference: https://developer.vonage.com/en/api/messages
- */
+// Vonage Messages API SMS Adapter.
+// This adapter uses the modern Vonage Messages API (V1) which is more cost-effective
+// and versatile than the legacy SMS API.
+// https://developer.vonage.com/en/api/messages
 class VonageMessages extends SMSAdapter
 {
     protected const NAME = 'Vonage Messages';
 
-    /**
-     * @param  string  $apiKey Vonage API Key
-     * @param  string  $apiSecret Vonage API Secret
-     */
     public function __construct(
         private string $apiKey,
         private string $apiSecret,
@@ -29,29 +21,19 @@ class VonageMessages extends SMSAdapter
     ) {
     }
 
-    /**
-     * Get the API endpoint for the Vonage Messages API.
-     */
+    // Vonage Messages API endpoint.
     protected function getApiEndpoint(): string
     {
         return 'https://api.vonage.com/v1/messages';
     }
 
-    /**
-     * Get the authorization header value for the API request.
-     *
-     * @todo Implement JWT authentication for non-SMS channels
-     */
+    // Generates the Basic Authorization header.
     protected function getAuthorizationHeader(): string
     {
         return 'Basic ' . \base64_encode("{$this->apiKey}:{$this->apiSecret}");
     }
 
-    /**
-     * Build the request headers for the Messages API.
-     *
-     * @return array<string>
-     */
+    // Sets common headers for the API request.
     protected function getRequestHeaders(): array
     {
         return [
@@ -62,25 +44,18 @@ class VonageMessages extends SMSAdapter
         ];
     }
 
-    /**
-     * Get adapter name.
-     */
+    // Get adapter name.
     public function getName(): string
     {
         return static::NAME;
     }
 
-    /**
-     * Get max messages per request.
-     */
+    // Get max messages per request.
     public function getMaxMessagesPerRequest(): int
     {
         return 1;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function process(SMSMessage $message): array
     {
         $to = \ltrim($message->getTo()[0], '+');
@@ -111,13 +86,18 @@ class VonageMessages extends SMSAdapter
             $response->setDeliveredTo(1);
             $response->addResult($message->getTo()[0]);
         } else {
-            $errorMessage = 'Unknown error';
-            if (isset($result['response']['detail'])) {
-                $errorMessage = $result['response']['detail'];
-            } elseif (isset($result['response']['title'])) {
-                $errorMessage = $result['response']['title'];
+            $errorMessage = "Error {$result['statusCode']}";
+
+            if (\is_array($result['response'])) {
+                if (isset($result['response']['detail'])) {
+                    $errorMessage = $result['response']['detail'];
+                } elseif (isset($result['response']['title'])) {
+                    $errorMessage = $result['response']['title'];
+                }
             } elseif (!empty($result['error'])) {
                 $errorMessage = $result['error'];
+            } elseif (\is_string($result['response']) && !empty($result['response'])) {
+                $errorMessage = "Error {$result['statusCode']}: " . \mb_strimwidth(\strip_tags($result['response']), 0, 100, '...');
             }
 
             $response->addResult($message->getTo()[0], $errorMessage);
