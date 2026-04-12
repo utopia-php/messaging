@@ -33,7 +33,9 @@ class VonageMessages extends SMSAdapter
         return 'Basic ' . \base64_encode("{$this->apiKey}:{$this->apiSecret}");
     }
 
-    // Sets common headers for the API request.
+    /**
+     * @return array<string>
+     */
     protected function getRequestHeaders(): array
     {
         return [

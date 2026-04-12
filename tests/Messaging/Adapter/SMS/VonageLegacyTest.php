@@ -2,9 +2,10 @@
 
 namespace Utopia\Tests\Adapter\SMS;
 
+use Utopia\Messaging\Adapter\SMS\VonageLegacy;
 use Utopia\Tests\Adapter\Base;
 
-class VonageTest extends Base
+class VonageLegacyTest extends Base
 {
     /**
      * @throws \Exception
@@ -17,7 +18,7 @@ class VonageTest extends Base
             $apiKey = \getenv('VONAGE_API_KEY');
             $apiSecret = \getenv('VONAGE_API_SECRET');
 
-            $sender = new Vonage($apiKey, $apiSecret);
+            $sender = new VonageLegacy($apiKey, $apiSecret);
 
             $message = new SMS(
                 to: [\getenv('VONAGE_TO')],
