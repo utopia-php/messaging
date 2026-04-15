@@ -41,6 +41,21 @@ $messaging = new Resend('YOUR_API_KEY');
 $messaging->send($message);
 ```
 
+You can also create email adapters from a DSN:
+
+```php
+<?php
+
+use Utopia\Messaging\Adapter\Email;
+
+$smtp = Email::fromDsn('smtp://user:pass@smtp.example.com:587?secure=tls&autotls=1');
+$resend = Email::fromDsn('resend://YOUR_API_KEY@default');
+$sendgrid = Email::fromDsn('sendgrid://YOUR_API_KEY@default');
+$mailgun = Email::fromDsn('mailgun://YOUR_API_KEY@example.com?eu=0');
+```
+
+Supported email DSN schemes are `smtp`, `smtps`, `resend`, `sendgrid`, and `mailgun`.
+
 ## SMS
 
 ```php
