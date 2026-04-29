@@ -115,7 +115,6 @@ abstract class Adapter
 
         $response = \curl_exec($ch);
 
-
         try {
             $response = \json_decode($response, true, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
