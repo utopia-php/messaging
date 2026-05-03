@@ -115,8 +115,6 @@ abstract class Adapter
 
         $response = \curl_exec($ch);
 
-        \curl_close($ch);
-
         try {
             $response = \json_decode($response, true, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
@@ -250,10 +248,8 @@ abstract class Adapter
             ];
 
             \curl_multi_remove_handle($mh, $ch);
-            \curl_close($ch);
         }
 
-        \curl_multi_close($mh);
         \curl_share_close($sh);
 
         return $responses;
