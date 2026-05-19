@@ -161,7 +161,7 @@ class ResendTest extends Base
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Total attachment size exceeds');
 
-        $largeContent = \str_repeat('x', 25 * 1024 * 1024 + 1);
+        $largeContent = \str_repeat('x', 40 * 1024 * 1024 + 1);
 
         $message = new Email(
             to: [$this->testEmail],
