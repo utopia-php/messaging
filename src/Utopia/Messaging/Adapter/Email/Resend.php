@@ -10,6 +10,8 @@ class Resend extends EmailAdapter
 {
     protected const NAME = 'Resend';
 
+    protected const MAX_ATTACHMENT_BYTES = 40 * 1024 * 1024;
+
     /**
      * @param  string  $apiKey  Your Resend API key to authenticate with the API.
      */
@@ -29,9 +31,8 @@ class Resend extends EmailAdapter
     }
 
     /**
-     * Uses Resend's batch sending API to send multiple emails at once.
-     *
      * @link https://resend.com/docs/api-reference/emails/send-batch-emails
+     * @link https://resend.com/docs/api-reference/emails/send-email
      */
     protected function process(EmailMessage $message): array
     {
@@ -77,7 +78,7 @@ class Resend extends EmailAdapter
 
         $emails = [];
         foreach ($message->getTo() as $to) {
-            $toFormatted = !empty($to['name'])
+            $toFormatted = ! empty($to['name'])
                 ? "{$to['name']} <{$to['email']}>"
                 : $to['email'];
 
@@ -133,11 +134,25 @@ class Resend extends EmailAdapter
             'Content-Type: application/json',
         ];
 
+        if (! empty($attachments)) {
+            return $this->sendIndividually($message, $emails, $headers, $response);
+        }
+
+        return $this->sendBatch($message, $emails, $headers, $response);
+    }
+
+    /**
+     * @param  array<array<string, mixed>>  $emails
+     * @param  array<string>  $headers
+     * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
+     */
+    private function sendBatch(EmailMessage $message, array $emails, array $headers, Response $response): array
+    {
         $result = $this->request(
             method: 'POST',
             url: 'https://api.resend.com/emails/batch',
             headers: $headers,
-            body: $emails, // @phpstan-ignore-line
+            body: $emails,
         );
 
         $statusCode = $result['statusCode'];
@@ -145,7 +160,7 @@ class Resend extends EmailAdapter
         if ($statusCode === 200) {
             $responseData = $result['response'];
 
-            if (isset($responseData['errors']) && ! empty($responseData['errors'])) {
+            if (\is_array($responseData) && isset($responseData['errors']) && ! empty($responseData['errors'])) {
                 $failedIndices = [];
                 foreach ($responseData['errors'] as $error) {
                     $failedIndices[$error['index']] = $error['message'];
@@ -168,27 +183,13 @@ class Resend extends EmailAdapter
                 }
             }
         } elseif ($statusCode >= 400 && $statusCode < 500) {
-            $errorMessage = 'Unknown error';
-
-            if (\is_string($result['response'])) {
-                $errorMessage = $result['response'];
-            } elseif (isset($result['response']['message'])) {
-                $errorMessage = $result['response']['message'];
-            } elseif (isset($result['response']['error'])) {
-                $errorMessage = $result['response']['error'];
-            }
+            $errorMessage = $this->extractErrorMessage($result['response'], 'Unknown error');
 
             foreach ($message->getTo() as $to) {
                 $response->addResult($to['email'], $errorMessage);
             }
         } elseif ($statusCode >= 500) {
-            $errorMessage = 'Server error';
-
-            if (\is_string($result['response'])) {
-                $errorMessage = $result['response'];
-            } elseif (isset($result['response']['message'])) {
-                $errorMessage = $result['response']['message'];
-            }
+            $errorMessage = $this->extractErrorMessage($result['response'], 'Server error');
 
             foreach ($message->getTo() as $to) {
                 $response->addResult($to['email'], $errorMessage);
@@ -196,5 +197,66 @@ class Resend extends EmailAdapter
         }
 
         return $response->toArray();
+    }
+
+    /**
+     * @param  array<array<string, mixed>>  $emails
+     * @param  array<string>  $headers
+     * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
+     */
+    private function sendIndividually(EmailMessage $message, array $emails, array $headers, Response $response): array
+    {
+        $recipients = $message->getTo();
+        $deliveredTo = 0;
+
+        foreach ($emails as $index => $email) {
+            $to = $recipients[$index];
+
+            $result = $this->request(
+                method: 'POST',
+                url: 'https://api.resend.com/emails',
+                headers: $headers,
+                body: $email,
+            );
+
+            $statusCode = $result['statusCode'];
+
+            if ($statusCode >= 200 && $statusCode < 300) {
+                $response->addResult($to['email']);
+                $deliveredTo++;
+            } elseif ($statusCode >= 400 && $statusCode < 500) {
+                $errorMessage = $this->extractErrorMessage($result['response'], 'Unknown error');
+                $response->addResult($to['email'], $errorMessage);
+            } else {
+                $errorMessage = $this->extractErrorMessage($result['response'], 'Server error');
+                $response->addResult($to['email'], $errorMessage);
+            }
+        }
+
+        $response->setDeliveredTo($deliveredTo);
+
+        return $response->toArray();
+    }
+
+    /**
+     * @param  array<string, mixed>|string|null  $body
+     */
+    private function extractErrorMessage(array|string|null $body, string $default): string
+    {
+        if (\is_string($body)) {
+            return $body;
+        }
+
+        if (\is_array($body)) {
+            if (isset($body['message']) && \is_string($body['message'])) {
+                return $body['message'];
+            }
+
+            if (isset($body['error']) && \is_string($body['error'])) {
+                return $body['error'];
+            }
+        }
+
+        return $default;
     }
 }
