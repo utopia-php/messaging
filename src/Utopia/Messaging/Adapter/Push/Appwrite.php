@@ -34,6 +34,20 @@ class Appwrite extends PushAdapter
 
     private int $packetId = 0;
 
+    /**
+     * Persistent read buffer carrying over bytes the decoder didn't yet consume.
+     * MQTT packets can be coalesced into a single TCP read and we'd otherwise
+     * lose them between calls to readPacket().
+     */
+    private string $readBuffer = '';
+
+    /**
+     * Max number of unacknowledged PUBLISHes in flight at any time. MQTT 5's
+     * Receive Maximum default is 65535 but most real brokers advertise a smaller
+     * value in CONNACK; we honor whichever is smaller after handshake.
+     */
+    private int $receiveMaximum = 256;
+
     public function __construct(
         private string $endpoint,
         private string $signingKey,
@@ -70,45 +84,7 @@ class Appwrite extends PushAdapter
 
         try {
             $this->handshake($socket);
-
-            foreach ($message->getTo() as $token) {
-                $topic = $this->topicForToken($token);
-
-                try {
-                    $packetId = $this->nextPacketId();
-                    $packet = MQTT::encodePublish(
-                        topic: $topic,
-                        payload: $payload,
-                        qos: 1,
-                        retain: false,
-                        dup: false,
-                        packetId: $packetId,
-                        properties: [
-                            'messageExpiryInterval' => $expiry,
-                            'contentType' => 'application/json',
-                        ],
-                    );
-
-                    $this->write($socket, $packet);
-                    $ack = $this->readPacket($socket);
-                    if ($ack['type'] !== MQTT::PACKET_PUBACK) {
-                        $response->addResult($token, 'Broker did not acknowledge PUBLISH');
-                        continue;
-                    }
-
-                    $parsed = MQTT::parsePuback($ack['payload']);
-                    if ($parsed['reasonCode'] !== MQTT::REASON_SUCCESS) {
-                        $error = $this->errorForReasonCode($parsed['reasonCode']);
-                        $response->addResult($token, $error);
-                        continue;
-                    }
-
-                    $response->incrementDeliveredTo();
-                    $response->addResult($token);
-                } catch (\Throwable $error) {
-                    $response->addResult($token, $error->getMessage());
-                }
-            }
+            $this->pipelinedPublish($socket, $message->getTo(), $payload, $expiry, $response);
 
             try {
                 $this->write($socket, MQTT::encodeDisconnect());
@@ -120,6 +96,84 @@ class Appwrite extends PushAdapter
         }
 
         return $response->toArray();
+    }
+
+    /**
+     * Pipelined PUBLISH/PUBACK loop.
+     *
+     * Sends up to `receiveMaximum` PUBLISH packets without waiting for an
+     * acknowledgment, then drains PUBACKs as they arrive, matching each by
+     * packet id. Refills the in-flight window after each ack until every
+     * device has been sent. This keeps throughput proportional to socket
+     * bandwidth rather than to network RTT — important when fanning out to
+     * thousands of devices per request.
+     *
+     * @param resource $socket
+     * @param array<string> $tokens
+     */
+    private function pipelinedPublish($socket, array $tokens, string $payload, int $expiry, Response $response): void
+    {
+        $inflight = [];
+        $cursor = 0;
+        $total = \count($tokens);
+
+        while ($cursor < $total || !empty($inflight)) {
+            while ($cursor < $total && \count($inflight) < $this->receiveMaximum) {
+                $token = $tokens[$cursor++];
+                $packetId = $this->nextPacketId();
+
+                try {
+                    $packet = MQTT::encodePublish(
+                        topic: $this->topicForToken($token),
+                        payload: $payload,
+                        qos: 1,
+                        retain: false,
+                        dup: false,
+                        packetId: $packetId,
+                        properties: [
+                            'messageExpiryInterval' => $expiry,
+                            'contentType' => 'application/json',
+                        ],
+                    );
+                    $this->write($socket, $packet);
+                    $inflight[$packetId] = $token;
+                } catch (\Throwable $error) {
+                    $response->addResult($token, $error->getMessage());
+                }
+            }
+
+            if (empty($inflight)) {
+                continue;
+            }
+
+            try {
+                $ack = $this->readPacket($socket);
+            } catch (\Throwable $error) {
+                foreach ($inflight as $token) {
+                    $response->addResult($token, $error->getMessage());
+                }
+                return;
+            }
+
+            if ($ack['type'] !== MQTT::PACKET_PUBACK) {
+                continue;
+            }
+
+            $parsed = MQTT::parsePuback($ack['payload']);
+            $token = $inflight[$parsed['packetId']] ?? null;
+            if ($token === null) {
+                continue;
+            }
+            unset($inflight[$parsed['packetId']]);
+
+            if ($parsed['reasonCode'] !== MQTT::REASON_SUCCESS) {
+                $response->addResult($token, $this->errorForReasonCode($parsed['reasonCode']));
+                continue;
+            }
+
+            $response->incrementDeliveredTo();
+            $response->addResult($token);
+        }
     }
 
     /**
@@ -175,7 +229,12 @@ class Appwrite extends PushAdapter
             };
         }
 
-        return \json_encode($envelope, JSON_UNESCAPED_SLASHES);
+        $json = \json_encode($envelope, JSON_UNESCAPED_SLASHES);
+        if ($json === false) {
+            throw new \RuntimeException('Failed to encode push payload: ' . \json_last_error_msg());
+        }
+
+        return $json;
     }
 
     private function resolveExpiry(PushMessage $message): int
@@ -291,6 +350,11 @@ class Appwrite extends PushAdapter
         if ($connack['reasonCode'] !== MQTT::REASON_SUCCESS) {
             throw new \RuntimeException("Broker rejected CONNECT (reason {$connack['reasonCode']})");
         }
+
+        $brokerLimit = (int)($connack['properties']['receiveMaximum'] ?? 0);
+        if ($brokerLimit > 0) {
+            $this->receiveMaximum = \min($this->receiveMaximum, $brokerLimit);
+        }
     }
 
     private function issueServerJwt(): string
@@ -313,8 +377,12 @@ class Appwrite extends PushAdapter
      */
     private function readPacket($socket): array
     {
-        $buffer = '';
         while (true) {
+            $packet = MQTT::decodePacket($this->readBuffer);
+            if ($packet !== null) {
+                return $packet;
+            }
+
             $chunk = @\fread($socket, 4096);
             if ($chunk === false || $chunk === '') {
                 if (\feof($socket)) {
@@ -329,12 +397,7 @@ class Appwrite extends PushAdapter
                 continue;
             }
 
-            $buffer .= $chunk;
-
-            $packet = MQTT::decodePacket($buffer);
-            if ($packet !== null) {
-                return $packet;
-            }
+            $this->readBuffer .= $chunk;
         }
     }
 

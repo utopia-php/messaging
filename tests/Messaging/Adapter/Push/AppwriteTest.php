@@ -58,6 +58,46 @@ class AppwriteTest extends TestCase
         }
     }
 
+    public function testPipelinesPublishesToManyDevices(): void
+    {
+        $tokens = [];
+        for ($i = 0; $i < 64; $i++) {
+            $tokens[] = "device-{$i}";
+        }
+
+        $broker = $this->startBroker($tokens);
+
+        try {
+            $adapter = new Appwrite(
+                endpoint: '127.0.0.1:' . $broker['port'],
+                signingKey: self::SIGNING_KEY,
+                tls: false,
+            );
+
+            $message = new Push(
+                to: $tokens,
+                title: 'Burst',
+                body: 'Pipeline test',
+            );
+
+            $response = $adapter->send($message);
+
+            $this->assertSame(\count($tokens), $response['deliveredTo']);
+            $this->assertCount(\count($tokens), $response['results']);
+
+            $captured = $this->stopBroker($broker);
+            $this->assertCount(\count($tokens), $captured['publishes']);
+
+            $seenTopics = \array_map(fn ($p) => $p['topic'], $captured['publishes']);
+            \sort($seenTopics);
+            $expectedTopics = \array_map(fn ($t) => 'appwrite/push/' . $t, $tokens);
+            \sort($expectedTopics);
+            $this->assertSame($expectedTopics, $seenTopics);
+        } finally {
+            $this->stopBroker($broker, suppress: true);
+        }
+    }
+
     public function testReportsExpiredTokenOnBrokerReasonCode(): void
     {
         $broker = $this->startBroker(['live-token'], rejectTokens: ['stale-token']);

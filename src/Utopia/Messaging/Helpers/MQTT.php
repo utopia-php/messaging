@@ -75,6 +75,9 @@ class MQTT
             $flags |= 0x02;
         }
         if ($password !== null) {
+            if ($username === null) {
+                throw new \InvalidArgumentException('MQTT 5 §3.1.2.9 forbids setting a password without a username.');
+            }
             $flags |= 0x40;
         }
         if ($username !== null) {
@@ -163,11 +166,15 @@ class MQTT
         ?int $packetId = null,
         array $properties = []
     ): string {
+        if ($qos < 0 || $qos > 2) {
+            throw new \InvalidArgumentException("MQTT QoS must be 0, 1, or 2 ({$qos} given)");
+        }
+
         $flags = 0;
         if ($dup) {
             $flags |= 0x08;
         }
-        $flags |= ($qos & 0x03) << 1;
+        $flags |= $qos << 1;
         if ($retain) {
             $flags |= 0x01;
         }

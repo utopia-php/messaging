@@ -2,8 +2,11 @@
 
 require __DIR__ . '/../../../../vendor/autoload.php';
 
+use Swoole\Server;
+use Swoole\Timer;
 use Utopia\Messaging\Helpers\MQTT;
 
+$argv = $_SERVER['argv'];
 [$_, $port, $capturePath, $stateFile] = $argv;
 $port = (int)$port;
 $state = \json_decode(\file_get_contents($stateFile), true) ?: [];
@@ -14,96 +17,88 @@ $captured = [
     'publishes' => [],
 ];
 
-\register_shutdown_function(function () use (&$captured, $capturePath) {
+$flush = function () use (&$captured, $capturePath) {
     \file_put_contents($capturePath, \json_encode($captured));
+};
+$flush();
+
+/** @var array<int, string> $buffers */
+$buffers = [];
+
+$server = new Server('127.0.0.1', $port, SWOOLE_BASE, SWOOLE_SOCK_TCP);
+$server->set([
+    'worker_num' => 1,
+    'max_request' => 0,
+    'log_level' => SWOOLE_LOG_ERROR,
+    'open_eof_check' => false,
+    'open_tcp_nodelay' => true,
+]);
+
+$server->on('start', function () {
+    Timer::after(15000, function () {
+        \Swoole\Event::exit();
+    });
 });
 
-\pcntl_async_signals(true);
-foreach ([SIGTERM, SIGINT] as $signal) {
-    \pcntl_signal($signal, function () use (&$captured, $capturePath) {
-        \file_put_contents($capturePath, \json_encode($captured));
-        exit(0);
-    });
-}
+$server->on('close', function (Server $server, int $fd) use (&$buffers, $flush) {
+    unset($buffers[$fd]);
+    $flush();
+});
 
-$server = \stream_socket_server("tcp://127.0.0.1:{$port}", $errno, $errstr);
-if (!$server) {
-    \fwrite(STDERR, "Could not bind: {$errstr}\n");
-    exit(1);
-}
+$server->on('receive', function (Server $server, int $fd, int $reactorId, string $data) use (&$captured, &$buffers, $rejectTokens, $flush) {
+    $buffers[$fd] = ($buffers[$fd] ?? '') . $data;
 
-\stream_set_blocking($server, false);
-
-// @phpstan-ignore-next-line
-while (true) { // Exits only via SIGTERM handler above.
-    $client = @\stream_socket_accept($server, 5);
-    if (!$client) {
-        continue;
-    }
-
-    \stream_set_timeout($client, 5);
-
-    $buffer = '';
-
-    while (!\feof($client)) {
-        $chunk = @\fread($client, 4096);
-        if ($chunk === '' || $chunk === false) {
-            $info = \stream_get_meta_data($client);
-            if (!empty($info['timed_out'])) {
+    while (($packet = MQTT::decodePacket($buffers[$fd])) !== null) {
+        switch ($packet['type']) {
+            case MQTT::PACKET_CONNECT:
+                $parsed = MQTT::parseConnect($packet['payload']);
+                $captured['connect'] = [
+                    'clientId' => $parsed['clientId'],
+                    'username' => (string)$parsed['username'],
+                    'password' => (string)$parsed['password'],
+                ];
+                $server->send($fd, MQTT::encodeConnack(MQTT::REASON_SUCCESS));
+                $flush();
                 break;
-            }
-            continue;
-        }
 
-        $buffer .= $chunk;
+            case MQTT::PACKET_PUBLISH:
+                $parsed = MQTT::parsePublish($packet['payload'], $packet['flags']);
+                $captured['publishes'][] = [
+                    'topic' => $parsed['topic'],
+                    'payload' => $parsed['payload'],
+                    'qos' => $parsed['qos'],
+                ];
 
-        while (($packet = MQTT::decodePacket($buffer)) !== null) {
-            switch ($packet['type']) {
-                case MQTT::PACKET_CONNECT:
-                    $parsed = MQTT::parseConnect($packet['payload']);
-                    $captured['connect'] = [
-                        'clientId' => $parsed['clientId'],
-                        'username' => (string)$parsed['username'],
-                        'password' => (string)$parsed['password'],
-                    ];
-                    \fwrite($client, MQTT::encodeConnack(MQTT::REASON_SUCCESS));
-                    break;
-
-                case MQTT::PACKET_PUBLISH:
-                    $parsed = MQTT::parsePublish($packet['payload'], $packet['flags']);
-                    $captured['publishes'][] = [
-                        'topic' => $parsed['topic'],
-                        'payload' => $parsed['payload'],
-                        'qos' => $parsed['qos'],
-                    ];
-
-                    $reason = MQTT::REASON_SUCCESS;
-                    foreach ($rejectTokens as $bad) {
-                        if (\str_ends_with($parsed['topic'], '/' . $bad)) {
-                            $reason = 0x10;
-                            break;
-                        }
+                $reason = MQTT::REASON_SUCCESS;
+                foreach ($rejectTokens as $bad) {
+                    if (\str_ends_with($parsed['topic'], '/' . $bad)) {
+                        $reason = 0x10;
+                        break;
                     }
+                }
 
-                    if ($parsed['qos'] === 1 && $parsed['packetId'] !== null) {
-                        \fwrite($client, MQTT::encodePuback($parsed['packetId'], $reason));
-                    }
-                    break;
+                if ($parsed['qos'] === 1 && $parsed['packetId'] !== null) {
+                    $server->send($fd, MQTT::encodePuback($parsed['packetId'], $reason));
+                }
+                $flush();
+                break;
 
-                case MQTT::PACKET_DISCONNECT:
-                    @\fclose($client);
-                    break 3;
+            case MQTT::PACKET_DISCONNECT:
+                $server->close($fd);
+                $flush();
+                Timer::after(50, fn () => \Swoole\Event::exit());
+                return;
 
-                case MQTT::PACKET_PINGREQ:
-                    \fwrite($client, MQTT::encodePingresp());
-                    break;
+            case MQTT::PACKET_PINGREQ:
+                $server->send($fd, MQTT::encodePingresp());
+                break;
 
-                default:
-                    break;
-            }
+            default:
+                break;
         }
     }
+});
 
-    @\fclose($client);
-    \file_put_contents($capturePath, \json_encode($captured));
-}
+$server->start();
+
+$flush();

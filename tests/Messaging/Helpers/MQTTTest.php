@@ -168,4 +168,31 @@ class MQTTTest extends TestCase
         $this->expectException(\Throwable::class);
         MQTT::encodeConnect(clientId: $tooLong);
     }
+
+    public function testEncodeConnectRejectsPasswordWithoutUsername(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/password without a username/i');
+
+        MQTT::encodeConnect(
+            clientId: 'device-1',
+            username: null,
+            password: 'secret',
+        );
+    }
+
+    public function testEncodePublishRejectsInvalidQos(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('MQTT QoS must be 0, 1, or 2');
+
+        MQTT::encodePublish(
+            topic: 'a/b',
+            payload: 'data',
+            qos: 3,
+            retain: false,
+            dup: false,
+            packetId: 1,
+        );
+    }
 }
