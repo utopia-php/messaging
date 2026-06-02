@@ -409,6 +409,156 @@ class SESRoutingTest extends TestCase
         // The signed headers list in the Authorization header must include it.
         $this->assertStringContainsString('x-amz-security-token', $joined);
     }
+
+    public function testBulkEntriesIncludeCcAndBcc(): void
+    {
+        $stub = new SESStub('key', 'secret', 'us-east-1');
+        $stub->stubResponses[] = [
+            'statusCode' => 200,
+            'response' => ['BulkEmailEntryResults' => [['Status' => 'SUCCESS']]],
+        ];
+
+        $message = new Email(
+            to: [['email' => 'a@example.com']],
+            subject: 'Subject',
+            content: 'Body',
+            fromName: 'Sender',
+            fromEmail: 'from@example.com',
+            cc: [['email' => 'cc@example.com', 'name' => 'CC Person']],
+            bcc: [['email' => 'bcc@example.com']],
+        );
+
+        $stub->send($message);
+
+        $destination = $stub->capturedRequests[0]['body']['BulkEmailEntries'][0]['Destination'];
+
+        $this->assertSame(['a@example.com'], $destination['ToAddresses']);
+        $this->assertSame(['CC Person <cc@example.com>'], $destination['CcAddresses']);
+        $this->assertSame(['bcc@example.com'], $destination['BccAddresses']);
+    }
+
+    public function testBulkEntriesOmitCcAndBccWhenAbsent(): void
+    {
+        $stub = new SESStub('key', 'secret', 'us-east-1');
+        $stub->stubResponses[] = [
+            'statusCode' => 200,
+            'response' => ['BulkEmailEntryResults' => [['Status' => 'SUCCESS']]],
+        ];
+
+        $message = new Email(
+            to: [['email' => 'a@example.com']],
+            subject: 'Subject',
+            content: 'Body',
+            fromName: 'Sender',
+            fromEmail: 'from@example.com',
+        );
+
+        $stub->send($message);
+
+        $destination = $stub->capturedRequests[0]['body']['BulkEmailEntries'][0]['Destination'];
+
+        $this->assertArrayNotHasKey('CcAddresses', $destination);
+        $this->assertArrayNotHasKey('BccAddresses', $destination);
+    }
+
+    public function testDisplayNameWithSpecialCharactersIsQuoted(): void
+    {
+        $stub = new SESStub('key', 'secret', 'us-east-1');
+        $stub->stubResponses[] = [
+            'statusCode' => 200,
+            'response' => ['BulkEmailEntryResults' => [['Status' => 'SUCCESS']]],
+        ];
+
+        $message = new Email(
+            to: [['email' => 'a@example.com']],
+            subject: 'Subject',
+            content: 'Body',
+            fromName: 'Acme, Inc.',
+            fromEmail: 'from@example.com',
+        );
+
+        $stub->send($message);
+
+        // A name containing RFC 5322 specials must be quoted or SES rejects it.
+        $this->assertSame(
+            '"Acme, Inc." <from@example.com>',
+            $stub->capturedRequests[0]['body']['FromEmailAddress']
+        );
+    }
+
+    public function testTemplateNameRespectsSesLengthLimit(): void
+    {
+        $stub = new SESStub('key', 'secret', 'us-east-1');
+        $stub->stubResponses[] = [
+            'statusCode' => 200,
+            'response' => ['BulkEmailEntryResults' => [['Status' => 'SUCCESS']]],
+        ];
+
+        $message = new Email(
+            to: [['email' => 'a@example.com']],
+            subject: \str_repeat('long subject ', 64),
+            content: \str_repeat('long body ', 64),
+            fromName: 'Sender',
+            fromEmail: 'from@example.com',
+        );
+
+        $stub->send($message);
+
+        $templateName = $stub->capturedRequests[0]['body']['DefaultContent']['Template']['TemplateName'];
+
+        $this->assertLessThanOrEqual(64, \strlen($templateName));
+        $this->assertStringStartsWith('utopia-', $templateName);
+    }
+
+    public function testSuccessWithoutEntryResultsMarksAllRecipientsFailed(): void
+    {
+        $stub = new SESStub('key', 'secret', 'us-east-1');
+        // A 2xx whose body carries no BulkEmailEntryResults must not be reported
+        // as a delivery, since per-recipient status cannot be confirmed.
+        $stub->stubResponses[] = ['statusCode' => 200, 'response' => []];
+
+        $message = new Email(
+            to: [['email' => 'a@example.com'], ['email' => 'b@example.com']],
+            subject: 'Subject',
+            content: 'Body',
+            fromName: 'Sender',
+            fromEmail: 'from@example.com',
+        );
+
+        $response = $stub->send($message);
+
+        $this->assertSame(0, $response['deliveredTo']);
+        foreach ($response['results'] as $result) {
+            $this->assertSame('failure', $result['status']);
+            $this->assertNotSame('', $result['error']);
+        }
+    }
+
+    public function testMimeExceedingSesLimitThrows(): void
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('MIME message size exceeds SES limit');
+
+        $stub = new SESStub('key', 'secret', 'us-east-1');
+
+        // ~8MB of raw content clears the raw-attachment check (< 10MB) but its
+        // base64-encoded MIME exceeds the SES 10MB message limit.
+        $message = new Email(
+            to: [['email' => 'a@example.com']],
+            subject: 'Subject',
+            content: 'Body',
+            fromName: 'Sender',
+            fromEmail: 'from@example.com',
+            attachments: [new Attachment(
+                name: 'big.bin',
+                path: '',
+                type: 'application/octet-stream',
+                content: \str_repeat('x', 8 * 1024 * 1024),
+            )],
+        );
+
+        $stub->send($message);
+    }
 }
 
 /**

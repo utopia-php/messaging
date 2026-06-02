@@ -22,6 +22,11 @@ use Utopia\Messaging\Response;
  *    `Content.Raw` MIME payload, one request per recipient, because
  *    SES templates cannot carry attachments.
  *
+ * Templates created by the bulk path are never deleted, so one persists per
+ * unique (subject, content, isHtml) triple. High-variety or multi-tenant
+ * senders should periodically purge stale `utopia-` templates to stay under
+ * the per-account template quota (default 20,000).
+ *
  * Authentication is AWS Signature Version 4, hand-rolled (no AWS SDK
  * dependency), supporting both long-lived credentials and temporary
  * credentials via an optional session token.
@@ -51,10 +56,32 @@ class SES extends EmailAdapter
     protected const MAX_DESTINATIONS = 50;
 
     /**
+     * SES caps a full MIME message (after base64 encoding of attachments) at
+     * 10MB, well below the 25MB adapter default. Enforcing the real limit lets
+     * oversized sends fail fast instead of being rejected by SES.
+     *
+     * @link https://docs.aws.amazon.com/ses/latest/dg/quotas.html
+     */
+    protected const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10MB
+
+    /**
      * The SES BulkEmailEntryResult status that indicates the message was
      * accepted. Any other status is treated as a per-recipient failure.
      */
     protected const STATUS_SUCCESS = 'SUCCESS';
+
+    /**
+     * Prefix for the deterministic, content-hashed template names.
+     */
+    protected const TEMPLATE_NAME_PREFIX = 'utopia-';
+
+    /**
+     * SES limits template names to 64 characters, so the content hash is
+     * truncated to fit alongside the prefix.
+     *
+     * @link https://docs.aws.amazon.com/ses/latest/APIReference-V2/API_CreateEmailTemplate.html
+     */
+    protected const TEMPLATE_NAME_MAX_LENGTH = 64;
 
     /**
      * Tracks template names this instance has already ensured exist, so the
@@ -115,17 +142,35 @@ class SES extends EmailAdapter
     {
         $templateName = $this->templateName($message);
 
+        $cc = \array_map(
+            fn ($recipient) => $this->formatAddress($recipient['email'], $recipient['name'] ?? null),
+            $message->getCC() ?? []
+        );
+        $bcc = \array_map(
+            fn ($recipient) => $this->formatAddress($recipient['email'], $recipient['name'] ?? null),
+            $message->getBCC() ?? []
+        );
+
         $entries = \array_map(
-            fn ($to) => [
-                'Destination' => [
-                    'ToAddresses' => [$to['email']],
-                ],
-                'ReplacementEmailContent' => [
-                    'ReplacementTemplate' => [
-                        'ReplacementTemplateData' => '{}',
+            function ($to) use ($cc, $bcc) {
+                $destination = ['ToAddresses' => [$to['email']]];
+
+                if (! empty($cc)) {
+                    $destination['CcAddresses'] = $cc;
+                }
+                if (! empty($bcc)) {
+                    $destination['BccAddresses'] = $bcc;
+                }
+
+                return [
+                    'Destination' => $destination,
+                    'ReplacementEmailContent' => [
+                        'ReplacementTemplate' => [
+                            'ReplacementTemplateData' => '{}',
+                        ],
                     ],
-                ],
-            ],
+                ];
+            },
             $message->getTo()
         );
 
@@ -174,6 +219,10 @@ class SES extends EmailAdapter
 
         foreach ($message->getTo() as $to) {
             $mime = $this->buildMime($message, $to);
+
+            if (\strlen($mime) > self::MAX_ATTACHMENT_BYTES) {
+                throw new \Exception('MIME message size exceeds SES limit of '.self::MAX_ATTACHMENT_BYTES.' bytes');
+            }
 
             $body = [
                 'FromEmailAddress' => $this->formatAddress($message->getFromEmail(), $message->getFromName()),
@@ -239,10 +288,12 @@ class SES extends EmailAdapter
             : null;
 
         if (! \is_array($entryResults)) {
-            // 2xx without a parseable body: treat the whole batch as delivered.
-            $response->setDeliveredTo(\count($recipients));
+            // 2xx without parseable BulkEmailEntryResults: per-recipient
+            // delivery cannot be confirmed, so report failure rather than
+            // false-positive successes.
+            $error = 'SES returned a success status without per-recipient results';
             foreach ($recipients as $to) {
-                $response->addResult($to['email']);
+                $response->addResult($to['email'], $error);
             }
 
             return $response->toArray();
@@ -305,6 +356,15 @@ class SES extends EmailAdapter
     /**
      * Derive a deterministic, SES-valid template name from the message content
      * so identical content reuses a single template across batches and sends.
+     *
+     * The SHA-256 hash is truncated so the prefixed name stays within the SES
+     * 64-character template-name limit; the retained length still leaves ample
+     * entropy to keep distinct content on distinct templates.
+     *
+     * Note: templates created via {@see ensureTemplate()} are never deleted, so
+     * one persists per unique (subject, content, isHtml) triple. High-variety
+     * or multi-tenant senders should periodically purge stale `utopia-`
+     * templates to stay under the per-account template quota (default 20,000).
      */
     private function templateName(EmailMessage $message): string
     {
@@ -314,7 +374,9 @@ class SES extends EmailAdapter
             $message->isHtml() ? '1' : '0',
         ]));
 
-        return 'utopia-'.$hash;
+        $hashLength = self::TEMPLATE_NAME_MAX_LENGTH - \strlen(self::TEMPLATE_NAME_PREFIX);
+
+        return self::TEMPLATE_NAME_PREFIX.\substr($hash, 0, $hashLength);
     }
 
     /**
@@ -435,11 +497,20 @@ class SES extends EmailAdapter
 
     /**
      * Format an email address with an optional display name (RFC 5322).
+     *
+     * When the display name contains any RFC 5322 special character it is
+     * wrapped in a quoted-string (with embedded quotes and backslashes
+     * escaped). Without this, a name such as "Acme, Inc." produces a malformed
+     * address that SES rejects with a 400.
      */
     private function formatAddress(string $email, ?string $name): string
     {
         if (empty($name)) {
             return $email;
+        }
+
+        if (\preg_match('/[,;:@<>()\[\]\\\\".]/', $name)) {
+            $name = '"'.\addcslashes($name, '"\\').'"';
         }
 
         return "{$name} <{$email}>";
