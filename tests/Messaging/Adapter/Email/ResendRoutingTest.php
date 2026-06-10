@@ -135,7 +135,7 @@ class ResendStub extends Resend
     /**
      * @param  array<string>  $headers
      * @param  array<string, mixed>|null  $body
-     * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, error: string|null}
+     * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}
      */
     protected function request(
         string $method,
@@ -158,6 +158,7 @@ class ResendStub extends Resend
             'url' => $url,
             'statusCode' => $stub['statusCode'],
             'response' => $stub['response'],
+            'headers' => [],
             'error' => null,
         ];
     }

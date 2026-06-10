@@ -69,6 +69,7 @@ abstract class Adapter
      *     url: string,
      *     statusCode: int,
      *     response: array<string, mixed>|string|null,
+     *     headers: array<string, string>,
      *     error: string|null
      * }
      *
@@ -103,6 +104,8 @@ abstract class Adapter
             }
         }
 
+        $responseHeaders = [];
+
         \curl_setopt_array($ch, [
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_URL => $url,
@@ -111,6 +114,14 @@ abstract class Adapter
             CURLOPT_USERAGENT => "Appwrite {$this->getName()} Message Sender",
             CURLOPT_TIMEOUT => $timeout,
             CURLOPT_CONNECTTIMEOUT => $connectTimeout,
+            CURLOPT_HEADERFUNCTION => function ($ch, string $header) use (&$responseHeaders): int {
+                $parts = \explode(':', $header, 2);
+                if (\count($parts) === 2) {
+                    $responseHeaders[\strtolower(\trim($parts[0]))] = \trim($parts[1]);
+                }
+
+                return \strlen($header);
+            },
         ]);
 
         $response = \curl_exec($ch);
@@ -125,6 +136,7 @@ abstract class Adapter
             'url' => $url,
             'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
             'response' => $response,
+            'headers' => $responseHeaders,
             'error' => \curl_error($ch),
         ];
     }

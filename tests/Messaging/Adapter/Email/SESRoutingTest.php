@@ -158,6 +158,83 @@ class SESRoutingTest extends TestCase
         $this->assertSame('success', $response['results'][0]['status']);
     }
 
+    public function testTopLevelMissingTemplateTriggersCreateAndRetry(): void
+    {
+        $stub = new SESStub('key', 'secret', 'us-east-1');
+
+        // The real SES v2 response for a missing DefaultContent template is a
+        // top-level 400 whose exception type lives only in the x-amzn-ErrorType
+        // response header, with a plain {"message": ...} body. The auto-create
+        // must trigger off that, not off a per-entry BulkEmailEntryResults
+        // status (which SES does not return for a missing default template).
+        $stub->stubResponses[] = [
+            'statusCode' => 400,
+            'headers' => ['x-amzn-errortype' => 'BadRequestException'],
+            'response' => ['message' => 'Template utopia-abc123 does not exist.'],
+        ];
+        $stub->stubResponses[] = ['statusCode' => 200, 'response' => []];
+        $stub->stubResponses[] = [
+            'statusCode' => 200,
+            'response' => ['BulkEmailEntryResults' => [['Status' => 'SUCCESS', 'MessageId' => 'x']]],
+        ];
+
+        $message = new Email(
+            to: [['email' => 'a@example.com']],
+            subject: 'Subject',
+            content: 'Body',
+            fromName: 'Sender',
+            fromEmail: 'from@example.com',
+        );
+
+        $response = $stub->send($message);
+
+        $this->assertCount(3, $stub->capturedRequests);
+        $this->assertStringEndsWith('/v2/email/outbound-bulk-emails', $stub->capturedRequests[0]['url']);
+        $this->assertStringEndsWith('/v2/email/templates', $stub->capturedRequests[1]['url']);
+        $this->assertStringEndsWith('/v2/email/outbound-bulk-emails', $stub->capturedRequests[2]['url']);
+
+        $this->assertSame(1, $response['deliveredTo']);
+        $this->assertSame('success', $response['results'][0]['status']);
+    }
+
+    public function testCreateTemplateToleratesAlreadyExists(): void
+    {
+        $stub = new SESStub('key', 'secret', 'us-east-1');
+
+        // Missing on the first send (top-level 400) ...
+        $stub->stubResponses[] = [
+            'statusCode' => 400,
+            'headers' => ['x-amzn-errortype' => 'BadRequestException'],
+            'response' => ['message' => 'Template utopia-abc123 does not exist.'],
+        ];
+        // ... but a concurrent sender created it first, so CreateEmailTemplate
+        // returns AlreadyExistsException (again, type in the header). That must
+        // be tolerated rather than surfaced as a failure.
+        $stub->stubResponses[] = [
+            'statusCode' => 400,
+            'headers' => ['x-amzn-errortype' => 'AlreadyExistsException'],
+            'response' => ['message' => 'Template utopia-abc123 already exists.'],
+        ];
+        $stub->stubResponses[] = [
+            'statusCode' => 200,
+            'response' => ['BulkEmailEntryResults' => [['Status' => 'SUCCESS']]],
+        ];
+
+        $message = new Email(
+            to: [['email' => 'a@example.com']],
+            subject: 'Subject',
+            content: 'Body',
+            fromName: 'Sender',
+            fromEmail: 'from@example.com',
+        );
+
+        $response = $stub->send($message);
+
+        $this->assertCount(3, $stub->capturedRequests);
+        $this->assertSame(1, $response['deliveredTo']);
+        $this->assertSame('success', $response['results'][0]['status']);
+    }
+
     public function testTextTemplateUsesTextContent(): void
     {
         $stub = new SESStub('key', 'secret', 'us-east-1');
@@ -573,14 +650,14 @@ class SESStub extends SES
     public array $capturedRequests = [];
 
     /**
-     * @var array<array{statusCode: int, response: array<string, mixed>|string|null}>
+     * @var array<array{statusCode: int, response: array<string, mixed>|string|null, headers?: array<string, string>}>
      */
     public array $stubResponses = [];
 
     /**
      * @param  array<string>  $headers
      * @param  array<string, mixed>|null  $body
-     * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, error: string|null}
+     * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}
      */
     protected function request(
         string $method,
@@ -603,6 +680,7 @@ class SESStub extends SES
             'url' => $url,
             'statusCode' => $stub['statusCode'],
             'response' => $stub['response'],
+            'headers' => $stub['headers'] ?? [],
             'error' => null,
         ];
     }
