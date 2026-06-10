@@ -266,7 +266,7 @@ class SES extends EmailAdapter
      * marked failed with the SES error. On success each recipient is mapped
      * from its corresponding BulkEmailEntryResults entry.
      *
-     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, error: string|null}  $result
+     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}  $result
      * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
      */
     private function parseBulkResult(EmailMessage $message, array $result, Response $response): array
@@ -383,14 +383,20 @@ class SES extends EmailAdapter
      * Whether a SendBulkEmail result indicates the referenced template is
      * missing, via either the top-level error or per-entry statuses.
      *
-     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, error: string|null}  $result
+     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}  $result
      */
     private function isTemplateMissing(array $result): bool
     {
         $errorType = $this->errorType($result);
         if ($errorType === 'NotFoundException' || $errorType === 'BadRequestException') {
-            $message = $this->errorMessage($result);
-            if (\stripos($message, 'template') !== false) {
+            // BadRequestException is generic, so confirm the message is about a
+            // missing template rather than another template error (e.g. invalid
+            // template content).
+            $message = \strtolower($this->errorMessage($result));
+            if (
+                \str_contains($message, 'template')
+                && (\str_contains($message, 'does not exist') || \str_contains($message, 'not found'))
+            ) {
                 return true;
             }
         }
@@ -521,7 +527,7 @@ class SES extends EmailAdapter
      * configured region.
      *
      * @param  array<string, mixed>  $body
-     * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, error: string|null}
+     * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}
      *
      * @throws \Exception
      */
@@ -652,7 +658,7 @@ class SES extends EmailAdapter
     /**
      * Extract a human-readable error message from a SES error response.
      *
-     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, error: string|null}  $result
+     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}  $result
      */
     private function errorMessage(array $result): string
     {
@@ -679,16 +685,25 @@ class SES extends EmailAdapter
     }
 
     /**
-     * Extract the SES error type. SES signals the type either via the
-     * x-amzn-ErrorType header (not available here) or a `__type` body field,
-     * e.g. "AlreadyExistsException" or "NotFoundException".
+     * Extract the SES error type, e.g. "AlreadyExistsException" or
+     * "NotFoundException".
      *
-     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, error: string|null}  $result
+     * SES API v2 uses the AWS REST-JSON protocol, which reports the exception
+     * type in the x-amzn-ErrorType response header, not the body. The header
+     * value can carry a trailing ":<location>" which is stripped. Older AWS
+     * JSON-protocol responses instead carry it in a `__type` (optionally
+     * "prefix#Type") or `code` body field, which is used as a fallback.
+     *
+     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}  $result
      */
     private function errorType(array $result): ?string
     {
-        $body = $result['response'];
+        $header = $result['headers']['x-amzn-errortype'] ?? null;
+        if (\is_string($header) && $header !== '') {
+            return \trim(\explode(':', $header)[0]);
+        }
 
+        $body = $result['response'];
         if (\is_array($body)) {
             $type = $body['__type'] ?? $body['code'] ?? null;
             if (\is_string($type)) {

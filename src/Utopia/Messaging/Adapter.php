@@ -69,6 +69,7 @@ abstract class Adapter
      *     url: string,
      *     statusCode: int,
      *     response: array<string, mixed>|string|null,
+     *     headers: array<string, string>,
      *     error: string|null
      * }
      *
@@ -103,6 +104,8 @@ abstract class Adapter
             }
         }
 
+        $responseHeaders = [];
+
         \curl_setopt_array($ch, [
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_URL => $url,
@@ -111,6 +114,14 @@ abstract class Adapter
             CURLOPT_USERAGENT => "Appwrite {$this->getName()} Message Sender",
             CURLOPT_TIMEOUT => $timeout,
             CURLOPT_CONNECTTIMEOUT => $connectTimeout,
+            CURLOPT_HEADERFUNCTION => function ($ch, string $header) use (&$responseHeaders): int {
+                $parts = \explode(':', $header, 2);
+                if (\count($parts) === 2) {
+                    $responseHeaders[\strtolower(\trim($parts[0]))] = \trim($parts[1]);
+                }
+
+                return \strlen($header);
+            },
         ]);
 
         $response = \curl_exec($ch);
@@ -125,6 +136,7 @@ abstract class Adapter
             'url' => $url,
             'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
             'response' => $response,
+            'headers' => $responseHeaders,
             'error' => \curl_error($ch),
         ];
     }
@@ -140,6 +152,7 @@ abstract class Adapter
      *     url: string,
      *     statusCode: int,
      *     response: array<string, mixed>|null,
+     *     headers: array<string, string>,
      *     error: string|null
      * }>
      *
@@ -244,6 +257,12 @@ abstract class Adapter
                 'url' => \curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
                 'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
                 'response' => $response,
+                // Kept in sync with request()'s shape. Response headers are not
+                // captured here: this path copies a configured handle with
+                // curl_copy_handle(), and copying a handle that carries a
+                // CURLOPT_HEADERFUNCTION closure segfaults. Wire up per-handle
+                // capture (without copy_handle) if a multi-path adapter needs it.
+                'headers' => [],
                 'error' => \curl_error($ch),
             ];
 

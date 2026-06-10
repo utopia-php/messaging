@@ -12,6 +12,11 @@ services:
       - RESEND_API_KEY
       - RESEND_TEST_EMAIL
       - SENDGRID_API_KEY
+      - SES_ACCESS_KEY
+      - SES_SECRET_KEY
+      - SES_REGION
+      - SES_TEST_EMAIL
+      - SES_SESSION_TOKEN
       - FCM_SERVICE_ACCOUNT_JSON
       - FCM_TO
       - TWILIO_ACCOUNT_SID
