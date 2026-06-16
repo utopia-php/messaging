@@ -7,6 +7,8 @@ use Utopia\Messaging\Messages\Email\Attachment;
 
 class Email implements Message
 {
+    private ?string $origin = null;
+
     /**
      * @var array<array<string,string>>
      */
@@ -149,5 +151,17 @@ class Email implements Message
     public function isHtml(): bool
     {
         return $this->html;
+    }
+
+    public function setOrigin(?string $origin): self
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    public function getOrigin(): ?string
+    {
+        return $this->origin;
     }
 }

@@ -22,6 +22,7 @@ class Vonage extends SMSAdapter
         private string $apiSecret,
         private ?string $from = null
     ) {
+        parent::__construct();
     }
 
     public function getName(): string

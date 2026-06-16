@@ -21,6 +21,7 @@ class Plivo extends SMSAdapter
         private string $authToken,
         private ?string $from = null
     ) {
+        parent::__construct();
     }
 
     public function getName(): string

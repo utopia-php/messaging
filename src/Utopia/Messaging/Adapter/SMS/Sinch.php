@@ -21,6 +21,7 @@ class Sinch extends SMSAdapter
         private string $apiToken,
         private ?string $from = null
     ) {
+        parent::__construct();
     }
 
     public function getName(): string

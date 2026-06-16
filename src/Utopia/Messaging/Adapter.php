@@ -4,9 +4,19 @@ namespace Utopia\Messaging;
 
 use Exception;
 use libphonenumber\PhoneNumberUtil;
+use Utopia\Telemetry\Adapter as Telemetry;
+use Utopia\Telemetry\Adapter\None as NoTelemetry;
+use Utopia\Telemetry\Counter;
 
 abstract class Adapter
 {
+    private Counter $sendCounter;
+
+    public function __construct(?Telemetry $telemetry = null)
+    {
+        $this->sendCounter = ($telemetry ?? new NoTelemetry())->createCounter('messaging.send');
+    }
+
     /**
      * Get the name of the adapter.
      */
@@ -54,7 +64,73 @@ abstract class Adapter
             throw new \Exception('Adapter does not implement process method.');
         }
 
-        return $this->process($message);
+        try {
+            $response = $this->process($message);
+        } catch (\Throwable $error) {
+            $this->recordSend($message, \method_exists($message, 'getTo') ? \count($message->getTo()) : 1, 0);
+            throw $error;
+        }
+
+        $this->recordResponse($message, $response);
+
+        return $response;
+    }
+
+    public function setTelemetry(Telemetry $telemetry): void
+    {
+        $this->sendCounter = $telemetry->createCounter('messaging.send');
+    }
+
+    private function recordSend(Message $message, int $recipients, int $delivered): void
+    {
+        if ($delivered > 0) {
+            $this->sendCounter->add($delivered, $this->telemetryAttributes($message, [
+                'result' => 'success',
+            ]));
+        }
+
+        $failed = $recipients - $delivered;
+        if ($failed > 0) {
+            $this->sendCounter->add($failed, $this->telemetryAttributes($message, [
+                'result' => 'failure',
+            ]));
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, mixed>
+     */
+    private function telemetryAttributes(Message $message, array $attributes = []): array
+    {
+        if ($message->getOrigin() !== null) {
+            $attributes['origin'] = $message->getOrigin();
+        }
+
+        return $attributes + [
+            'type' => $this->getType(),
+            'provider' => \strtolower($this->getName()),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $response
+     */
+    private function recordResponse(Message $message, array $response): void
+    {
+        $results = $response['results'] ?? [];
+        if (empty($results)) {
+            return;
+        }
+
+        $delivered = 0;
+        $failed = 0;
+
+        foreach ($results as $result) {
+            ($result['status'] ?? '') === 'success' ? $delivered++ : $failed++;
+        }
+
+        $this->recordSend($message, $delivered + $failed, $delivered);
     }
 
     /**

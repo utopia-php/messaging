@@ -35,6 +35,7 @@ class Fast2SMS extends SMSAdapter
         private string $messageId = '',
         private bool $useDLT = false
     ) {
+        parent::__construct();
     }
 
     /**

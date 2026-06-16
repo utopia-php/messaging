@@ -6,6 +6,8 @@ use Utopia\Messaging\Message;
 
 class Discord implements Message
 {
+    private ?string $origin = null;
+
     /**
      * @param  array<string, mixed>|null  $embeds
      * @param  array<string, mixed>|null  $allowedMentions
@@ -98,5 +100,17 @@ class Discord implements Message
     public function getThreadId(): ?string
     {
         return $this->threadId;
+    }
+
+    public function setOrigin(?string $origin): self
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    public function getOrigin(): ?string
+    {
+        return $this->origin;
     }
 }

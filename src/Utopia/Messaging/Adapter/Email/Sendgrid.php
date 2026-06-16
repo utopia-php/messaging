@@ -16,6 +16,7 @@ class Sendgrid extends EmailAdapter
      */
     public function __construct(private string $apiKey)
     {
+        parent::__construct();
     }
 
     /**

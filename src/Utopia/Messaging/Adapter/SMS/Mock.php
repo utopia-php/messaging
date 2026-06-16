@@ -20,6 +20,7 @@ class Mock extends SMSAdapter
         private string $user,
         private string $secret
     ) {
+        parent::__construct();
     }
 
     public function getName(): string
