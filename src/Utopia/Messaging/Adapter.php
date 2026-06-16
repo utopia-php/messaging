@@ -103,7 +103,7 @@ abstract class Adapter
      */
     private function telemetryAttributes(Message $message, array $attributes = []): array
     {
-        if (\method_exists($message, 'getOrigin') && $message->getOrigin() !== null) {
+        if ($message->getOrigin() !== null) {
             $attributes['origin'] = $message->getOrigin();
         }
 
