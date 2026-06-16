@@ -20,6 +20,7 @@ class Twilio extends SMSAdapter
         private ?string $from = null,
         private ?string $messagingServiceSid = null
     ) {
+        parent::__construct();
     }
 
     public function getName(): string

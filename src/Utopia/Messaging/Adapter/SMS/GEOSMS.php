@@ -19,6 +19,7 @@ class GEOSMS extends SMSAdapter
 
     public function __construct(SMSAdapter $defaultAdapter)
     {
+        parent::__construct();
         $this->defaultAdapter = $defaultAdapter;
     }
 
@@ -68,12 +69,12 @@ class GEOSMS extends SMSAdapter
 
             try {
                 $results[$nextAdapter->getName()] = $nextAdapter->send(
-                    new SMS(
+                    (new SMS(
                         to: $nextRecipients,
                         content: $message->getContent(),
                         from: $message->getFrom(),
                         attachments: $message->getAttachments()
-                    )
+                    ))->setOrigin($message->getOrigin())
                 );
             } catch (\Exception $e) {
                 $results[$nextAdapter->getName()] = [

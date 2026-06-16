@@ -18,6 +18,7 @@ class Resend extends EmailAdapter
     public function __construct(
         private string $apiKey
     ) {
+        parent::__construct();
     }
 
     public function getName(): string

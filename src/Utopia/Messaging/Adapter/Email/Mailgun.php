@@ -19,6 +19,7 @@ class Mailgun extends EmailAdapter
         private string $domain,
         private bool $isEU = false
     ) {
+        parent::__construct();
     }
 
     /**

@@ -17,6 +17,7 @@ class Telnyx extends SMSAdapter
         private string $apiKey,
         private ?string $from = null
     ) {
+        parent::__construct();
     }
 
     public function getName(): string

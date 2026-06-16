@@ -103,6 +103,7 @@ class SES extends EmailAdapter
         private string $region,
         private ?string $sessionToken = null,
     ) {
+        parent::__construct();
     }
 
     public function getName(): string

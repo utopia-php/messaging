@@ -35,6 +35,7 @@ class SMTP extends EmailAdapter
         private bool $keepAlive = false,
         private int $timelimit = 30,
     ) {
+        parent::__construct();
         if (!\in_array($this->smtpSecure, ['', 'ssl', 'tls'])) {
             throw new \InvalidArgumentException('Invalid SMTP secure prefix. Must be "", "ssl" or "tls"');
         }

@@ -21,6 +21,7 @@ class Discord extends Adapter
     public function __construct(
         private string $webhookURL
     ) {
+        parent::__construct();
         // Validate URL format
         if (!filter_var($webhookURL, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException('Invalid Discord webhook URL format.');

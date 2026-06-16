@@ -7,6 +7,8 @@ use Utopia\Messaging\Priority;
 
 class Push implements Message
 {
+    private ?string $origin = null;
+
     /**
      * @param  array<string>  $to The recipients of the push notification.
      * @param  string|null  $title The title of the push notification.
@@ -127,5 +129,17 @@ class Push implements Message
     public function getPriority(): ?Priority
     {
         return $this->priority;
+    }
+
+    public function setOrigin(?string $origin): self
+    {
+        $this->origin = $origin;
+
+        return $this;
+    }
+
+    public function getOrigin(): ?string
+    {
+        return $this->origin;
     }
 }
