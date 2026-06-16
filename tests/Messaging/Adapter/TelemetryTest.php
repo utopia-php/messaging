@@ -2,8 +2,9 @@
 
 namespace Utopia\Tests\Adapter;
 
-use Utopia\Messaging\Adapter;
-use Utopia\Messaging\Message;
+use Utopia\Messaging\Adapter\SMS\GEOSMS;
+use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
+use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 use Utopia\Telemetry\Adapter as Telemetry;
 use Utopia\Telemetry\Counter;
@@ -53,6 +54,53 @@ class TelemetryTest extends Base
         }
     }
 
+    public function testRecordsCountsFromResults(): void
+    {
+        $telemetry = new RecordingTelemetry();
+        $adapter = new TelemetryAdapter([
+            'deliveredTo' => 99,
+            'type' => 'sms',
+            'results' => [
+                ['recipient' => '+1', 'status' => 'success', 'error' => ''],
+                ['recipient' => '+2', 'status' => 'pending', 'error' => ''],
+            ],
+        ]);
+        $adapter->setTelemetry($telemetry);
+
+        $adapter->send(new SMS(['+1', '+2'], 'Hello'));
+
+        $this->assertSame([
+            ['amount' => 1, 'attributes' => ['result' => 'success', 'type' => 'sms', 'provider' => 'test']],
+            ['amount' => 1, 'attributes' => ['result' => 'failure', 'type' => 'sms', 'provider' => 'test']],
+        ], $telemetry->records);
+    }
+
+    public function testGeosmsPropagatesTelemetryToLocalAdapters(): void
+    {
+        $telemetry = new RecordingTelemetry();
+        $default = new TelemetryAdapter([
+            'deliveredTo' => 0,
+            'type' => 'sms',
+            'results' => [],
+        ]);
+        $local = new TelemetryAdapter([
+            'deliveredTo' => 1,
+            'type' => 'sms',
+            'results' => [
+                ['recipient' => '+911234567890', 'status' => 'success', 'error' => ''],
+            ],
+        ]);
+
+        $adapter = new GEOSMS($default);
+        $adapter->setTelemetry($telemetry);
+        $adapter->setLocal(CallingCode::INDIA, $local);
+        $adapter->send((new SMS(['+911234567890'], 'Hello'))->setOrigin('internal'));
+
+        $this->assertSame([
+            ['amount' => 1, 'attributes' => ['result' => 'success', 'origin' => 'internal', 'type' => 'sms', 'provider' => 'test']],
+        ], $telemetry->records);
+    }
+
     public function testDefaultTelemetryDoesNothing(): void
     {
         $adapter = new TelemetryAdapter([
@@ -69,7 +117,7 @@ class TelemetryTest extends Base
     }
 }
 
-class TelemetryAdapter extends Adapter
+class TelemetryAdapter extends SMSAdapter
 {
     /**
      * @param array<string, mixed>|null $response
@@ -86,16 +134,6 @@ class TelemetryAdapter extends Adapter
         return 'Test';
     }
 
-    public function getType(): string
-    {
-        return 'sms';
-    }
-
-    public function getMessageType(): string
-    {
-        return SMS::class;
-    }
-
     public function getMaxMessagesPerRequest(): int
     {
         return 100;
@@ -104,7 +142,7 @@ class TelemetryAdapter extends Adapter
     /**
      * @return array<string, mixed>
      */
-    protected function process(Message $message): array
+    protected function process(SMS $message): array
     {
         if ($this->error !== null) {
             throw $this->error;

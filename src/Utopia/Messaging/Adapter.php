@@ -14,7 +14,7 @@ abstract class Adapter
 
     public function __construct(?Telemetry $telemetry = null)
     {
-        $this->setTelemetry($telemetry ?? new NoTelemetry());
+        $this->sendCounter = ($telemetry ?? new NoTelemetry())->createCounter('messaging.send');
     }
 
     /**
@@ -118,15 +118,17 @@ abstract class Adapter
      */
     private function recordResponse(Message $message, array $response): void
     {
-        if (!isset($response['deliveredTo'])) {
+        $results = $response['results'] ?? [];
+        if (empty($results)) {
             return;
         }
 
-        $delivered = (int) $response['deliveredTo'];
-        $failed = \count(\array_filter(
-            $response['results'] ?? [],
-            fn (array $result): bool => ($result['status'] ?? '') === 'failure'
-        ));
+        $delivered = 0;
+        $failed = 0;
+
+        foreach ($results as $result) {
+            ($result['status'] ?? '') === 'success' ? $delivered++ : $failed++;
+        }
 
         $this->recordSend($message, $delivered + $failed, $delivered);
     }

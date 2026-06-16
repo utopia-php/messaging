@@ -5,12 +5,16 @@ namespace Utopia\Messaging\Adapter\SMS;
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
 use Utopia\Messaging\Messages\SMS;
+use Utopia\Telemetry\Adapter as Telemetry;
+use Utopia\Telemetry\Adapter\None as NoTelemetry;
 
 class GEOSMS extends SMSAdapter
 {
     protected const NAME = 'GEOSMS';
 
     protected SMSAdapter $defaultAdapter;
+
+    private Telemetry $telemetry;
 
     /**
      * @var array<string, SMSAdapter>
@@ -19,8 +23,10 @@ class GEOSMS extends SMSAdapter
 
     public function __construct(SMSAdapter $defaultAdapter)
     {
-        parent::__construct();
+        $this->telemetry = new NoTelemetry();
+        parent::__construct($this->telemetry);
         $this->defaultAdapter = $defaultAdapter;
+        $this->defaultAdapter->setTelemetry($this->telemetry);
     }
 
     public function getName(): string
@@ -36,8 +42,21 @@ class GEOSMS extends SMSAdapter
     public function setLocal(string $callingCode, SMSAdapter $adapter): self
     {
         $this->localAdapters[$callingCode] = $adapter;
+        $adapter->setTelemetry($this->telemetry);
 
         return $this;
+    }
+
+    public function setTelemetry(Telemetry $telemetry): void
+    {
+        $this->telemetry = $telemetry;
+        parent::setTelemetry($telemetry);
+
+        $this->defaultAdapter->setTelemetry($telemetry);
+
+        foreach ($this->localAdapters as $adapter) {
+            $adapter->setTelemetry($telemetry);
+        }
     }
 
     /**
