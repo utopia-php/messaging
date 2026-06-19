@@ -94,7 +94,7 @@ class Msg91 extends SMSAdapter
             body: $body,
         );
 
-if ($result['statusCode'] === 200) {
+        if ($result['statusCode'] === 200) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
                 $response->addResult($to);
@@ -102,9 +102,13 @@ if ($result['statusCode'] === 200) {
         } else {
             $errorMessage = 'Unknown error';
             if (isset($result['response']['message'])) {
-                $errorMessage = $result['response']['message'];
+                $errorMessage = \is_string($result['response']['message'])
+                    ? $result['response']['message']
+                    : \json_encode($result['response']['message']);
             } elseif (isset($result['response']['error'])) {
-                $errorMessage = $result['response']['error'];
+                $errorMessage = \is_string($result['response']['error'])
+                    ? $result['response']['error']
+                    : \json_encode($result['response']['error']);
             }
             foreach ($message->getTo() as $to) {
                 $response->addResult($to, $errorMessage);
