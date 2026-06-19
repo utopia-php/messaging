@@ -28,9 +28,7 @@ class AfricasTalkingTest extends Base
 
         $response = $sender->send($message);
 
-        $result = \json_decode($response, true);
-
-        $this->assertResponse($result);
+        $this->assertResponse($response);
     }
 
     public function testSendSMSWithFrom(): void
@@ -53,8 +51,6 @@ class AfricasTalkingTest extends Base
 
         $response = $sender->send($message);
 
-        $result = \json_decode($response, true);
-
-        $this->assertResponse($result);
+        $this->assertResponse($response);
     }
 }

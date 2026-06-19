@@ -17,6 +17,7 @@ class AfricasTalking extends SMSAdapter
         private string $apiKey,
         private ?string $from = null
     ) {
+        parent::__construct();
     }
 
     public function getName(): string
@@ -62,9 +63,13 @@ class AfricasTalking extends SMSAdapter
             } else {
                 $errorMessage = 'Unknown error';
                 if (isset($result['response']['errorMessage'])) {
-                    $errorMessage = $result['response']['errorMessage'];
+                    $errorMessage = \is_string($result['response']['errorMessage'])
+                        ? $result['response']['errorMessage']
+                        : \json_encode($result['response']['errorMessage']);
                 } elseif (isset($result['response']['message'])) {
-                    $errorMessage = $result['response']['message'];
+                    $errorMessage = \is_string($result['response']['message'])
+                        ? $result['response']['message']
+                        : \json_encode($result['response']['message']);
                 }
                 $response->addResult($recipient, $errorMessage);
             }
