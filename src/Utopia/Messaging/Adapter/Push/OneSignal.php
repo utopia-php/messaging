@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\Push;
 
 use Utopia\Messaging\Adapter\Push as PushAdapter;
 use Utopia\Messaging\Messages\Push as PushMessage;
+use Utopia\Messaging\Priority;
 use Utopia\Messaging\Response;
 
 class OneSignal extends PushAdapter
@@ -18,6 +19,7 @@ class OneSignal extends PushAdapter
         private string $appId,
         private string $apiKey,
     ) {
+        parent::__construct();
     }
 
     /**
@@ -62,6 +64,15 @@ class OneSignal extends PushAdapter
             $payload['big_picture'] = $message->getImage();
             $payload['ios_attachments'] = ['id' => $message->getImage()];
         }
+        if (!\is_null($message->getIcon())) {
+            $payload['small_icon'] = $message->getIcon();
+        }
+        if (!\is_null($message->getColor())) {
+            $payload['android_accent_color'] = $message->getColor();
+        }
+        if (!\is_null($message->getTag())) {
+            $payload['android_group'] = $message->getTag();
+        }
         if (!\is_null($message->getSound())) {
             $payload['android_sound'] = $message->getSound();
             $payload['ios_sound'] = $message->getSound() . '.wav';
@@ -69,6 +80,15 @@ class OneSignal extends PushAdapter
         if (!\is_null($message->getBadge())) {
             $payload['ios_badgeType'] = 'SetTo';
             $payload['ios_badgeCount'] = $message->getBadge();
+        }
+        if (!\is_null($message->getContentAvailable())) {
+            $payload['content_available'] = true;
+        }
+        if (!\is_null($message->getPriority())) {
+            $payload['priority'] = match ($message->getPriority()) {
+                Priority::HIGH => 10,
+                Priority::NORMAL => 5,
+            };
         }
 
         $results = $this->request(
@@ -84,7 +104,7 @@ class OneSignal extends PushAdapter
         $response = new Response($this->getType());
 
         if ($results['statusCode'] >= 200 && $results['statusCode'] < 300) {
-            $response->incrementDeliveredTo(\count($message->getTo()));
+            $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
                 $response->addResult($to);
             }
