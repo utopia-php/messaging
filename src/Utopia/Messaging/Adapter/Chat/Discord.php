@@ -114,7 +114,7 @@ class Discord extends Adapter
             ],
         );
 
-        $statusCode = $result['statusCode'];
+        $statusCode = $result->getStatusCode();
 
         if ($statusCode >= 200 && $statusCode < 300) {
             $response->setDeliveredTo(1);

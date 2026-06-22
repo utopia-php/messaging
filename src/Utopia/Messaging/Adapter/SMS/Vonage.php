@@ -50,7 +50,7 @@ class Vonage extends SMSAdapter
             method: 'POST',
             url: 'https://rest.nexmo.com/sms/json',
             headers: [
-                'Content-Type' => 'application/x-www-form-urlencoded',
+                'Content-Type: application/x-www-form-urlencoded',
             ],
             body: [
                 'text' => $message->getContent(),
@@ -61,12 +61,14 @@ class Vonage extends SMSAdapter
             ],
         );
 
-        if (($result['response']['messages'][0]['status'] ?? null) === 0) {
+        $body = \json_decode((string) $result->getBody(), true);
+
+        if (($body['messages'][0]['status'] ?? null) === 0) {
             $response->setDeliveredTo(1);
-            $response->addResult($result['response']['messages'][0]['to']);
+            $response->addResult($body['messages'][0]['to']);
         } else {
-            if (!\is_null($result['response']['messages'][0]['error-text'] ?? null)) {
-                $response->addResult($message->getTo()[0], $result['response']['messages'][0]['error-text']);
+            if (!\is_null($body['messages'][0]['error-text'] ?? null)) {
+                $response->addResult($message->getTo()[0], $body['messages'][0]['error-text']);
             } else {
                 $response->addResult($message->getTo()[0], 'Unknown error');
             }

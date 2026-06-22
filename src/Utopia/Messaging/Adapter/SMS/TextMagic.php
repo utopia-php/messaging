@@ -63,15 +63,16 @@ class TextMagic extends SMSAdapter
             ],
         );
 
-        if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
+        if ($result->getStatusCode() >= 200 && $result->getStatusCode() < 300) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
                 $response->addResult($to);
             }
         } else {
+            $body = \json_decode((string) $result->getBody(), true);
             foreach ($message->getTo() as $to) {
-                if (!\is_null($result['response']['message'] ?? null)) {
-                    $response->addResult($to, $result['response']['message']);
+                if (!\is_null($body['message'] ?? null)) {
+                    $response->addResult($to, $body['message']);
                 } else {
                     $response->addResult($to, 'Unknown error');
                 }

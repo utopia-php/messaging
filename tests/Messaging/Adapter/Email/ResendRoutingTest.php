@@ -3,9 +3,12 @@
 namespace Utopia\Tests\Adapter\Email;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Utopia\Messaging\Adapter\Email\Resend;
 use Utopia\Messaging\Messages\Email;
 use Utopia\Messaging\Messages\Email\Attachment;
+use Utopia\Psr7\Response;
+use Utopia\Psr7\Stream;
 
 class ResendRoutingTest extends TestCase
 {
@@ -135,7 +138,6 @@ class ResendStub extends Resend
     /**
      * @param  array<string>  $headers
      * @param  array<string, mixed>|null  $body
-     * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}
      */
     protected function request(
         string $method,
@@ -144,7 +146,7 @@ class ResendStub extends Resend
         ?array $body = null,
         int $timeout = 30,
         int $connectTimeout = 10
-    ): array {
+    ): ResponseInterface {
         $this->capturedRequests[] = [
             'method' => $method,
             'url' => $url,
@@ -154,12 +156,8 @@ class ResendStub extends Resend
 
         $stub = \array_shift($this->stubResponses) ?? ['statusCode' => 200, 'response' => []];
 
-        return [
-            'url' => $url,
-            'statusCode' => $stub['statusCode'],
-            'response' => $stub['response'],
-            'headers' => [],
-            'error' => null,
-        ];
+        $payload = \is_string($stub['response']) ? $stub['response'] : (string) \json_encode($stub['response']);
+
+        return new Response($stub['statusCode'], '', new Stream($payload));
     }
 }

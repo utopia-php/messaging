@@ -4,6 +4,12 @@ namespace Utopia\Messaging;
 
 use Exception;
 use libphonenumber\PhoneNumberUtil;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Utopia\Client;
+use Utopia\Client\Adapter\Curl\Client as CurlAdapter;
+use Utopia\Psr7\Header;
+use Utopia\Psr7\Request\Factory as RequestFactory;
 use Utopia\Telemetry\Adapter as Telemetry;
 use Utopia\Telemetry\Adapter\None as NoTelemetry;
 use Utopia\Telemetry\Counter;
@@ -134,22 +140,15 @@ abstract class Adapter
     }
 
     /**
-     * Send a single HTTP request.
+     * Send a single HTTP request and return the client's PSR-7 response.
      *
      * @param  string  $method The HTTP method to use.
      * @param  string  $url The URL to send the request to.
-     * @param  array<string>  $headers An array of headers to send with the request.
+     * @param  array<string>  $headers Headers as "Key: value" strings.
      * @param  array<string, mixed>|null  $body The body of the request.
      * @param  int  $timeout The timeout in seconds.
-     * @return array{
-     *     url: string,
-     *     statusCode: int,
-     *     response: array<string, mixed>|string|null,
-     *     headers: array<string, string>,
-     *     error: string|null
-     * }
      *
-     * @throws \Exception If the request fails.
+     * @throws \Psr\Http\Client\ClientExceptionInterface If the request fails at the transport level.
      */
     protected function request(
         string $method,
@@ -158,79 +157,20 @@ abstract class Adapter
         ?array $body = null,
         int $timeout = 30,
         int $connectTimeout = 10
-    ): array {
-        $ch = \curl_init();
-
-        foreach ($headers as $header) {
-            if (\str_contains($header, 'application/json')) {
-                $body = \json_encode($body);
-                break;
-            }
-            if (\str_contains($header, 'application/x-www-form-urlencoded')) {
-                $body = \http_build_query($body);
-                break;
-            }
-        }
-
-        if (!\is_null($body)) {
-            \curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-
-            if (\is_string($body)) {
-                $headers[] = 'Content-Length: '.\strlen($body);
-            }
-        }
-
-        $responseHeaders = [];
-
-        \curl_setopt_array($ch, [
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_URL => $url,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_USERAGENT => "Appwrite {$this->getName()} Message Sender",
-            CURLOPT_TIMEOUT => $timeout,
-            CURLOPT_CONNECTTIMEOUT => $connectTimeout,
-            CURLOPT_HEADERFUNCTION => function ($ch, string $header) use (&$responseHeaders): int {
-                $parts = \explode(':', $header, 2);
-                if (\count($parts) === 2) {
-                    $responseHeaders[\strtolower(\trim($parts[0]))] = \trim($parts[1]);
-                }
-
-                return \strlen($header);
-            },
-        ]);
-
-        $response = \curl_exec($ch);
-
-        try {
-            $response = \json_decode($response, true, flags: JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            // Ignore
-        }
-
-        return [
-            'url' => $url,
-            'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
-            'response' => $response,
-            'headers' => $responseHeaders,
-            'error' => \curl_error($ch),
-        ];
+    ): ResponseInterface {
+        return $this->client($timeout, $connectTimeout)
+            ->sendRequest($this->buildRequest($method, $url, $headers, $body));
     }
 
     /**
-     * Send multiple concurrent HTTP requests using HTTP/2 multiplexing.
+     * Send multiple HTTP requests over a single kept-alive HTTP/2 connection.
+     * Responses are returned in request order, so the Nth response corresponds
+     * to the Nth recipient.
      *
      * @param  array<string>  $urls
-     * @param  array<string>  $headers
+     * @param  array<string>  $headers Headers as "Key: value" strings.
      * @param  array<array<string, mixed>>  $bodies
-     * @return array<array{
-     *     index: int,
-     *     url: string,
-     *     statusCode: int,
-     *     response: array<string, mixed>|null,
-     *     headers: array<string, string>,
-     *     error: string|null
-     * }>
+     * @return array<ResponseInterface>
      *
      * @throws Exception
      */
@@ -246,40 +186,6 @@ abstract class Adapter
             throw new \Exception('No URLs provided. Must provide at least one URL.');
         }
 
-        foreach ($headers as $header) {
-            if (\str_contains($header, 'application/json')) {
-                foreach ($bodies as $i => $body) {
-                    $bodies[$i] = \json_encode($body);
-                }
-                break;
-            }
-            if (\str_contains($header, 'application/x-www-form-urlencoded')) {
-                foreach ($bodies as $i => $body) {
-                    $bodies[$i] = \http_build_query($body);
-                }
-                break;
-            }
-        }
-
-        $sh = \curl_share_init();
-        $mh = \curl_multi_init();
-        $ch = \curl_init();
-
-        \curl_share_setopt($sh, CURLSHOPT_SHARE, CURL_LOCK_DATA_DNS);
-        \curl_share_setopt($sh, CURLSHOPT_SHARE, CURL_LOCK_DATA_CONNECT);
-
-        \curl_setopt_array($ch, [
-            CURLOPT_SHARE => $sh,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FORBID_REUSE => false,
-            CURLOPT_FRESH_CONNECT => false,
-            CURLOPT_TIMEOUT => $timeout,
-            CURLOPT_CONNECTTIMEOUT => $connectTimeout,
-        ]);
-
         $urlCount = \count($urls);
         $bodyCount = \count($bodies);
 
@@ -293,61 +199,68 @@ abstract class Adapter
             $urls = \array_pad($urls, $bodyCount, $urls[0]);
         }
 
-        for ($i = 0; $i < \count($urls); $i++) {
-            if (!empty($bodies[$i])) {
-                $headers[] = 'Content-Length: '.\strlen($bodies[$i]);
-            }
-
-            \curl_setopt($ch, CURLOPT_URL, $urls[$i]);
-            \curl_setopt($ch, CURLOPT_POSTFIELDS, $bodies[$i]);
-            \curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            \curl_setopt($ch, CURLOPT_PRIVATE, $i);
-            \curl_multi_add_handle($mh, \curl_copy_handle($ch));
-        }
-
-        $active = true;
-        do {
-            $status = \curl_multi_exec($mh, $active);
-
-            if ($active) {
-                \curl_multi_select($mh);
-            }
-        } while ($active && $status == CURLM_OK);
+        $client = $this->client($timeout, $connectTimeout, multi: true);
 
         $responses = [];
-
-        // Check each handle's result
-        while ($info = \curl_multi_info_read($mh)) {
-            $ch = $info['handle'];
-
-            $response = \curl_multi_getcontent($ch);
-
-            try {
-                $response = \json_decode($response, true, flags: JSON_THROW_ON_ERROR);
-            } catch (\JsonException) {
-                // Ignore
-            }
-
-            $responses[] = [
-                'index' => (int)\curl_getinfo($ch, CURLINFO_PRIVATE),
-                'url' => \curl_getinfo($ch, CURLINFO_EFFECTIVE_URL),
-                'statusCode' => \curl_getinfo($ch, CURLINFO_RESPONSE_CODE),
-                'response' => $response,
-                // Kept in sync with request()'s shape. Response headers are not
-                // captured here: this path copies a configured handle with
-                // curl_copy_handle(), and copying a handle that carries a
-                // CURLOPT_HEADERFUNCTION closure segfaults. Wire up per-handle
-                // capture (without copy_handle) if a multi-path adapter needs it.
-                'headers' => [],
-                'error' => \curl_error($ch),
-            ];
-
-            \curl_multi_remove_handle($mh, $ch);
+        foreach ($urls as $i => $url) {
+            $responses[] = $client->sendRequest($this->buildRequest($method, $url, $headers, $bodies[$i]));
         }
 
-        \curl_share_close($sh);
-
         return $responses;
+    }
+
+    /**
+     * Build a client carrying the adapter's user agent and timeouts. When
+     * $multi is set the cURL transport negotiates HTTP/2 and keeps the
+     * connection alive so a batch of requests to the same host reuses it.
+     */
+    private function client(int $timeout, int $connectTimeout, bool $multi = false): Client
+    {
+        $adapter = new CurlAdapter(
+            options: $multi ? [\CURLOPT_HTTP_VERSION => \CURL_HTTP_VERSION_2_0] : [],
+        );
+
+        return (new Client($adapter))
+            ->withTimeout((float) $timeout)
+            ->withConnectTimeout((float) $connectTimeout)
+            ->withConnectionReuse($multi)
+            ->withHeaders([Header::USER_AGENT => "Appwrite {$this->getName()} Message Sender"]);
+    }
+
+    /**
+     * Translate the legacy "Key: value" header list and body array into a
+     * PSR-7 request, picking the body encoding from the Content-Type header.
+     *
+     * @param  array<string>  $headers
+     * @param  array<string, mixed>|null  $body
+     */
+    private function buildRequest(string $method, string $url, array $headers, ?array $body): RequestInterface
+    {
+        $factory = new RequestFactory();
+        $contentType = '';
+        $map = [];
+
+        foreach ($headers as $header) {
+            [$key, $value] = \array_pad(\explode(':', $header, 2), 2, '');
+            $key = \trim($key);
+            $value = \trim($value);
+
+            if (\strtolower($key) === 'content-type') {
+                $contentType = \strtolower($value);
+
+                continue;
+            }
+
+            $map[$key] = $value;
+        }
+
+        $body ??= [];
+
+        return match (true) {
+            \str_contains($contentType, 'application/x-www-form-urlencoded') => $factory->form($method, $url, $body, $map),
+            \str_contains($contentType, 'multipart/form-data') => $factory->multipart($method, $url, $body, $map),
+            default => $factory->json($method, $url, $body, $map),
+        };
     }
 
 

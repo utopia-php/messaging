@@ -123,9 +123,9 @@ class APNS extends PushAdapter
 
         $response = new Response($this->getType());
 
-        foreach ($results as $result) {
-            $device = \basename($result['url']);
-            $statusCode = $result['statusCode'];
+        foreach ($results as $index => $result) {
+            $device = $message->getTo()[$index];
+            $statusCode = $result->getStatusCode();
 
             switch ($statusCode) {
                 case 200:
@@ -133,9 +133,10 @@ class APNS extends PushAdapter
                     $response->addResult($device);
                     break;
                 default:
-                    $error = ($result['response']['reason'] ?? null) === 'ExpiredToken' || ($result['response']['reason'] ?? null) === 'BadDeviceToken'
+                    $body = \json_decode((string) $result->getBody(), true);
+                    $error = ($body['reason'] ?? null) === 'ExpiredToken' || ($body['reason'] ?? null) === 'BadDeviceToken'
                         ? $this->getExpiredErrorMessage()
-                        : $result['response']['reason'];
+                        : $body['reason'] ?? null;
 
                     $response->addResult($device, $error);
                     break;

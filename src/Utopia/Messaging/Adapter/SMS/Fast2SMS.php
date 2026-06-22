@@ -99,8 +99,8 @@ class Fast2SMS extends SMSAdapter
             body: $payload
         );
 
-        $res = $result['response'];
-        if ($result['statusCode'] === 200 && isset($res['return']) && $res['return'] === true) {
+        $res = \json_decode((string) $result->getBody(), true);
+        if ($result->getStatusCode() === 200 && isset($res['return']) && $res['return'] === true) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
                 $response->addResult($to);
