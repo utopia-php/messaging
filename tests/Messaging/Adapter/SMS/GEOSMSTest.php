@@ -112,7 +112,7 @@ class GEOSMSTest extends Base
         $this->assertEquals('success', $result['local']['results'][0]['status']);
     }
 
-    public function testSendSMSForwardsMetadata(): void
+    public function testSendSMSHandlesMetadata(): void
     {
         $metadata = [
             'clientId' => 'client-123',
@@ -142,15 +142,6 @@ class GEOSMSTest extends Base
 
         $this->assertEquals(1, count($result));
         $this->assertEquals('success', $result['default']['results'][0]['status']);
-    }
-
-    public function testSendSMSRemovesRequestTrackingMetadataWhenSplit(): void
-    {
-        $metadata = [
-            'clientId' => 'client-123',
-            'CRQID' => 'request_123',
-            'UUID' => 'uuid.123',
-        ];
 
         $expectedMetadata = [
             'clientId' => 'client-123',

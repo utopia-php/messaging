@@ -22,7 +22,7 @@ class Msg91Test extends Base
         $this->assertResponse($response);
     }
 
-    public function testSendSMSWithMetadata(): void
+    public function testSendSMSHandlesMetadata(): void
     {
         $sender = new Msg91TestAdapter('sender', 'auth', 'template');
 
@@ -52,10 +52,7 @@ class Msg91Test extends Base
         $this->assertEquals('request_123', $sender->body['recipients'][1]['CRQID']);
         $this->assertEquals('uuid.123', $sender->body['recipients'][1]['UUID']);
         $this->assertArrayNotHasKey('ignored', $sender->body);
-    }
 
-    public function testSendSMSWithInvalidMetadata(): void
-    {
         $sender = new Msg91TestAdapter('sender', 'auth', 'template');
 
         $message = new SMS(
@@ -66,15 +63,12 @@ class Msg91Test extends Base
             ],
         );
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Msg91 CRQID metadata must be 80 characters or less');
-
-        $sender->send($message);
-    }
-
-    public function testSendSMSWithNullMetadata(): void
-    {
-        $sender = new Msg91TestAdapter('sender', 'auth', 'template');
+        try {
+            $sender->send($message);
+            $this->fail('Expected invalid MSG91 metadata to throw.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('Msg91 CRQID metadata must be 80 characters or less', $e->getMessage());
+        }
 
         /** @var array<string, string> $metadata */
         $metadata = [
@@ -87,10 +81,12 @@ class Msg91Test extends Base
             metadata: $metadata,
         );
 
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Msg91 CRQID metadata must be a string');
-
-        $sender->send($message);
+        try {
+            $sender->send($message);
+            $this->fail('Expected null MSG91 metadata to throw.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('Msg91 CRQID metadata must be a string', $e->getMessage());
+        }
     }
 }
 
