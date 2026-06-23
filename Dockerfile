@@ -19,6 +19,16 @@ FROM php:8.3.11-cli-alpine3.20
 
 WORKDIR /usr/local/src/
 
+RUN apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS \
+        linux-headers \
+        openssl-dev \
+        brotli-dev \
+    && pecl install swoole \
+    && docker-php-ext-enable swoole \
+    && apk del .build-deps \
+    && apk add --no-cache libstdc++ brotli-libs
+
 COPY --from=composer /usr/local/src/vendor /usr/local/src/vendor
 COPY . /usr/local/src/
 
