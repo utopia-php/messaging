@@ -82,29 +82,41 @@ class GEOSMS extends SMSAdapter
     {
         $results = [];
         $recipients = $message->getTo();
+        $batches = [];
 
         do {
             [$nextRecipients, $nextAdapter] = $this->getNextRecipientsAndAdapter($recipients);
+            $batches[] = [
+                'recipients' => $nextRecipients,
+                'adapter' => $nextAdapter,
+            ];
 
+            $recipients = \array_diff($recipients, $nextRecipients);
+        } while (count($recipients) > 0);
+
+        $metadata = $message->getMetadata();
+        if (\count($batches) > 1 && $metadata !== null) {
+            unset($metadata['CRQID'], $metadata['UUID']);
+        }
+
+        foreach ($batches as $batch) {
             try {
-                $results[$nextAdapter->getName()] = $nextAdapter->send(
+                $results[$batch['adapter']->getName()] = $batch['adapter']->send(
                     (new SMS(
-                        to: $nextRecipients,
+                        to: $batch['recipients'],
                         content: $message->getContent(),
                         from: $message->getFrom(),
                         attachments: $message->getAttachments(),
-                        metadata: $message->getMetadata()
+                        metadata: $metadata
                     ))->setOrigin($message->getOrigin())
                 );
             } catch (\Exception $e) {
-                $results[$nextAdapter->getName()] = [
+                $results[$batch['adapter']->getName()] = [
                     'type' => 'error',
                     'message' => $e->getMessage(),
                 ];
             }
-
-            $recipients = \array_diff($recipients, $nextRecipients);
-        } while (count($recipients) > 0);
+        }
 
         return $results;
     }

@@ -143,4 +143,52 @@ class GEOSMSTest extends Base
         $this->assertEquals(1, count($result));
         $this->assertEquals('success', $result['default']['results'][0]['status']);
     }
+
+    public function testSendSMSRemovesRequestTrackingMetadataWhenSplit(): void
+    {
+        $metadata = [
+            'clientId' => 'client-123',
+            'CRQID' => 'request_123',
+            'UUID' => 'uuid.123',
+        ];
+
+        $expectedMetadata = [
+            'clientId' => 'client-123',
+        ];
+
+        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock->method('getName')->willReturn('default');
+        $defaultAdapterMock
+            ->expects($this->once())
+            ->method('send')
+            ->with($this->callback(function (SMS $message) use ($expectedMetadata): bool {
+                return $message->getMetadata() === $expectedMetadata;
+            }))
+            ->willReturn(['results' => [['status' => 'success']]]);
+
+        $localAdapterMock = $this->createMock(SMSAdapter::class);
+        $localAdapterMock->method('getName')->willReturn('local');
+        $localAdapterMock
+            ->expects($this->once())
+            ->method('send')
+            ->with($this->callback(function (SMS $message) use ($expectedMetadata): bool {
+                return $message->getMetadata() === $expectedMetadata;
+            }))
+            ->willReturn(['results' => [['status' => 'success']]]);
+
+        $adapter = new GEOSMS($defaultAdapterMock);
+        $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
+
+        $message = new SMS(
+            to: ['+911234567890', '+11234567890'],
+            content: 'Test Content',
+            metadata: $metadata
+        );
+
+        $result = $adapter->send($message);
+
+        $this->assertEquals(2, count($result));
+        $this->assertEquals('success', $result['local']['results'][0]['status']);
+        $this->assertEquals('success', $result['default']['results'][0]['status']);
+    }
 }
