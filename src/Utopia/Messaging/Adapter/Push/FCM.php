@@ -81,7 +81,7 @@ class FCM extends PushAdapter
             ]
         );
 
-        $accessToken = $token['response']['access_token'];
+        $accessToken = \json_decode((string) $token->getBody(), true)['access_token'] ?? null;
 
         $shared = [];
 
@@ -161,18 +161,19 @@ class FCM extends PushAdapter
 
         $response = new Response($this->getType());
 
-        foreach ($results as $result) {
-            if ($result['statusCode'] === 200) {
+        foreach ($results as $index => $result) {
+            if ($result->getStatusCode() === 200) {
                 $response->incrementDeliveredTo();
-                $response->addResult($message->getTo()[$result['index']]);
+                $response->addResult($message->getTo()[$index]);
             } else {
+                $body = \json_decode((string) $result->getBody(), true);
                 $error =
-                    ($result['response']['error']['status'] ?? null) === 'UNREGISTERED'
-                    || ($result['response']['error']['status'] ?? null) === 'NOT_FOUND'
+                    ($body['error']['status'] ?? null) === 'UNREGISTERED'
+                    || ($body['error']['status'] ?? null) === 'NOT_FOUND'
                         ? $this->getExpiredErrorMessage()
-                        : $result['response']['error']['message'] ?? 'Unknown error';
+                        : $body['error']['message'] ?? 'Unknown error';
 
-                $response->addResult($message->getTo()[$result['index']], $error);
+                $response->addResult($message->getTo()[$index], $error);
             }
         }
 

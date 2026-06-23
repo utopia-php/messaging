@@ -3,9 +3,12 @@
 namespace Utopia\Tests\Adapter\Email;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Utopia\Messaging\Adapter\Email\SES;
 use Utopia\Messaging\Messages\Email;
 use Utopia\Messaging\Messages\Email\Attachment;
+use Utopia\Psr7\Response;
+use Utopia\Psr7\Stream;
 
 /**
  * Network-free verification of how the SES adapter builds and routes requests:
@@ -657,7 +660,6 @@ class SESStub extends SES
     /**
      * @param  array<string>  $headers
      * @param  array<string, mixed>|null  $body
-     * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}
      */
     protected function request(
         string $method,
@@ -666,7 +668,7 @@ class SESStub extends SES
         ?array $body = null,
         int $timeout = 30,
         int $connectTimeout = 10
-    ): array {
+    ): ResponseInterface {
         $this->capturedRequests[] = [
             'method' => $method,
             'url' => $url,
@@ -676,12 +678,14 @@ class SESStub extends SES
 
         $stub = \array_shift($this->stubResponses) ?? ['statusCode' => 200, 'response' => []];
 
-        return [
-            'url' => $url,
-            'statusCode' => $stub['statusCode'],
-            'response' => $stub['response'],
-            'headers' => $stub['headers'] ?? [],
-            'error' => null,
-        ];
+        $payload = \is_string($stub['response']) ? $stub['response'] : (string) \json_encode($stub['response']);
+
+        $response = new Response($stub['statusCode'], '', new Stream($payload));
+
+        foreach ($stub['headers'] ?? [] as $name => $value) {
+            $response = $response->withHeader($name, $value);
+        }
+
+        return $response;
     }
 }

@@ -65,13 +65,15 @@ class Inforu extends SMSAdapter
             ],
         );
 
-        if ($result['statusCode'] === 200 && ($result['response']['StatusId'] ?? 0) === 1) {
+        $body = \json_decode((string) $result->getBody(), true);
+
+        if ($result->getStatusCode() === 200 && ($body['StatusId'] ?? 0) === 1) {
             $response->setDeliveredTo(count($message->getTo()));
             foreach ($message->getTo() as $to) {
                 $response->addResult($to);
             }
         } else {
-            $errorMessage = $result['response']['StatusDescription'] ?? 'Unknown error';
+            $errorMessage = $body['StatusDescription'] ?? 'Unknown error';
             foreach ($message->getTo() as $to) {
                 $response->addResult($to, $errorMessage);
             }

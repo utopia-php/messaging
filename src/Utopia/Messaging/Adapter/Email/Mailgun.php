@@ -5,6 +5,7 @@ namespace Utopia\Messaging\Adapter\Email;
 use Utopia\Messaging\Adapter\Email as EmailAdapter;
 use Utopia\Messaging\Messages\Email as EmailMessage;
 use Utopia\Messaging\Response;
+use Utopia\Psr7\Request\Multipart\Part;
 
 class Mailgun extends EmailAdapter
 {
@@ -117,10 +118,11 @@ class Mailgun extends EmailAdapter
             foreach ($message->getAttachments() as $index => $attachment) {
                 $isMultipart = true;
 
-                $body["attachment[$index]"] = \curl_file_create(
+                $body["attachment[$index]"] = Part::file(
+                    'attachment',
                     $attachment->getPath(),
-                    $attachment->getType(),
                     $attachment->getName(),
+                    $attachment->getType(),
                 );
             }
         }
@@ -144,7 +146,7 @@ class Mailgun extends EmailAdapter
             body: $body,
         );
 
-        $statusCode = $result['statusCode'];
+        $statusCode = $result->getStatusCode();
 
         if ($statusCode >= 200 && $statusCode < 300) {
             $response->setDeliveredTo(\count($message->getTo()));
@@ -152,11 +154,12 @@ class Mailgun extends EmailAdapter
                 $response->addResult($to['email']);
             }
         } elseif ($statusCode >= 400 && $statusCode < 500) {
+            $content = \json_decode((string) $result->getBody(), true);
             foreach ($message->getTo() as $to) {
-                if (\is_string($result['response'])) {
-                    $response->addResult($to['email'], $result['response']);
-                } elseif (isset($result['response']['message'])) {
-                    $response->addResult($to['email'], $result['response']['message']);
+                if (isset($content['message'])) {
+                    $response->addResult($to['email'], $content['message']);
+                } elseif ((string) $result->getBody() !== '') {
+                    $response->addResult($to['email'], (string) $result->getBody());
                 } else {
                     $response->addResult($to['email'], 'Unknown error');
                 }

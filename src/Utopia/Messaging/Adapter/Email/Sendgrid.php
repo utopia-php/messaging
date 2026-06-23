@@ -136,7 +136,7 @@ class Sendgrid extends EmailAdapter
             body: $body,
         );
 
-        $statusCode = $result['statusCode'];
+        $statusCode = $result->getStatusCode();
 
         if ($statusCode === 202) {
             $response->setDeliveredTo(\count($message->getTo()));
@@ -144,11 +144,12 @@ class Sendgrid extends EmailAdapter
                 $response->addResult($to['email']);
             }
         } else {
+            $content = \json_decode((string) $result->getBody(), true);
             foreach ($message->getTo() as $to) {
-                if (\is_string($result['response'])) {
-                    $response->addResult($to['email'], $result['response']);
-                } elseif (!\is_null($result['response']['errors'][0]['message'] ?? null)) {
-                    $response->addResult($to['email'], $result['response']['errors'][0]['message']);
+                if (!\is_null($content['errors'][0]['message'] ?? null)) {
+                    $response->addResult($to['email'], $content['errors'][0]['message']);
+                } elseif ((string) $result->getBody() !== '') {
+                    $response->addResult($to['email'], (string) $result->getBody());
                 } else {
                     $response->addResult($to['email'], 'Unknown error');
                 }

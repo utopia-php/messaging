@@ -2,6 +2,7 @@
 
 namespace Utopia\Messaging\Adapter\Email;
 
+use Psr\Http\Message\ResponseInterface;
 use Utopia\Messaging\Adapter\Email as EmailAdapter;
 use Utopia\Messaging\Messages\Email as EmailMessage;
 use Utopia\Messaging\Response;
@@ -156,10 +157,10 @@ class Resend extends EmailAdapter
             body: $emails,
         );
 
-        $statusCode = $result['statusCode'];
+        $statusCode = $result->getStatusCode();
 
         if ($statusCode === 200) {
-            $responseData = $result['response'];
+            $responseData = \json_decode((string) $result->getBody(), true);
 
             if (\is_array($responseData) && isset($responseData['errors']) && ! empty($responseData['errors'])) {
                 $failedIndices = [];
@@ -184,13 +185,13 @@ class Resend extends EmailAdapter
                 }
             }
         } elseif ($statusCode >= 400 && $statusCode < 500) {
-            $errorMessage = $this->extractErrorMessage($result['response'], 'Unknown error');
+            $errorMessage = $this->extractErrorMessage($result, 'Unknown error');
 
             foreach ($message->getTo() as $to) {
                 $response->addResult($to['email'], $errorMessage);
             }
         } elseif ($statusCode >= 500) {
-            $errorMessage = $this->extractErrorMessage($result['response'], 'Server error');
+            $errorMessage = $this->extractErrorMessage($result, 'Server error');
 
             foreach ($message->getTo() as $to) {
                 $response->addResult($to['email'], $errorMessage);
@@ -220,16 +221,16 @@ class Resend extends EmailAdapter
                 body: $email,
             );
 
-            $statusCode = $result['statusCode'];
+            $statusCode = $result->getStatusCode();
 
             if ($statusCode >= 200 && $statusCode < 300) {
                 $response->addResult($to['email']);
                 $deliveredTo++;
             } elseif ($statusCode >= 400 && $statusCode < 500) {
-                $errorMessage = $this->extractErrorMessage($result['response'], 'Unknown error');
+                $errorMessage = $this->extractErrorMessage($result, 'Unknown error');
                 $response->addResult($to['email'], $errorMessage);
             } else {
-                $errorMessage = $this->extractErrorMessage($result['response'], 'Server error');
+                $errorMessage = $this->extractErrorMessage($result, 'Server error');
                 $response->addResult($to['email'], $errorMessage);
             }
         }
@@ -239,14 +240,9 @@ class Resend extends EmailAdapter
         return $response->toArray();
     }
 
-    /**
-     * @param  array<string, mixed>|string|null  $body
-     */
-    private function extractErrorMessage(array|string|null $body, string $default): string
+    private function extractErrorMessage(ResponseInterface $result, string $default): string
     {
-        if (\is_string($body)) {
-            return $body;
-        }
+        $body = \json_decode((string) $result->getBody(), true);
 
         if (\is_array($body)) {
             if (isset($body['message']) && \is_string($body['message'])) {
@@ -256,6 +252,8 @@ class Resend extends EmailAdapter
             if (isset($body['error']) && \is_string($body['error'])) {
                 return $body['error'];
             }
+        } elseif ((string) $result->getBody() !== '') {
+            return (string) $result->getBody();
         }
 
         return $default;

@@ -61,7 +61,7 @@ class Infobip extends SMSAdapter
             ],
         );
 
-        if ($result['statusCode'] >= 200 && $result['statusCode'] < 300) {
+        if ($result->getStatusCode() >= 200 && $result->getStatusCode() < 300) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
                 $response->addResult($to);

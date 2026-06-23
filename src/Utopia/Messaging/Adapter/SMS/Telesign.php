@@ -61,15 +61,16 @@ class Telesign extends SMSAdapter
             ],
         );
 
-        if ($result['statusCode'] === 200) {
+        if ($result->getStatusCode() === 200) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
                 $response->addResult($to);
             }
         } else {
+            $body = \json_decode((string) $result->getBody(), true);
             foreach ($message->getTo() as $to) {
-                if (!\is_null($result['response']['errors'][0]['description'] ?? null)) {
-                    $response->addResult($to, $result['response']['errors'][0]['description']);
+                if (!\is_null($body['errors'][0]['description'] ?? null)) {
+                    $response->addResult($to, $body['errors'][0]['description']);
                 } else {
                     $response->addResult($to, 'Unknown error');
                 }

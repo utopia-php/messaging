@@ -15,7 +15,7 @@ RUN composer install \
     --no-scripts \
     --prefer-dist
 
-FROM php:8.3.11-cli-alpine3.20
+FROM php:8.4-cli-alpine
 
 WORKDIR /usr/local/src/
 

@@ -3,6 +3,7 @@
 namespace Utopia\Messaging\Adapter\Email;
 
 use PHPMailer\PHPMailer\PHPMailer;
+use Psr\Http\Message\ResponseInterface;
 use Utopia\Messaging\Adapter\Email as EmailAdapter;
 use Utopia\Messaging\Messages\Email as EmailMessage;
 use Utopia\Messaging\Response;
@@ -245,7 +246,7 @@ class SES extends EmailAdapter
 
             $result = $this->dispatch('POST', '/v2/email/outbound-emails', $body);
 
-            $statusCode = $result['statusCode'];
+            $statusCode = $result->getStatusCode();
 
             if ($statusCode >= 200 && $statusCode < 300) {
                 $response->addResult($to['email']);
@@ -267,13 +268,12 @@ class SES extends EmailAdapter
      * marked failed with the SES error. On success each recipient is mapped
      * from its corresponding BulkEmailEntryResults entry.
      *
-     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}  $result
      * @return array{deliveredTo: int, type: string, results: array<array<string, mixed>>}
      */
-    private function parseBulkResult(EmailMessage $message, array $result, Response $response): array
+    private function parseBulkResult(EmailMessage $message, ResponseInterface $result, Response $response): array
     {
         $recipients = $message->getTo();
-        $statusCode = $result['statusCode'];
+        $statusCode = $result->getStatusCode();
 
         if ($statusCode < 200 || $statusCode >= 300) {
             $error = $this->errorMessage($result);
@@ -284,8 +284,9 @@ class SES extends EmailAdapter
             return $response->toArray();
         }
 
-        $entryResults = \is_array($result['response'])
-            ? ($result['response']['BulkEmailEntryResults'] ?? null)
+        $body = \json_decode((string) $result->getBody(), true);
+        $entryResults = \is_array($body)
+            ? ($body['BulkEmailEntryResults'] ?? null)
             : null;
 
         if (! \is_array($entryResults)) {
@@ -343,7 +344,7 @@ class SES extends EmailAdapter
             'TemplateContent' => $content,
         ]);
 
-        $statusCode = $result['statusCode'];
+        $statusCode = $result->getStatusCode();
         $created = $statusCode >= 200 && $statusCode < 300;
         $alreadyExists = $this->errorType($result) === 'AlreadyExistsException';
 
@@ -384,9 +385,8 @@ class SES extends EmailAdapter
      * Whether a SendBulkEmail result indicates the referenced template is
      * missing, via either the top-level error or per-entry statuses.
      *
-     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}  $result
      */
-    private function isTemplateMissing(array $result): bool
+    private function isTemplateMissing(ResponseInterface $result): bool
     {
         $errorType = $this->errorType($result);
         if ($errorType === 'NotFoundException' || $errorType === 'BadRequestException') {
@@ -402,8 +402,9 @@ class SES extends EmailAdapter
             }
         }
 
-        $entryResults = \is_array($result['response'] ?? null)
-            ? ($result['response']['BulkEmailEntryResults'] ?? null)
+        $body = \json_decode((string) $result->getBody(), true);
+        $entryResults = \is_array($body)
+            ? ($body['BulkEmailEntryResults'] ?? null)
             : null;
 
         if (\is_array($entryResults)) {
@@ -528,11 +529,10 @@ class SES extends EmailAdapter
      * configured region.
      *
      * @param  array<string, mixed>  $body
-     * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}
      *
      * @throws \Exception
      */
-    private function dispatch(string $method, string $path, array $body): array
+    private function dispatch(string $method, string $path, array $body): ResponseInterface
     {
         $host = 'email.'.$this->region.'.amazonaws.com';
         $payload = \json_encode($body, JSON_THROW_ON_ERROR);
@@ -659,11 +659,10 @@ class SES extends EmailAdapter
     /**
      * Extract a human-readable error message from a SES error response.
      *
-     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}  $result
      */
-    private function errorMessage(array $result): string
+    private function errorMessage(ResponseInterface $result): string
     {
-        $body = $result['response'];
+        $body = \json_decode((string) $result->getBody(), true);
 
         if (\is_array($body)) {
             if (isset($body['message']) && \is_string($body['message'])) {
@@ -674,12 +673,9 @@ class SES extends EmailAdapter
             }
         }
 
-        if (\is_string($body) && $body !== '') {
-            return $body;
-        }
-
-        if (! empty($result['error'])) {
-            return $result['error'];
+        $raw = (string) $result->getBody();
+        if ($raw !== '') {
+            return $raw;
         }
 
         return 'Unknown error';
@@ -695,16 +691,15 @@ class SES extends EmailAdapter
      * JSON-protocol responses instead carry it in a `__type` (optionally
      * "prefix#Type") or `code` body field, which is used as a fallback.
      *
-     * @param  array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null}  $result
      */
-    private function errorType(array $result): ?string
+    private function errorType(ResponseInterface $result): ?string
     {
-        $header = $result['headers']['x-amzn-errortype'] ?? null;
-        if (\is_string($header) && $header !== '') {
+        $header = $result->getHeaderLine('x-amzn-errortype');
+        if ($header !== '') {
             return \trim(\explode(':', $header)[0]);
         }
 
-        $body = $result['response'];
+        $body = \json_decode((string) $result->getBody(), true);
         if (\is_array($body)) {
             $type = $body['__type'] ?? $body['code'] ?? null;
             if (\is_string($type)) {

@@ -63,8 +63,8 @@ class DiscordTest extends Base
         foreach ($validURLs as $label => $url) {
             try {
                 $discord = new Discord($url);
-                // If we get here, the URL was accepted
-                $this->assertTrue(true, "Valid URL variant '{$label}' was accepted as expected");
+                // If we get here without an exception, the URL was accepted.
+                $this->addToAssertionCount(1);
             } catch (InvalidArgumentException $e) {
                 $this->fail("Valid URL variant '{$label}' was rejected: " . $e->getMessage());
             }

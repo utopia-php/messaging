@@ -94,7 +94,7 @@ class Msg91 extends SMSAdapter
             body: $body,
         );
 
-        if ($result['statusCode'] === 200) {
+        if ($result->getStatusCode() === 200) {
             $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
                 $response->addResult($to);
