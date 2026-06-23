@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
+use Utopia\Messaging\Adapter\SMS\Msg91\MetadataParameter;
 use Utopia\Messaging\Messages\SMS;
 use Utopia\Telemetry\Adapter as Telemetry;
 use Utopia\Telemetry\Adapter\None as NoTelemetry;
@@ -95,11 +96,22 @@ class GEOSMS extends SMSAdapter
         } while (count($recipients) > 0);
 
         foreach ($batches as $index => $batch) {
+            /** @var array<string, mixed>|null $metadata */
             $metadata = $message->getMetadata();
             if (\count($batches) > 1 && $metadata !== null) {
-                foreach (['CRQID', 'UUID'] as $key) {
-                    if (!isset($metadata[$key])) {
+                foreach ([MetadataParameter::CRQID, MetadataParameter::UUID] as $parameter) {
+                    $key = $parameter->value;
+
+                    if (!\array_key_exists($key, $metadata)) {
                         continue;
+                    }
+
+                    if (!\is_string($metadata[$key])) {
+                        throw new \InvalidArgumentException("Msg91 {$key} metadata must be a string.");
+                    }
+
+                    if (\strlen($metadata[$key]) > 80 || !\preg_match('/^[A-Za-z0-9_.-]+$/', $metadata[$key])) {
+                        throw new \InvalidArgumentException("Msg91 {$key} metadata must be 80 characters or less and contain only alphanumeric characters, underscores, dots, or hyphens.");
                     }
 
                     $suffix = '-'.($index + 1);

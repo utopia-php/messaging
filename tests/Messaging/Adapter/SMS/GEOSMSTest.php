@@ -189,5 +189,38 @@ class GEOSMSTest extends Base
         $this->assertEquals(2, count($result));
         $this->assertEquals('success', $result['local']['results'][0]['status']);
         $this->assertEquals('success', $result['default']['results'][0]['status']);
+
+        /** @var array<string, string> $invalidMetadata */
+        $invalidMetadata = [
+            'CRQID' => [],
+        ];
+
+        $message = new SMS(
+            to: ['+911234567890', '+11234567890'],
+            content: 'Test Content',
+            metadata: $invalidMetadata
+        );
+
+        try {
+            $adapter->send($message);
+            $this->fail('Expected invalid GEOSMS metadata to throw.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('Msg91 CRQID metadata must be a string', $e->getMessage());
+        }
+
+        $message = new SMS(
+            to: ['+911234567890', '+11234567890'],
+            content: 'Test Content',
+            metadata: [
+                'CRQID' => '',
+            ]
+        );
+
+        try {
+            $adapter->send($message);
+            $this->fail('Expected empty GEOSMS metadata to throw.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('Msg91 CRQID metadata must be 80 characters or less', $e->getMessage());
+        }
     }
 }
