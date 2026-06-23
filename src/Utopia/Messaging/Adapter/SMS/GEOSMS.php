@@ -4,6 +4,7 @@ namespace Utopia\Messaging\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
+use Utopia\Messaging\Adapter\SMS\Msg91\MetadataParameter;
 use Utopia\Messaging\Messages\SMS;
 use Utopia\Telemetry\Adapter as Telemetry;
 use Utopia\Telemetry\Adapter\None as NoTelemetry;
@@ -82,28 +83,59 @@ class GEOSMS extends SMSAdapter
     {
         $results = [];
         $recipients = $message->getTo();
+        $batches = [];
 
         do {
             [$nextRecipients, $nextAdapter] = $this->getNextRecipientsAndAdapter($recipients);
+            $batches[] = [
+                'recipients' => $nextRecipients,
+                'adapter' => $nextAdapter,
+            ];
+
+            $recipients = \array_diff($recipients, $nextRecipients);
+        } while (count($recipients) > 0);
+
+        foreach ($batches as $index => $batch) {
+            /** @var array<string, mixed>|null $metadata */
+            $metadata = $message->getMetadata();
+            if (\count($batches) > 1 && $metadata !== null) {
+                foreach ([MetadataParameter::CRQID, MetadataParameter::UUID] as $parameter) {
+                    $key = $parameter->value;
+
+                    if (!\array_key_exists($key, $metadata)) {
+                        continue;
+                    }
+
+                    if (!\is_string($metadata[$key])) {
+                        throw new \InvalidArgumentException("Msg91 {$key} metadata must be a string.");
+                    }
+
+                    if (\strlen($metadata[$key]) > 80 || !\preg_match('/^[A-Za-z0-9_.-]+$/', $metadata[$key])) {
+                        throw new \InvalidArgumentException("Msg91 {$key} metadata must be 80 characters or less and contain only alphanumeric characters, underscores, dots, or hyphens.");
+                    }
+
+                    $suffix = '-'.($index + 1);
+                    $metadata[$key] = \substr($metadata[$key], 0, 80 - \strlen($suffix)).$suffix;
+                }
+            }
 
             try {
-                $results[$nextAdapter->getName()] = $nextAdapter->send(
+                $results[$batch['adapter']->getName()] = $batch['adapter']->send(
                     (new SMS(
-                        to: $nextRecipients,
+                        to: $batch['recipients'],
                         content: $message->getContent(),
                         from: $message->getFrom(),
-                        attachments: $message->getAttachments()
+                        attachments: $message->getAttachments(),
+                        metadata: $metadata
                     ))->setOrigin($message->getOrigin())
                 );
             } catch (\Exception $e) {
-                $results[$nextAdapter->getName()] = [
+                $results[$batch['adapter']->getName()] = [
                     'type' => 'error',
                     'message' => $e->getMessage(),
                 ];
             }
-
-            $recipients = \array_diff($recipients, $nextRecipients);
-        } while (count($recipients) > 0);
+        }
 
         return $results;
     }
