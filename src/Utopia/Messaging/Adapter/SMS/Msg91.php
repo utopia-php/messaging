@@ -43,28 +43,19 @@ class Msg91 extends SMSAdapter
      */
     protected function process(SMSMessage $message): array
     {
-        $recipients = [];
-        foreach ($message->getTo() as $recipient) {
-            $recipients[] = [
-                'mobiles' => \ltrim($recipient, '+'),
-                'content' => $message->getContent(),
-                'otp' => $message->getContent(),
-            ];
-        }
-
-        $body = [
-            'sender' => $this->senderId,
-            'template_id' => $this->templateId,
-            'recipients' => $recipients,
-        ];
-
         $metadata = $message->getMetadata() ?? [];
         $metadata = \array_intersect_key($metadata, \array_flip(\array_column(MetadataParameter::cases(), 'value')));
+
+        foreach ($metadata as $key => $value) {
+            if (!\is_string($value)) {
+                throw new \InvalidArgumentException("Msg91 {$key} metadata must be a string.");
+            }
+        }
 
         foreach ([MetadataParameter::CRQID, MetadataParameter::UUID] as $parameter) {
             $key = $parameter->value;
 
-            if (!isset($metadata[$key])) {
+            if (!\array_key_exists($key, $metadata)) {
                 continue;
             }
 
@@ -72,6 +63,26 @@ class Msg91 extends SMSAdapter
                 throw new \InvalidArgumentException("Msg91 {$key} metadata must be 80 characters or less and contain only alphanumeric characters, underscores, dots, or hyphens.");
             }
         }
+
+        $recipientMetadata = \array_intersect_key($metadata, \array_flip([
+            MetadataParameter::CRQID->value,
+            MetadataParameter::UUID->value,
+        ]));
+
+        $recipients = [];
+        foreach ($message->getTo() as $recipient) {
+            $recipients[] = [
+                'mobiles' => \ltrim($recipient, '+'),
+                'content' => $message->getContent(),
+                'otp' => $message->getContent(),
+            ] + $recipientMetadata;
+        }
+
+        $body = [
+            'sender' => $this->senderId,
+            'template_id' => $this->templateId,
+            'recipients' => $recipients,
+        ];
 
         foreach ($metadata as $key => $value) {
             $body[$key] = $value;

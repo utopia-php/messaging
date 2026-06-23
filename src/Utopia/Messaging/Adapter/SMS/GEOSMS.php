@@ -92,7 +92,8 @@ class GEOSMS extends SMSAdapter
                         to: $nextRecipients,
                         content: $message->getContent(),
                         from: $message->getFrom(),
-                        attachments: $message->getAttachments()
+                        attachments: $message->getAttachments(),
+                        metadata: $message->getMetadata()
                     ))->setOrigin($message->getOrigin())
                 );
             } catch (\Exception $e) {

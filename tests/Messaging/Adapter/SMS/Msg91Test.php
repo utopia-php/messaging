@@ -27,7 +27,7 @@ class Msg91Test extends Base
         $sender = new Msg91TestAdapter('sender', 'auth', 'template');
 
         $message = new SMS(
-            to: ['+911234567890'],
+            to: ['+911234567890', '+911234567891'],
             content: 'Test Content',
             metadata: [
                 'clientId' => 'client-123',
@@ -39,10 +39,18 @@ class Msg91Test extends Base
 
         $response = $sender->send($message);
 
-        $this->assertResponse($response);
+        $this->assertEquals(2, $response['deliveredTo'], \var_export($response, true));
+        $this->assertEquals('', $response['results'][0]['error'], \var_export($response, true));
+        $this->assertEquals('success', $response['results'][0]['status'], \var_export($response, true));
+        $this->assertEquals('', $response['results'][1]['error'], \var_export($response, true));
+        $this->assertEquals('success', $response['results'][1]['status'], \var_export($response, true));
         $this->assertEquals('client-123', $sender->body['clientId']);
         $this->assertEquals('request_123', $sender->body['CRQID']);
         $this->assertEquals('uuid.123', $sender->body['UUID']);
+        $this->assertEquals('request_123', $sender->body['recipients'][0]['CRQID']);
+        $this->assertEquals('uuid.123', $sender->body['recipients'][0]['UUID']);
+        $this->assertEquals('request_123', $sender->body['recipients'][1]['CRQID']);
+        $this->assertEquals('uuid.123', $sender->body['recipients'][1]['UUID']);
         $this->assertArrayNotHasKey('ignored', $sender->body);
     }
 
@@ -60,6 +68,27 @@ class Msg91Test extends Base
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Msg91 CRQID metadata must be 80 characters or less');
+
+        $sender->send($message);
+    }
+
+    public function testSendSMSWithNullMetadata(): void
+    {
+        $sender = new Msg91TestAdapter('sender', 'auth', 'template');
+
+        /** @var array<string, string> $metadata */
+        $metadata = [
+            'CRQID' => null,
+        ];
+
+        $message = new SMS(
+            to: ['+911234567890'],
+            content: 'Test Content',
+            metadata: $metadata,
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Msg91 CRQID metadata must be a string');
 
         $sender->send($message);
     }

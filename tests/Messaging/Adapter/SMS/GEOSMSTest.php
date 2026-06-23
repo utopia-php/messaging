@@ -111,4 +111,36 @@ class GEOSMSTest extends Base
         $this->assertEquals(1, count($result));
         $this->assertEquals('success', $result['local']['results'][0]['status']);
     }
+
+    public function testSendSMSForwardsMetadata(): void
+    {
+        $metadata = [
+            'clientId' => 'client-123',
+            'CRQID' => 'request_123',
+            'UUID' => 'uuid.123',
+        ];
+
+        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock->method('getName')->willReturn('default');
+        $defaultAdapterMock
+            ->expects($this->once())
+            ->method('send')
+            ->with($this->callback(function (SMS $message) use ($metadata): bool {
+                return $message->getMetadata() === $metadata;
+            }))
+            ->willReturn(['results' => [['status' => 'success']]]);
+
+        $adapter = new GEOSMS($defaultAdapterMock);
+
+        $message = new SMS(
+            to: ['+11234567890'],
+            content: 'Test Content',
+            metadata: $metadata
+        );
+
+        $result = $adapter->send($message);
+
+        $this->assertEquals(1, count($result));
+        $this->assertEquals('success', $result['default']['results'][0]['status']);
+    }
 }
