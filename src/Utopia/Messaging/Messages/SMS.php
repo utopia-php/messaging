@@ -11,12 +11,14 @@ class SMS implements Message
     /**
      * @param  array<string>  $to
      * @param  array<string>|null  $attachments
+     * @param  array<string, string>|null  $metadata
      */
     public function __construct(
         private array $to,
         private string $content,
         private ?string $from = null,
         private ?array $attachments = null,
+        private ?array $metadata = null,
     ) {
     }
 
@@ -44,6 +46,24 @@ class SMS implements Message
     public function getAttachments(): ?array
     {
         return $this->attachments;
+    }
+
+    /**
+     * @return array<string, string>|null
+     */
+    public function getMetadata(): ?array
+    {
+        return $this->metadata;
+    }
+
+    /**
+     * @param  array<string, string>|null  $metadata
+     */
+    public function setMetadata(?array $metadata): self
+    {
+        $this->metadata = $metadata;
+
+        return $this;
     }
 
     public function setOrigin(?string $origin): self

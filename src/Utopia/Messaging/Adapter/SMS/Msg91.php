@@ -2,6 +2,7 @@
 
 namespace Utopia\Messaging\Adapter\SMS;
 
+use Utopia\Messaging\Adapter\SMS\Msg91\MetadataParameter;
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 use Utopia\Messaging\Response;
@@ -51,6 +52,31 @@ class Msg91 extends SMSAdapter
             ];
         }
 
+        $body = [
+            'sender' => $this->senderId,
+            'template_id' => $this->templateId,
+            'recipients' => $recipients,
+        ];
+
+        $metadata = $message->getMetadata() ?? [];
+        $metadata = \array_intersect_key($metadata, \array_flip(\array_column(MetadataParameter::cases(), 'value')));
+
+        foreach ([MetadataParameter::CRQID, MetadataParameter::UUID] as $parameter) {
+            $key = $parameter->value;
+
+            if (!isset($metadata[$key])) {
+                continue;
+            }
+
+            if (\strlen($metadata[$key]) > 80 || !\preg_match('/^[A-Za-z0-9_.-]+$/', $metadata[$key])) {
+                throw new \InvalidArgumentException("Msg91 {$key} metadata must be 80 characters or less and contain only alphanumeric characters, underscores, dots, or hyphens.");
+            }
+        }
+
+        foreach ($metadata as $key => $value) {
+            $body[$key] = $value;
+        }
+
         $response = new Response($this->getType());
         $result = $this->request(
             method: 'POST',
@@ -59,11 +85,7 @@ class Msg91 extends SMSAdapter
                 'Content-Type: application/json',
                 'Authkey: '. $this->authKey,
             ],
-            body: [
-                'sender' => $this->senderId,
-                'template_id' => $this->templateId,
-                'recipients' => $recipients,
-            ],
+            body: $body,
         );
 
         if ($result['statusCode'] === 200) {
