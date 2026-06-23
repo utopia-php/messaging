@@ -94,12 +94,19 @@ class GEOSMS extends SMSAdapter
             $recipients = \array_diff($recipients, $nextRecipients);
         } while (count($recipients) > 0);
 
-        $metadata = $message->getMetadata();
-        if (\count($batches) > 1 && $metadata !== null) {
-            unset($metadata['CRQID'], $metadata['UUID']);
-        }
+        foreach ($batches as $index => $batch) {
+            $metadata = $message->getMetadata();
+            if (\count($batches) > 1 && $metadata !== null) {
+                foreach (['CRQID', 'UUID'] as $key) {
+                    if (!isset($metadata[$key])) {
+                        continue;
+                    }
 
-        foreach ($batches as $batch) {
+                    $suffix = '-'.($index + 1);
+                    $metadata[$key] = \substr($metadata[$key], 0, 80 - \strlen($suffix)).$suffix;
+                }
+            }
+
             try {
                 $results[$batch['adapter']->getName()] = $batch['adapter']->send(
                     (new SMS(

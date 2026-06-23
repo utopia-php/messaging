@@ -143,8 +143,16 @@ class GEOSMSTest extends Base
         $this->assertEquals(1, count($result));
         $this->assertEquals('success', $result['default']['results'][0]['status']);
 
-        $expectedMetadata = [
+        $defaultMetadata = [
             'clientId' => 'client-123',
+            'CRQID' => 'request_123-2',
+            'UUID' => 'uuid.123-2',
+        ];
+
+        $localMetadata = [
+            'clientId' => 'client-123',
+            'CRQID' => 'request_123-1',
+            'UUID' => 'uuid.123-1',
         ];
 
         $defaultAdapterMock = $this->createMock(SMSAdapter::class);
@@ -152,8 +160,8 @@ class GEOSMSTest extends Base
         $defaultAdapterMock
             ->expects($this->once())
             ->method('send')
-            ->with($this->callback(function (SMS $message) use ($expectedMetadata): bool {
-                return $message->getMetadata() === $expectedMetadata;
+            ->with($this->callback(function (SMS $message) use ($defaultMetadata): bool {
+                return $message->getMetadata() === $defaultMetadata;
             }))
             ->willReturn(['results' => [['status' => 'success']]]);
 
@@ -162,8 +170,8 @@ class GEOSMSTest extends Base
         $localAdapterMock
             ->expects($this->once())
             ->method('send')
-            ->with($this->callback(function (SMS $message) use ($expectedMetadata): bool {
-                return $message->getMetadata() === $expectedMetadata;
+            ->with($this->callback(function (SMS $message) use ($localMetadata): bool {
+                return $message->getMetadata() === $localMetadata;
             }))
             ->willReturn(['results' => [['status' => 'success']]]);
 

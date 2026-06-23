@@ -64,18 +64,13 @@ class Msg91 extends SMSAdapter
             }
         }
 
-        $recipientMetadata = \array_intersect_key($metadata, \array_flip([
-            MetadataParameter::CRQID->value,
-            MetadataParameter::UUID->value,
-        ]));
-
         $recipients = [];
         foreach ($message->getTo() as $recipient) {
             $recipients[] = [
                 'mobiles' => \ltrim($recipient, '+'),
                 'content' => $message->getContent(),
                 'otp' => $message->getContent(),
-            ] + $recipientMetadata;
+            ];
         }
 
         $body = [

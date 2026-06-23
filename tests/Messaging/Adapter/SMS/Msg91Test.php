@@ -47,10 +47,10 @@ class Msg91Test extends Base
         $this->assertEquals('client-123', $sender->body['clientId']);
         $this->assertEquals('request_123', $sender->body['CRQID']);
         $this->assertEquals('uuid.123', $sender->body['UUID']);
-        $this->assertEquals('request_123', $sender->body['recipients'][0]['CRQID']);
-        $this->assertEquals('uuid.123', $sender->body['recipients'][0]['UUID']);
-        $this->assertEquals('request_123', $sender->body['recipients'][1]['CRQID']);
-        $this->assertEquals('uuid.123', $sender->body['recipients'][1]['UUID']);
+        $this->assertArrayNotHasKey('CRQID', $sender->body['recipients'][0]);
+        $this->assertArrayNotHasKey('UUID', $sender->body['recipients'][0]);
+        $this->assertArrayNotHasKey('CRQID', $sender->body['recipients'][1]);
+        $this->assertArrayNotHasKey('UUID', $sender->body['recipients'][1]);
         $this->assertArrayNotHasKey('ignored', $sender->body);
 
         $sender = new Msg91TestAdapter('sender', 'auth', 'template');
