@@ -10,7 +10,7 @@ class AfricasTalking extends SMSAdapter
 {
     protected const NAME = 'AfricasTalking';
 
-    private const API_URL = 'https://api.africasTalking.com/sms/1/action';
+    private const API_URL = 'https://api.africasTalking.com/version1/messaging';
 
     public function __construct(
         private string $username,
@@ -34,10 +34,7 @@ class AfricasTalking extends SMSAdapter
     {
         $response = new Response($this->getType());
 
-        $recipients = \array_map(
-            fn ($to) => \ltrim($to, '+'),
-            $message->getTo()
-        );
+        $recipients = $message->getTo();
 
         $from = $this->from ?? $message->getFrom();
 
