@@ -83,6 +83,48 @@ $messaging = new FCM('YOUR_SERVICE_ACCOUNT_JSON');
 $messaging->send($message);
 ```
 
+You can also create email adapters from a DSN:
+
+```php
+<?php
+
+use Utopia\Messaging\Adapter\Email;
+
+$smtp = Email::fromDsn('smtp://user:pass@smtp.example.com:587?secure=tls&autotls=1');
+$resend = Email::fromDsn('resend://YOUR_API_KEY@default');
+$sendgrid = Email::fromDsn('sendgrid://YOUR_API_KEY@default');
+$mailgun = Email::fromDsn('mailgun://YOUR_API_KEY@example.com?eu=0');
+```
+
+Supported email DSN schemes are `smtp`, `smtps`, `resend`, `sendgrid`, and `mailgun`.
+
+## Multiple Adapters (Failover)
+
+You can use multiple adapters with automatic failover. If one adapter throws an exception, the next one will be tried.
+
+```php
+<?php
+
+use \Utopia\Messaging\Messenger;
+use \Utopia\Messaging\Messages\SMS;
+use \Utopia\Messaging\Adapter\SMS\Twilio;
+use \Utopia\Messaging\Adapter\SMS\Vonage;
+
+$message = new SMS(
+    to: ['+12025550139'],
+    content: 'Hello World'
+);
+
+$messenger = new Messenger([
+    new Twilio('YOUR_ACCOUNT_SID', 'YOUR_AUTH_TOKEN'),
+    new Vonage('YOUR_API_KEY', 'YOUR_API_SECRET'),
+]);
+
+$messenger->send($message);
+```
+
+The `Messenger` class accepts multiple adapters and tries them in order. It stops at the first successful response and only throws an exception if all adapters fail.
+
 ## Adapters
 
 > Want to implement any of the missing adapters or have an idea for another? We would love to hear from you! Please check out our [contribution guide](./CONTRIBUTING.md) and [new adapter guide](./docs/add-new-adapter.md) for more information.
