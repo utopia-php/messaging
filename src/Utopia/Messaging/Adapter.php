@@ -2,6 +2,7 @@
 
 namespace Utopia\Messaging;
 
+use Closure;
 use Exception;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -12,7 +13,6 @@ use Swoole\Coroutine;
 use Swoole\Coroutine\WaitGroup;
 use Utopia\Client;
 use Utopia\Client\Adapter\Curl\Client as CurlAdapter;
-use Utopia\Client\Pool as ClientPool;
 use Utopia\Pools\Adapter\Swoole as SwoolePoolAdapter;
 use Utopia\Pools\Pool as ConnectionPool;
 use Utopia\Psr7\Request\Factory as RequestFactory;
@@ -39,16 +39,16 @@ abstract class Adapter
 
     /**
      * @param  Telemetry|null  $telemetry Telemetry adapter to record metrics with; defaults to a no-op adapter.
-     * @param  ClientInterface|null  $client PSR-18 client used for all HTTP requests; defaults to
-     *         utopia-php/client's cURL adapter configured for HTTP/2 with the request()/requestMulti()
-     *         timeouts applied. An injected client owns its own timeout configuration, and must be
-     *         able to negotiate HTTP/2 for push adapters — APNs rejects HTTP/1.1 connections, so a
-     *         bare `new Client(new CurlAdapter())` will not work; configure the adapter with
-     *         `new CurlAdapter(options: [CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0])`. For
-     *         concurrent requestMulti() fan-out, inject a `Utopia\Client\Pool`-wrapped client;
-     *         a non-pooled client serializes the batch on its single connection.
+     * @param  (Closure(): ClientInterface)|null  $clientFactory Factory producing the PSR-18 clients
+     *         used for HTTP requests — called once per request() and once per pooled requestMulti()
+     *         connection, so it must return a new (or safely shareable) client on each call. Defaults
+     *         to utopia-php/client's cURL adapter configured for HTTP/2 with the request()/requestMulti()
+     *         timeouts applied. A custom factory owns its own timeout configuration, and its clients
+     *         must be able to negotiate HTTP/2 for push adapters — APNs rejects HTTP/1.1 connections,
+     *         so a bare `new Client(new CurlAdapter())` will not work; configure the adapter with
+     *         `new CurlAdapter(options: [CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0])`.
      */
-    public function __construct(?Telemetry $telemetry = null, private ?ClientInterface $client = null)
+    public function __construct(?Telemetry $telemetry = null, private ?Closure $clientFactory = null)
     {
         $this->sendCounter = ($telemetry ?? new NoTelemetry())->createCounter('messaging.send');
     }
@@ -118,12 +118,14 @@ abstract class Adapter
     }
 
     /**
-     * Set the PSR-18 client used for all HTTP requests. See the constructor
-     * doc for the HTTP/2 and pooling requirements an injected client must meet.
+     * Set the factory producing the PSR-18 clients used for HTTP requests.
+     * See the constructor doc for the requirements a factory must meet.
+     *
+     * @param  Closure(): ClientInterface  $clientFactory
      */
-    public function setClient(ClientInterface $client): void
+    public function setClientFactory(Closure $clientFactory): void
     {
-        $this->client = $client;
+        $this->clientFactory = $clientFactory;
     }
 
     private function recordSend(Message $message, int $recipients, int $delivered): void
@@ -205,7 +207,10 @@ abstract class Adapter
         int $timeout = 30,
         int $connectTimeout = 10
     ): array {
-        $client = $this->client ?? $this->defaultClient($timeout, $connectTimeout);
+        $client = $this->clientFactory !== null
+            ? ($this->clientFactory)()
+            : $this->defaultClient($timeout, $connectTimeout);
+
         $request = $this->buildRequest($method, $url, $headers, $body);
 
         try {
@@ -276,21 +281,21 @@ abstract class Adapter
         $results = [];
 
         $run = function () use ($requests, $timeout, $connectTimeout, &$results): void {
-            $client = $this->client ?? new ClientPool(new ConnectionPool(
+            $pool = new ConnectionPool(
                 pool: new SwoolePoolAdapter(),
                 name: self::CONNECTION_POOL_NAME,
                 size: \min(\count($requests), self::MAX_CONCURRENT_REQUESTS),
-                init: $this->defaultClient($timeout, $connectTimeout)->withConnectionReuse(...),
-            ));
+                init: $this->clientFactory ?? $this->defaultClient($timeout, $connectTimeout)->withConnectionReuse(...),
+            );
 
             $group = new WaitGroup();
 
             foreach ($requests as $index => $request) {
                 $group->add();
 
-                Coroutine::create(function () use ($client, $request, $index, &$results, $group): void {
+                Coroutine::create(function () use ($pool, $request, $index, &$results, $group): void {
                     try {
-                        $results[$index] = $this->buildResult($client->sendRequest($request), (string)$request->getUri());
+                        $results[$index] = $pool->use(fn (ClientInterface $client): array => $this->buildResult($client->sendRequest($request), (string)$request->getUri()));
                     } catch (ClientExceptionInterface $error) {
                         $results[$index] = [
                             'url' => (string)$request->getUri(),
