@@ -11,9 +11,9 @@ Utopia Messaging library is simple and lite library for sending messages using m
 
 Although this library is part of the [Utopia Framework](https://github.com/utopia-php/framework) project it is dependency free, and can be used as standalone with any other PHP project or framework.
 
-## Getting Started
+## Getting started
 
-Install using composer:
+Install using Composer:
 ```bash
 composer require utopia-php/messaging
 ```
@@ -130,7 +130,7 @@ $messaging->send($message);
 - [ ] [PushBullet](https://www.pushbullet.com/)
 - [ ] [Pushy](https://pushy.me/)
 
-## System Requirements
+## System requirements
 
 Utopia Messaging requires PHP 8.0 or later. We recommend using the latest PHP version whenever possible.
 

@@ -5,7 +5,7 @@
 - _The list includes only implemented providers_
 - _The list is sorted by unit price low -> high_
 
-## SMS Target
+## SMS target
 
 _You can add your country with a full pricing table._
 

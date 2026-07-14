@@ -13,14 +13,14 @@ Happy contributing!
 
 (Provide a description of what this PR does.)
 
-## Test Plan
+## Test plan
 
 (Write your test plan here. If you changed any code, please provide us with clear instructions on how you verified your changes work.)
 
-## Related PRs and Issues
+## Related PRs and issues
 
 (If this PR is related to any other PR or resolves any issue or related to any issue link all related PR and issues here.)
 
-### Have you read the [Contributing Guidelines on issues](https://github.com/utopia-php/messaging/blob/master/CONTRIBUTING.md)?
+### Have you read the [contributing guidelines on issues](https://github.com/utopia-php/messaging/blob/master/CONTRIBUTING.md)?
 
 (Write your answer here.)

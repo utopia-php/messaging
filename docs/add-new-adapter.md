@@ -2,7 +2,7 @@
 
 This document is a part of Utopia PHP contributors guide. Before you continue reading this document make sure you have read the [Code of Conduct](../CODE_OF_CONDUCT.md) and the [Contribution Guide](../CONTRIBUTING.md).
 
-## Getting Started
+## Getting started
 
 Messaging adapter allow utilization of different messaging services in a consistent way. This document will guide you through the process of adding a new messaging adapter to the Utopia PHP Messaging library.
 
@@ -12,7 +12,7 @@ It's really easy to contribute to an open source project, but when using GitHub,
 
 > If you are experienced with GitHub or have made a pull request before, you can skip to [Implement A New Messaging Adapter](#2-implement-new-messaging-adapter).
 
-###  1.1 Fork The Repository
+###  1.1 Fork the repository
 
 Before making any changes, you will need to fork the `utopia-php/messaging` repository to keep branches on the upstream repo clean. To do that, visit the [repository](https://github.com/utopia-php/messaging) and click the **Fork** button.
 
@@ -26,7 +26,7 @@ $ git clone COPIED_URL
 
 Finally, you will need to create a `feat-XXX-YYY-messaging-adapter` branch based on the `master` branch and switch to it. The `XXX` should represent the issue ID and `YYY` the Storage adapter name.
 
-## 2. Implement A New Messaging Adapter
+## 2. Implement a new messaging adapter
 
 In order to start implementing a new messaging adapter, add new file inside `src/Utopia/Messaging/Adapters/XXX/YYY.php` where `XXX` is the type of adapter (**Email**, **SMS** or **Push**), and `YYY` is the name of the messaging provider in `PascalCase` casing. Inside the file you should create a class that extends the base `Email`, `SMS` or `Push` abstract adapter class.
 
@@ -89,7 +89,7 @@ The default content type of the request is `x-www-form-urlencoded`, but you can 
 
 Putting it all together, the `SendGrid` adapter should look like this:
 
-### Full Example
+### Full example
 
 ```php
 <?php
