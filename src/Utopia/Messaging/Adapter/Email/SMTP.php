@@ -120,7 +120,11 @@ class SMTP extends EmailAdapter
                 if ($attachment->getContent() !== null) {
                     $size += \strlen($attachment->getContent());
                 } else {
-                    $size += filesize($attachment->getPath());
+                    $fileSize = filesize($attachment->getPath());
+                    if ($fileSize === false) {
+                        throw new \Exception('Failed to read attachment file: ' . $attachment->getPath());
+                    }
+                    $size += $fileSize;
                 }
             }
 
@@ -137,8 +141,12 @@ class SMTP extends EmailAdapter
                         type: $attachment->getType(),
                     );
                 } else {
+                    $data = file_get_contents($attachment->getPath());
+                    if ($data === false) {
+                        throw new \Exception('Failed to read attachment file: ' . $attachment->getPath());
+                    }
                     $mail->addStringAttachment(
-                        string: file_get_contents($attachment->getPath()),
+                        string: $data,
                         filename: $attachment->getName(),
                         encoding: PHPMailer::ENCODING_BASE64,
                         type: $attachment->getType(),

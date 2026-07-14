@@ -78,6 +78,10 @@ class FCM extends PushAdapter
             ],
         );
 
+        if ($token['statusCode'] !== 200 || !\is_array($token['response']) || !isset($token['response']['access_token'])) {
+            throw new \Exception('Failed to obtain FCM access token: ' . ($token['error'] !== '' ? $token['error'] : 'HTTP ' . $token['statusCode']));
+        }
+
         $accessToken = $token['response']['access_token'];
 
         $shared = [];

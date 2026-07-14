@@ -41,7 +41,7 @@ class APNS extends PushAdapter
     /**
      * {@inheritdoc}
      */
-    public function process(PushMessage $message): array
+    protected function process(PushMessage $message): array
     {
         $payload = [];
 

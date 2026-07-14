@@ -256,7 +256,7 @@ abstract class Adapter
             throw new \Exception('URL and body counts must be equal or one must equal 1.');
         }
 
-        if ($urlCount > $bodyCount) {
+        if ($bodyCount > 0 && $urlCount > $bodyCount) {
             $bodies = array_pad($bodies, $urlCount, $bodies[0]);
         } elseif ($urlCount < $bodyCount) {
             $urls = array_pad($urls, $bodyCount, $urls[0]);
