@@ -70,7 +70,6 @@ class Msg91Test extends Base
             $this->assertStringContainsString('Msg91 CRQID metadata must be 80 characters or less', $e->getMessage());
         }
 
-        /** @var array<string, string> $metadata */
         $metadata = [
             'CRQID' => null,
         ];

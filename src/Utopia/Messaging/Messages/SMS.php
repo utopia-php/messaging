@@ -11,7 +11,7 @@ class SMS implements Message
     /**
      * @param  array<string>  $to
      * @param  array<string>|null  $attachments
-     * @param  array<string, string>|null  $metadata
+     * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
         private array $to,
@@ -49,7 +49,7 @@ class SMS implements Message
     }
 
     /**
-     * @return array<string, string>|null
+     * @return array<string, mixed>|null
      */
     public function getMetadata(): ?array
     {
@@ -57,7 +57,7 @@ class SMS implements Message
     }
 
     /**
-     * @param  array<string, string>|null  $metadata
+     * @param  array<string, mixed>|null  $metadata
      */
     public function setMetadata(?array $metadata): self
     {

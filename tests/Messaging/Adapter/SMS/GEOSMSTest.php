@@ -190,7 +190,6 @@ class GEOSMSTest extends Base
         $this->assertEquals('success', $result['local']['results'][0]['status']);
         $this->assertEquals('success', $result['default']['results'][0]['status']);
 
-        /** @var array<string, string> $invalidMetadata */
         $invalidMetadata = [
             'CRQID' => [],
         ];

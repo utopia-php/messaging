@@ -5,6 +5,7 @@ namespace Utopia\Messaging\Adapter\Email;
 use Utopia\Messaging\Adapter\Email as EmailAdapter;
 use Utopia\Messaging\Messages\Email as EmailMessage;
 use Utopia\Messaging\Response;
+use Utopia\Psr7\Request\Multipart\Part;
 
 class Mailgun extends EmailAdapter
 {
@@ -117,10 +118,11 @@ class Mailgun extends EmailAdapter
             foreach ($message->getAttachments() as $index => $attachment) {
                 $isMultipart = true;
 
-                $body["attachment[$index]"] = \curl_file_create(
+                $body["attachment[$index]"] = Part::file(
+                    "attachment[$index]",
                     $attachment->getPath(),
-                    $attachment->getType(),
                     $attachment->getName(),
+                    $attachment->getType(),
                 );
             }
         }
