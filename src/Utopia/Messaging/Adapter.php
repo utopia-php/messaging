@@ -191,7 +191,7 @@ abstract class Adapter
      *     statusCode: int,
      *     response: array<string, mixed>|string|null,
      *     headers: array<string, string>,
-     *     error: string|null,
+     *     error: string,
      *     errorCode: int
      * }
      *
@@ -237,7 +237,7 @@ abstract class Adapter
      *     statusCode: int,
      *     response: array<string, mixed>|string|null,
      *     headers: array<string, string>,
-     *     error: string|null,
+     *     error: string,
      *     errorCode: int
      * }>
      *
@@ -270,7 +270,7 @@ abstract class Adapter
 
         $requests = [];
         foreach ($urls as $i => $url) {
-            $requests[$i] = $this->buildRequest($method, $url, $headers, $bodies[$i] ?: null);
+            $requests[$i] = $this->buildRequest($method, $url, $headers, $bodies[$i] ?? null);
         }
 
         $results = [];
@@ -399,7 +399,7 @@ abstract class Adapter
      *     statusCode: int,
      *     response: array<string, mixed>|string|null,
      *     headers: array<string, string>,
-     *     error: string|null,
+     *     error: string,
      *     errorCode: int
      * }
      */
