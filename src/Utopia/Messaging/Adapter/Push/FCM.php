@@ -166,16 +166,40 @@ class FCM extends PushAdapter
                 $response->incrementDeliveredTo();
                 $response->addResult($message->getTo()[$result['index']]);
             } else {
-                $error =
-                    ($result['response']['error']['status'] ?? null) === 'UNREGISTERED'
-                    || ($result['response']['error']['status'] ?? null) === 'NOT_FOUND'
-                        ? $this->getExpiredErrorMessage()
-                        : $result['response']['error']['message'] ?? 'Unknown error';
-
-                $response->addResult($message->getTo()[$result['index']], $error);
+                $response->addResult($message->getTo()[$result['index']], $this->getError($result));
             }
         }
 
         return $response->toArray();
+    }
+
+    /**
+     * @param array{
+     *     statusCode: int,
+     *     response: array<string, mixed>|string|null,
+     *     error: string|null,
+     *     errorCode: int
+     * } $result
+     */
+    protected function getError(array $result): string
+    {
+        $response = \is_array($result['response']) ? $result['response'] : [];
+        $error = \is_array($response['error'] ?? null) ? $response['error'] : [];
+
+        if (\in_array($error['status'] ?? null, ['UNREGISTERED', 'NOT_FOUND'], true)) {
+            return $this->getExpiredErrorMessage();
+        }
+
+        $message = $error['message'] ?? null;
+        if (\is_string($message) && $message !== '') {
+            return $message;
+        }
+
+        $transportError = $result['error'] ?? null;
+        $details = "HTTP status {$result['statusCode']}; cURL error code {$result['errorCode']}";
+
+        return \is_string($transportError) && $transportError !== ''
+            ? "{$transportError} ({$details})"
+            : "Request failed ({$details})";
     }
 }
