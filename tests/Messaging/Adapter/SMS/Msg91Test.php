@@ -105,7 +105,8 @@ class Msg91TestAdapter extends Msg91
      *     statusCode: int,
      *     response: array<string, mixed>|string|null,
      *     headers: array<string, string>,
-     *     error: string|null
+     *     error: string|null,
+     *     errorCode: int
      * }
      */
     protected function request(
@@ -124,6 +125,7 @@ class Msg91TestAdapter extends Msg91
             'response' => [],
             'headers' => [],
             'error' => null,
+            'errorCode' => 0,
         ];
     }
 }

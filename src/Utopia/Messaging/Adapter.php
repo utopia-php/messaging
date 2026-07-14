@@ -146,7 +146,8 @@ abstract class Adapter
      *     statusCode: int,
      *     response: array<string, mixed>|string|null,
      *     headers: array<string, string>,
-     *     error: string|null
+     *     error: string|null,
+     *     errorCode: int
      * }
      *
      * @throws \Exception If the request fails.
@@ -214,6 +215,7 @@ abstract class Adapter
             'response' => $response,
             'headers' => $responseHeaders,
             'error' => \curl_error($ch),
+            'errorCode' => \curl_errno($ch),
         ];
     }
 
@@ -227,9 +229,10 @@ abstract class Adapter
      *     index: int,
      *     url: string,
      *     statusCode: int,
-     *     response: array<string, mixed>|null,
+     *     response: array<string, mixed>|string|null,
      *     headers: array<string, string>,
-     *     error: string|null
+     *     error: string|null,
+     *     errorCode: int
      * }>
      *
      * @throws Exception
@@ -340,6 +343,7 @@ abstract class Adapter
                 // capture (without copy_handle) if a multi-path adapter needs it.
                 'headers' => [],
                 'error' => \curl_error($ch),
+                'errorCode' => $info['result'],
             ];
 
             \curl_multi_remove_handle($mh, $ch);
