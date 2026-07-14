@@ -1,6 +1,6 @@
 # Adding A New Messaging Adapter
 
-This document is a part of Utopia PHP contributors guide. Before you continue reading this document make sure you have read the [Code of Conduct](../CODE_OF_CONDUCT.md) and the [Contribution Guide](../CONTRIBUTING.md).
+This document is a part of Utopia PHP contributors guide. Before you continue reading this document make sure you have read the [Code of Conduct](https://github.com/utopia-php/monorepo/blob/main/CODE_OF_CONDUCT.md) and the [Contribution Guide](https://github.com/utopia-php/monorepo/blob/main/CONTRIBUTING.md).
 
 ## Getting started
 
@@ -8,27 +8,11 @@ Messaging adapter allow utilization of different messaging services in a consist
 
 ## 1. Prerequisites
 
-It's really easy to contribute to an open source project, but when using GitHub, there are a few steps we need to follow. This section will take you step-by-step through the process of preparing your own local version of `utopia-php/messaging`, where you can make any changes without affecting the upstream repository right away.
-
-> If you are experienced with GitHub or have made a pull request before, you can skip to [Implement A New Messaging Adapter](#2-implement-new-messaging-adapter).
-
-###  1.1 Fork the repository
-
-Before making any changes, you will need to fork the `utopia-php/messaging` repository to keep branches on the upstream repo clean. To do that, visit the [repository](https://github.com/utopia-php/messaging) and click the **Fork** button.
-
-This will redirect you from `github.com/utopia-php/messaging` to `github.com/YOUR_USERNAME/messaging`, meaning all further changes will reflect on your copy of the repository. Once you are there, click the highlighted `Code` button, copy the URL and clone the repository to your computer using either a Git UI or the `git clone` command:
-
-```shell
-$ git clone COPIED_URL
-```
-
-> To fork a repository, you will need the git-cli binaries installed and a basic understanding of CLI. If you are a beginner, we recommend you to use `Github Desktop`. It is a clean and simple visual Git client.
-
-Finally, you will need to create a `feat-XXX-YYY-messaging-adapter` branch based on the `master` branch and switch to it. The `XXX` should represent the issue ID and `YYY` the Storage adapter name.
+This library is developed in the [utopia-php monorepo](https://github.com/utopia-php/monorepo) — `utopia-php/messaging` is a read-only mirror. Fork the monorepo, clone your fork, and create a `feat-XXX-YYY-messaging-adapter` branch from `main`, where `XXX` is the issue ID and `YYY` the messaging adapter name. The library lives in `packages/messaging`.
 
 ## 2. Implement a new messaging adapter
 
-In order to start implementing a new messaging adapter, add new file inside `src/Utopia/Messaging/Adapters/XXX/YYY.php` where `XXX` is the type of adapter (**Email**, **SMS** or **Push**), and `YYY` is the name of the messaging provider in `PascalCase` casing. Inside the file you should create a class that extends the base `Email`, `SMS` or `Push` abstract adapter class.
+In order to start implementing a new messaging adapter, add new file inside `packages/messaging/src/Utopia/Messaging/Adapters/XXX/YYY.php` where `XXX` is the type of adapter (**Email**, **SMS** or **Push**), and `YYY` is the name of the messaging provider in `PascalCase` casing. Inside the file you should create a class that extends the base `Email`, `SMS` or `Push` abstract adapter class.
 
 Inside the class, you need to implement four methods:
 
@@ -157,7 +141,7 @@ If everything goes well, raise a pull request and be ready to respond to any fee
 
 ## 4. Raise a pull request
 
-First of all, commit the changes with the message `Added YYY adapter` and push it. This will publish a new branch to your forked version of `utopia-php/messaging`. If you visit it at `github.com/YOUR_USERNAME/messaging`, you will see a new alert saying you are ready to submit a pull request. Follow the steps GitHub provides, and at the end, you will have your pull request submitted.
+First of all, commit the changes with the message `Added YYY adapter` and push the branch to your fork of the monorepo. If you visit your fork on GitHub, you will see a new alert saying you are ready to submit a pull request against `utopia-php/monorepo`. Follow the steps GitHub provides, and at the end, you will have your pull request submitted.
 
 ## 🤕 Stuck ?
 If you need any help with the contribution, feel free to head over to [our discord channel](https://appwrite.io/discord) and we'll be happy to help you out.
