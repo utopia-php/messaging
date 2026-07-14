@@ -11,7 +11,6 @@ use Swoole\Coroutine;
 use Swoole\Coroutine\WaitGroup;
 use Utopia\Client;
 use Utopia\Client\Adapter\Curl\Client as CurlAdapter;
-use Utopia\Client\Adapter\SwooleCoroutine\Client as SwooleAdapter;
 use Utopia\Client\Pool as ClientPool;
 use Utopia\Pools\Adapter\Swoole as SwoolePoolAdapter;
 use Utopia\Pools\Pool as ConnectionPool;
@@ -267,7 +266,10 @@ abstract class Adapter
                 pool: new SwoolePoolAdapter(),
                 name: self::CONNECTION_POOL_NAME,
                 size: \min(\count($requests), self::MAX_CONCURRENT_REQUESTS),
-                init: new Client(new SwooleAdapter())
+                // cURL rather than Swoole's HTTP client: APNs only accepts
+                // HTTP/2, which Coroutine\Http\Client cannot negotiate. Swoole's
+                // native-curl hook keeps these sends concurrent per coroutine.
+                init: new Client(new CurlAdapter(options: [CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0]))
                     ->withTimeout((float)$timeout)
                     ->withConnectTimeout((float)$connectTimeout)
                     ->withHeaders(['User-Agent' => "Appwrite {$this->getName()} Message Sender"])
