@@ -5,6 +5,7 @@ namespace Utopia\Messaging;
 use Exception;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Coroutine;
@@ -38,8 +39,16 @@ abstract class Adapter
 
     /**
      * @param  Telemetry|null  $telemetry Telemetry adapter to record metrics with; defaults to a no-op adapter.
+     * @param  ClientInterface|null  $client PSR-18 client used for all HTTP requests; defaults to
+     *         utopia-php/client's cURL adapter configured for HTTP/2 with the request()/requestMulti()
+     *         timeouts applied. An injected client owns its own timeout configuration, and must be
+     *         able to negotiate HTTP/2 for push adapters — APNs rejects HTTP/1.1 connections, so a
+     *         bare `new Client(new CurlAdapter())` will not work; configure the adapter with
+     *         `new CurlAdapter(options: [CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0])`. For
+     *         concurrent requestMulti() fan-out, inject a `Utopia\Client\Pool`-wrapped client;
+     *         a non-pooled client serializes the batch on its single connection.
      */
-    public function __construct(?Telemetry $telemetry = null)
+    public function __construct(?Telemetry $telemetry = null, private ?ClientInterface $client = null)
     {
         $this->sendCounter = ($telemetry ?? new NoTelemetry())->createCounter('messaging.send');
     }
@@ -106,6 +115,15 @@ abstract class Adapter
     public function setTelemetry(Telemetry $telemetry): void
     {
         $this->sendCounter = $telemetry->createCounter('messaging.send');
+    }
+
+    /**
+     * Set the PSR-18 client used for all HTTP requests. See the constructor
+     * doc for the HTTP/2 and pooling requirements an injected client must meet.
+     */
+    public function setClient(ClientInterface $client): void
+    {
+        $this->client = $client;
     }
 
     private function recordSend(Message $message, int $recipients, int $delivered): void
@@ -187,11 +205,7 @@ abstract class Adapter
         int $timeout = 30,
         int $connectTimeout = 10
     ): array {
-        $client = new Client(new CurlAdapter())
-            ->withTimeout((float)$timeout)
-            ->withConnectTimeout((float)$connectTimeout)
-            ->withHeaders(['User-Agent' => "Appwrite {$this->getName()} Message Sender"]);
-
+        $client = $this->client ?? $this->defaultClient($timeout, $connectTimeout);
         $request = $this->buildRequest($method, $url, $headers, $body);
 
         try {
@@ -262,18 +276,11 @@ abstract class Adapter
         $results = [];
 
         $run = function () use ($requests, $timeout, $connectTimeout, &$results): void {
-            $pool = new ClientPool(new ConnectionPool(
+            $client = $this->client ?? new ClientPool(new ConnectionPool(
                 pool: new SwoolePoolAdapter(),
                 name: self::CONNECTION_POOL_NAME,
                 size: \min(\count($requests), self::MAX_CONCURRENT_REQUESTS),
-                // cURL rather than Swoole's HTTP client: APNs only accepts
-                // HTTP/2, which Coroutine\Http\Client cannot negotiate. Swoole's
-                // native-curl hook keeps these sends concurrent per coroutine.
-                init: new Client(new CurlAdapter(options: [CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0]))
-                    ->withTimeout((float)$timeout)
-                    ->withConnectTimeout((float)$connectTimeout)
-                    ->withHeaders(['User-Agent' => "Appwrite {$this->getName()} Message Sender"])
-                    ->withConnectionReuse(...),
+                init: $this->defaultClient($timeout, $connectTimeout)->withConnectionReuse(...),
             ));
 
             $group = new WaitGroup();
@@ -281,9 +288,9 @@ abstract class Adapter
             foreach ($requests as $index => $request) {
                 $group->add();
 
-                Coroutine::create(function () use ($pool, $request, $index, &$results, $group): void {
+                Coroutine::create(function () use ($client, $request, $index, &$results, $group): void {
                     try {
-                        $results[$index] = $this->buildResult($pool->sendRequest($request), (string)$request->getUri());
+                        $results[$index] = $this->buildResult($client->sendRequest($request), (string)$request->getUri());
                     } catch (ClientExceptionInterface $error) {
                         $results[$index] = [
                             'url' => (string)$request->getUri(),
@@ -320,6 +327,21 @@ abstract class Adapter
     }
 
     /**
+     * Build the default HTTP client used when none was injected.
+     *
+     * cURL rather than Swoole's HTTP client: APNs only accepts HTTP/2, which
+     * Coroutine\Http\Client cannot negotiate (curl falls back to HTTP/1.1 for
+     * servers without it). Swoole's native-curl hook keeps requestMulti()
+     * sends concurrent per coroutine.
+     */
+    private function defaultClient(int $timeout, int $connectTimeout): Client
+    {
+        return new Client(new CurlAdapter(options: [CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0]))
+            ->withTimeout((float)$timeout)
+            ->withConnectTimeout((float)$connectTimeout);
+    }
+
+    /**
      * Build a PSR-7 request, encoding the body based on the request headers:
      * JSON, form-urlencoded, or multipart/form-data (mirroring curl's
      * handling of array CURLOPT_POSTFIELDS) in that order of precedence.
@@ -337,6 +359,12 @@ abstract class Adapter
             if (\count($parts) === 2) {
                 $headerMap[\trim($parts[0])] = \trim($parts[1]);
             }
+        }
+
+        // On the request rather than the client so injected PSR-18 clients
+        // send the same identity.
+        if (!\array_any(\array_keys($headerMap), fn (string $name): bool => \strtolower($name) === 'user-agent')) {
+            $headerMap['User-Agent'] = "Appwrite {$this->getName()} Message Sender";
         }
 
         if ($body === null) {
