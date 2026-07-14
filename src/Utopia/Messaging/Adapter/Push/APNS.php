@@ -12,15 +12,12 @@ class APNS extends PushAdapter
 {
     protected const NAME = 'APNS';
 
-    /**
-     * @return void
-     */
     public function __construct(
-        private string $authKey,
-        private string $authKeyId,
-        private string $teamId,
-        private string $bundleId,
-        private bool $sandbox = false
+        private readonly string $authKey,
+        private readonly string $authKeyId,
+        private readonly string $teamId,
+        private readonly string $bundleId,
+        private readonly bool $sandbox = false,
     ) {
         parent::__construct();
     }
@@ -76,7 +73,7 @@ class APNS extends PushAdapter
             $payload['aps']['badge'] = $message->getBadge();
         }
         if (!\is_null($message->getContentAvailable())) {
-            $payload['aps']['content-available'] = (int)$message->getContentAvailable();
+            $payload['aps']['content-available'] = (int) $message->getContentAvailable();
         }
         if (!\is_null($message->getPriority())) {
             $payload['headers']['apns-priority'] = match ($message->getPriority()) {
@@ -87,15 +84,15 @@ class APNS extends PushAdapter
 
         $claims = [
             'iss' => $this->teamId,   // Issuer
-            'iat' => \time(),         // Issued at time
-            'exp' => \time() + 3600,  // Expiration time
+            'iat' => time(),         // Issued at time
+            'exp' => time() + 3600,  // Expiration time
         ];
 
         $jwt = JWT::encode(
             $claims,
             $this->authKey,
             'ES256',
-            $this->authKeyId
+            $this->authKeyId,
         );
 
         $endpoint = 'https://api.push.apple.com';
@@ -106,7 +103,7 @@ class APNS extends PushAdapter
 
         $urls = [];
         foreach ($message->getTo() as $token) {
-            $urls[] = $endpoint.'/3/device/'.$token;
+            $urls[] = $endpoint . '/3/device/' . $token;
         }
 
         $results = $this->requestMulti(
@@ -114,17 +111,17 @@ class APNS extends PushAdapter
             urls: $urls,
             headers: [
                 'Content-Type: application/json',
-                'Authorization: Bearer '.$jwt,
-                'apns-topic: '.$this->bundleId,
+                'Authorization: Bearer ' . $jwt,
+                'apns-topic: ' . $this->bundleId,
                 'apns-push-type: alert',
             ],
-            bodies: [$payload]
+            bodies: [$payload],
         );
 
         $response = new Response($this->getType());
 
         foreach ($results as $result) {
-            $device = \basename($result['url']);
+            $device = basename($result['url']);
             $statusCode = $result['statusCode'];
 
             switch ($statusCode) {

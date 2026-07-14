@@ -15,20 +15,19 @@ class Discord implements Message
      * @param  array<string, mixed>|null  $attachments
      */
     public function __construct(
-        private string $content,
-        private ?string $username = null,
-        private ?string $avatarUrl = null,
-        private ?bool $tts = null,
-        private ?array $embeds = null,
-        private ?array $allowedMentions = null,
-        private ?array $components = null,
-        private ?array $attachments = null,
-        private ?string $flags = null,
-        private ?string $threadName = null,
-        private ?bool $wait = null,
-        private ?string $threadId = null
-    ) {
-    }
+        private readonly string $content,
+        private readonly ?string $username = null,
+        private readonly ?string $avatarUrl = null,
+        private readonly ?bool $tts = null,
+        private readonly ?array $embeds = null,
+        private readonly ?array $allowedMentions = null,
+        private readonly ?array $components = null,
+        private readonly ?array $attachments = null,
+        private readonly ?string $flags = null,
+        private readonly ?string $threadName = null,
+        private readonly ?bool $wait = null,
+        private readonly ?string $threadId = null,
+    ) {}
 
     public function getContent(): string
     {

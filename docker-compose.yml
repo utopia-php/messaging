@@ -1,62 +1,11 @@
 services:
-  tests:
-    build:
-      context: .
-    volumes:
-      - ./src:/usr/local/src/src
-      - ./tests:/usr/local/src/tests
-      - ./phpunit.xml:/usr/local/src/phpunit.xml
-    environment:
-      - MAILGUN_API_KEY
-      - MAILGUN_DOMAIN
-      - RESEND_API_KEY
-      - RESEND_TEST_EMAIL
-      - SENDGRID_API_KEY
-      - SES_ACCESS_KEY
-      - SES_SECRET_KEY
-      - SES_REGION
-      - SES_TEST_EMAIL
-      - SES_SESSION_TOKEN
-      - FCM_SERVICE_ACCOUNT_JSON
-      - FCM_TO
-      - TWILIO_ACCOUNT_SID
-      - TWILIO_AUTH_TOKEN
-      - TWILIO_TO
-      - TWILIO_FROM
-      - TELNYX_API_KEY
-      - TELNYX_PUBLIC_KEY
-      - APNS_AUTHKEY_8KVVCLA3HL
-      - APNS_AUTH_ID
-      - APNS_TEAM_ID
-      - APNS_BUNDLE_ID
-      - APNS_TO
-      - MSG_91_SENDER_ID
-      - MSG_91_AUTH_KEY
-      - MSG_91_TO
-      - MSG_91_FROM
-      - TEST_EMAIL
-      - TEST_FROM_EMAIL
-      - TEST_CC_EMAIL
-      - TEST_BCC_EMAIL
-      - TEST_BCC_NAME
-      - VONAGE_API_KEY
-      - VONAGE_API_SECRET
-      - VONAGE_TO
-      - VONAGE_FROM
-      - DISCORD_WEBHOOK_URL
-      - FAST2SMS_API_KEY
-      - FAST2SMS_SENDER_ID
-      - FAST2SMS_MESSAGE_ID
-      - FAST2SMS_TO
-      - INFORU_API_TOKEN
-      - INFORU_SENDER_ID
-
   maildev:
     image: appwrite/mailcatcher:1.0.0
     ports:
-      - '10000:1080'
+      - '11025:1025'
+      - '11080:1080'
 
   request-catcher:
     image: appwrite/requestcatcher:1.0.0
     ports:
-      - '10001:5000'
+      - '15000:5000'

@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests\Adapter;
 
+use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Adapter\SMS\GEOSMS;
 use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
-use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 use Utopia\Telemetry\Adapter as Telemetry;
 use Utopia\Telemetry\Counter;
@@ -13,7 +15,7 @@ use Utopia\Telemetry\Histogram;
 use Utopia\Telemetry\ObservableGauge;
 use Utopia\Telemetry\UpDownCounter;
 
-class TelemetryTest extends Base
+final class TelemetryTest extends Base
 {
     public function testRecordsSuccessesAndFailures(): void
     {
@@ -29,7 +31,7 @@ class TelemetryTest extends Base
         ]);
         $adapter->setTelemetry($telemetry);
 
-        $adapter->send((new SMS(['+1', '+2', '+3'], 'Hello'))->setOrigin('external'));
+        $adapter->send(new SMS(['+1', '+2', '+3'], 'Hello')->setOrigin('external'));
 
         $this->assertSame([
             ['amount' => 2, 'attributes' => ['result' => 'success', 'origin' => 'external', 'type' => 'sms', 'provider' => 'test']],
@@ -94,7 +96,7 @@ class TelemetryTest extends Base
         $adapter = new GEOSMS($default);
         $adapter->setTelemetry($telemetry);
         $adapter->setLocal(CallingCode::INDIA, $local);
-        $adapter->send((new SMS(['+911234567890'], 'Hello'))->setOrigin('internal'));
+        $adapter->send(new SMS(['+911234567890'], 'Hello')->setOrigin('internal'));
 
         $this->assertSame([
             ['amount' => 1, 'attributes' => ['result' => 'success', 'origin' => 'internal', 'type' => 'sms', 'provider' => 'test']],
@@ -123,8 +125,8 @@ class TelemetryAdapter extends SMSAdapter
      * @param array<string, mixed>|null $response
      */
     public function __construct(
-        private ?array $response = null,
-        private ?\Throwable $error = null,
+        private readonly ?array $response = null,
+        private readonly ?\Throwable $error = null,
     ) {
         parent::__construct();
     }
@@ -144,7 +146,7 @@ class TelemetryAdapter extends SMSAdapter
      */
     protected function process(SMS $message): array
     {
-        if ($this->error !== null) {
+        if ($this->error instanceof \Throwable) {
             throw $this->error;
         }
 
@@ -166,15 +168,13 @@ class RecordingTelemetry implements Telemetry
     public function createCounter(string $name, ?string $unit = null, ?string $description = null, array $advisory = []): Counter
     {
         return new class ($this) extends Counter {
-            public function __construct(private RecordingTelemetry $telemetry)
-            {
-            }
+            public function __construct(private readonly RecordingTelemetry $telemetry) {}
 
             public function add(float|int $amount, iterable $attributes = []): void
             {
                 $this->telemetry->records[] = [
                     'amount' => $amount,
-                    'attributes' => \iterator_to_array((function () use ($attributes) {
+                    'attributes' => iterator_to_array((function () use ($attributes) {
                         yield from $attributes;
                     })()),
                 ];

@@ -48,7 +48,7 @@ abstract class Adapter
      *         so a bare `new Client(new CurlAdapter())` will not work; configure the adapter with
      *         `new CurlAdapter(options: [CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0])`.
      */
-    public function __construct(?Telemetry $telemetry = null, private ?Closure $clientFactory = null)
+    public function __construct(?Telemetry $telemetry = null, private readonly ?Closure $clientFactory = null)
     {
         $this->sendCounter = ($telemetry ?? new NoTelemetry())->createCounter('messaging.send');
     }
@@ -90,20 +90,20 @@ abstract class Adapter
      */
     public function send(Message $message): array
     {
-        if (!\is_a($message, $this->getMessageType())) {
+        if (!is_a($message, $this->getMessageType())) {
             throw new \Exception('Invalid message type.');
         }
-        if (\method_exists($message, 'getTo') && \count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
+        if (method_exists($message, 'getTo') && \count($message->getTo()) > $this->getMaxMessagesPerRequest()) {
             throw new \Exception("{$this->getName()} can only send {$this->getMaxMessagesPerRequest()} messages per request.");
         }
-        if (!\method_exists($this, 'process')) {
+        if (!method_exists($this, 'process')) {
             throw new \Exception('Adapter does not implement process method.');
         }
 
         try {
             $response = $this->process($message);
         } catch (\Throwable $error) {
-            $this->recordSend($message, \method_exists($message, 'getTo') ? \count($message->getTo()) : 1, 0);
+            $this->recordSend($message, method_exists($message, 'getTo') ? \count($message->getTo()) : 1, 0);
             throw $error;
         }
 
@@ -145,7 +145,7 @@ abstract class Adapter
 
         return $attributes + [
             'type' => $this->getType(),
-            'provider' => \strtolower($this->getName()),
+            'provider' => strtolower($this->getName()),
         ];
     }
 
@@ -194,9 +194,9 @@ abstract class Adapter
         array $headers = [],
         ?array $body = null,
         int $timeout = 30,
-        int $connectTimeout = 10
+        int $connectTimeout = 10,
     ): array {
-        $client = $this->clientFactory !== null
+        $client = $this->clientFactory instanceof \Closure
             ? ($this->clientFactory)()
             : $this->defaultClient($timeout, $connectTimeout);
 
@@ -243,23 +243,23 @@ abstract class Adapter
         array $headers = [],
         array $bodies = [],
         int $timeout = 30,
-        int $connectTimeout = 10
+        int $connectTimeout = 10,
     ): array {
-        if (empty($urls)) {
+        if ($urls === []) {
             throw new \Exception('No URLs provided. Must provide at least one URL.');
         }
 
         $urlCount = \count($urls);
         $bodyCount = \count($bodies);
 
-        if (!($urlCount == $bodyCount || $urlCount == 1 || $bodyCount == 1)) {
+        if (!($urlCount === $bodyCount || $urlCount === 1 || $bodyCount === 1)) {
             throw new \Exception('URL and body counts must be equal or one must equal 1.');
         }
 
         if ($urlCount > $bodyCount) {
-            $bodies = \array_pad($bodies, $urlCount, $bodies[0]);
+            $bodies = array_pad($bodies, $urlCount, $bodies[0]);
         } elseif ($urlCount < $bodyCount) {
-            $urls = \array_pad($urls, $bodyCount, $urls[0]);
+            $urls = array_pad($urls, $bodyCount, $urls[0]);
         }
 
         $requests = [];
@@ -273,7 +273,7 @@ abstract class Adapter
             $pool = new ConnectionPool(
                 pool: new SwoolePoolAdapter(),
                 name: self::CONNECTION_POOL_NAME,
-                size: \min(\count($requests), self::MAX_CONCURRENT_REQUESTS),
+                size: min(\count($requests), self::MAX_CONCURRENT_REQUESTS),
                 init: $this->clientFactory ?? $this->defaultClient($timeout, $connectTimeout)->withConnectionReuse(...),
             );
 
@@ -284,19 +284,19 @@ abstract class Adapter
 
                 Coroutine::create(function () use ($pool, $request, $index, &$results, $group): void {
                     try {
-                        $results[$index] = $pool->use(fn (ClientInterface $client): array => $this->buildResult($client->sendRequest($request), (string)$request->getUri()));
+                        $results[$index] = $pool->use(fn(ClientInterface $client): array => $this->buildResult($client->sendRequest($request), (string) $request->getUri()));
                     } catch (\Throwable $error) {
                         // Throwable rather than the PSR client exception: pool
                         // acquisition and factory failures must also land in
                         // this slot's result — an uncaught throwable in a
                         // coroutine is fatal and would drop the slot entirely.
                         $results[$index] = [
-                            'url' => (string)$request->getUri(),
+                            'url' => (string) $request->getUri(),
                             'statusCode' => 0,
                             'response' => null,
                             'headers' => [],
                             'error' => $error->getMessage(),
-                            'errorCode' => (int)$error->getCode(),
+                            'errorCode' => (int) $error->getCode(),
                         ];
                     } finally {
                         $group->done();
@@ -335,8 +335,8 @@ abstract class Adapter
     private function defaultClient(int $timeout, int $connectTimeout): Client
     {
         return new Client(new CurlAdapter(options: [CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_2_0]))
-            ->withTimeout((float)$timeout)
-            ->withConnectTimeout((float)$connectTimeout);
+            ->withTimeout((float) $timeout)
+            ->withConnectTimeout((float) $connectTimeout);
     }
 
     /**
@@ -353,15 +353,15 @@ abstract class Adapter
 
         $headerMap = [];
         foreach ($headers as $header) {
-            $parts = \explode(':', $header, 2);
+            $parts = explode(':', $header, 2);
             if (\count($parts) === 2) {
-                $headerMap[\trim($parts[0])] = \trim($parts[1]);
+                $headerMap[trim($parts[0])] = trim($parts[1]);
             }
         }
 
         // On the request rather than the client so injected PSR-18 clients
         // send the same identity.
-        if (!\array_any(\array_keys($headerMap), fn (string $name): bool => \strtolower($name) === 'user-agent')) {
+        if (!array_any(array_keys($headerMap), fn(string $name): bool => strtolower($name) === 'user-agent')) {
             $headerMap['User-Agent'] = "Appwrite {$this->getName()} Message Sender";
         }
 
@@ -370,18 +370,18 @@ abstract class Adapter
         }
 
         foreach ($headers as $header) {
-            if (\str_contains($header, 'application/json')) {
+            if (str_contains($header, 'application/json')) {
                 return $factory->json($method, $url, $body, $headerMap);
             }
-            if (\str_contains($header, 'application/x-www-form-urlencoded')) {
+            if (str_contains($header, 'application/x-www-form-urlencoded')) {
                 return $factory->form($method, $url, $body, $headerMap);
             }
         }
 
         // Drop any bare multipart Content-Type so the factory can set one
         // carrying the boundary.
-        foreach (\array_keys($headerMap) as $name) {
-            if (\strtolower($name) === 'content-type') {
+        foreach (array_keys($headerMap) as $name) {
+            if (strtolower($name) === 'content-type') {
                 unset($headerMap[$name]);
             }
         }
@@ -403,17 +403,17 @@ abstract class Adapter
      */
     private function buildResult(ResponseInterface $response, string $url): array
     {
-        $body = (string)$response->getBody();
+        $body = (string) $response->getBody();
 
         try {
-            $body = \json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+            $body = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
         } catch (JsonException) {
             // Ignore
         }
 
         $headers = [];
-        foreach (\array_keys($response->getHeaders()) as $name) {
-            $headers[\strtolower((string)$name)] = $response->getHeaderLine((string)$name);
+        foreach (array_keys($response->getHeaders()) as $name) {
+            $headers[strtolower((string) $name)] = $response->getHeaderLine((string) $name);
         }
 
         return [

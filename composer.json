@@ -1,50 +1,54 @@
 {
-  "name": "utopia-php/messaging",
-  "description": "A simple, light and advanced PHP messaging library",
-  "type": "library",
-  "keywords": ["php","messaging", "upf", "utopia", "utopia-php", "library"],
-  "license": "MIT",
-  "minimum-stability": "stable",
-  "scripts": {
-    "test": "./vendor/bin/phpunit",
-    "lint": "./vendor/bin/pint --preset psr12 --test",
-    "format": "./vendor/bin/pint --preset psr12",
-    "analyse": "./vendor/bin/phpstan analyse --memory-limit=2G"
-  },
-  "autoload": {
-    "psr-4": {
-      "Utopia\\Messaging\\": "src/Utopia/Messaging"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Utopia\\Tests\\": "tests/Messaging"
-    }
-  },
-  "require": {
-    "php": ">=8.5.0",
-    "ext-curl": "*",
-    "ext-openssl": "*",
-    "ext-swoole": "*",
-    "phpmailer/phpmailer": "^6.9",
-    "psr/http-client": "^1.0",
-    "psr/http-message": "^1.1 || ^2.0",
-    "utopia-php/client": "^0.2",
-    "utopia-php/telemetry": "^0.4"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "^11.0",
-    "laravel/pint": "^1.0",
-    "phpstan/phpstan": "^2.0",
-    "swoole/ide-helper": "^6.0"
-  },
-  "config": {
-    "platform": {
-      "php": "8.5"
+    "name": "utopia-php/messaging",
+    "description": "A simple, light and advanced PHP messaging library",
+    "type": "library",
+    "keywords": [
+        "php",
+        "messaging",
+        "upf",
+        "utopia",
+        "utopia-php",
+        "library"
+    ],
+    "license": "MIT",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "scripts": {
+        "test": "phpunit --testsuite unit",
+        "test:e2e": "phpunit --testsuite e2e"
     },
-    "allow-plugins": {
-      "php-http/discovery": true,
-      "tbachert/spi": true
+    "autoload": {
+        "psr-4": {
+            "Utopia\\Messaging\\": "src/Utopia/Messaging"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Utopia\\Tests\\": "tests/Messaging"
+        }
+    },
+    "require": {
+        "php": ">=8.5.0",
+        "ext-curl": "*",
+        "ext-openssl": "*",
+        "ext-swoole": "*",
+        "phpmailer/phpmailer": "^6.9",
+        "psr/http-client": "^1.0",
+        "psr/http-message": "^1.1 || ^2.0",
+        "utopia-php/client": "^0.2",
+        "utopia-php/pools": "^1.0",
+        "utopia-php/telemetry": "^0.4"
+    },
+    "require-dev": {
+        "swoole/ide-helper": "^6.0"
+    },
+    "config": {
+        "platform": {
+            "php": "8.5"
+        },
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "tbachert/spi": true
+        }
     }
-  }
 }

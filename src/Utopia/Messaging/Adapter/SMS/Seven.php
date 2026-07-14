@@ -16,8 +16,8 @@ class Seven extends SMSAdapter
      * @param  string  $apiKey Seven API token
      */
     public function __construct(
-        private string $apiKey,
-        private ?string $from = null
+        private readonly string $apiKey,
+        private readonly ?string $from = null,
     ) {
         parent::__construct();
     }
@@ -46,11 +46,11 @@ class Seven extends SMSAdapter
             url: 'https://gateway.sms77.io/api/sms',
             headers: [
                 'Content-Type: application/json',
-                'Authorization: Basic '.$this->apiKey,
+                'Authorization: Basic ' . $this->apiKey,
             ],
             body: [
                 'from' => $this->from ?? $message->getFrom(),
-                'to' => \implode(',', $message->getTo()),
+                'to' => implode(',', $message->getTo()),
                 'text' => $message->getContent(),
             ],
         );

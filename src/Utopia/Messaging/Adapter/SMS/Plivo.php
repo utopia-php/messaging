@@ -17,9 +17,9 @@ class Plivo extends SMSAdapter
      * @param  string  $authToken Plivo Auth Token
      */
     public function __construct(
-        private string $authId,
-        private string $authToken,
-        private ?string $from = null
+        private readonly string $authId,
+        private readonly string $authToken,
+        private readonly ?string $from = null,
     ) {
         parent::__construct();
     }
@@ -48,12 +48,12 @@ class Plivo extends SMSAdapter
             url: "https://api.plivo.com/v1/Account/{$this->authId}/Message/",
             headers: [
                 'Content-Type: application/x-www-form-urlencoded',
-                'Authorization: Basic '.base64_encode("{$this->authId}:{$this->authToken}"),
+                'Authorization: Basic ' . base64_encode("{$this->authId}:{$this->authToken}"),
             ],
             body: [
                 'text' => $message->getContent(),
                 'src' => $this->from ?? $message->getFrom() ?? 'Plivo',
-                'dst' => \implode('<', $message->getTo()),
+                'dst' => implode('<', $message->getTo()),
             ],
         );
 

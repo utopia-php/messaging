@@ -2,8 +2,8 @@
 
 namespace Utopia\Messaging\Adapter\SMS;
 
-use Utopia\Messaging\Adapter\SMS\Msg91\MetadataParameter;
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
+use Utopia\Messaging\Adapter\SMS\Msg91\MetadataParameter;
 use Utopia\Messaging\Messages\SMS as SMSMessage;
 use Utopia\Messaging\Response;
 
@@ -20,9 +20,9 @@ class Msg91 extends SMSAdapter
      * @param  string  $templateId Msg91 Template ID
      */
     public function __construct(
-        private string $senderId,
-        private string $authKey,
-        private string $templateId,
+        private readonly string $senderId,
+        private readonly string $authKey,
+        private readonly string $templateId,
     ) {
         parent::__construct();
     }
@@ -44,7 +44,7 @@ class Msg91 extends SMSAdapter
     protected function process(SMSMessage $message): array
     {
         $metadata = $message->getMetadata() ?? [];
-        $metadata = \array_intersect_key($metadata, \array_flip(\array_column(MetadataParameter::cases(), 'value')));
+        $metadata = array_intersect_key($metadata, array_flip(array_column(MetadataParameter::cases(), 'value')));
 
         foreach ($metadata as $key => $value) {
             if (!\is_string($value)) {
@@ -59,7 +59,7 @@ class Msg91 extends SMSAdapter
                 continue;
             }
 
-            if (\strlen($metadata[$key]) > 80 || !\preg_match('/^[A-Za-z0-9_.-]+$/', $metadata[$key])) {
+            if (\strlen($metadata[$key]) > 80 || !preg_match('/^[A-Za-z0-9_.-]+$/', $metadata[$key])) {
                 throw new \InvalidArgumentException("Msg91 {$key} metadata must be 80 characters or less and contain only alphanumeric characters, underscores, dots, or hyphens.");
             }
         }
@@ -67,7 +67,7 @@ class Msg91 extends SMSAdapter
         $recipients = [];
         foreach ($message->getTo() as $recipient) {
             $recipients[] = [
-                'mobiles' => \ltrim($recipient, '+'),
+                'mobiles' => ltrim($recipient, '+'),
                 'content' => $message->getContent(),
                 'otp' => $message->getContent(),
             ];
@@ -89,7 +89,7 @@ class Msg91 extends SMSAdapter
             url: 'https://api.msg91.com/api/v5/flow/',
             headers: [
                 'Content-Type: application/json',
-                'Authkey: '. $this->authKey,
+                'Authkey: ' . $this->authKey,
             ],
             body: $body,
         );

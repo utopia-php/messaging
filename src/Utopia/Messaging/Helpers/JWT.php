@@ -34,20 +34,20 @@ class JWT
             $header['kid'] = $keyId;
         }
 
-        $header = \json_encode($header, \JSON_UNESCAPED_SLASHES);
-        $payload = \json_encode($payload, \JSON_UNESCAPED_SLASHES);
+        $header = json_encode($header, \JSON_UNESCAPED_SLASHES);
+        $payload = json_encode($payload, \JSON_UNESCAPED_SLASHES);
 
         $segments = [];
         $segments[] = self::safeBase64Encode($header);
         $segments[] = self::safeBase64Encode($payload);
 
-        $signingMaterial = \implode('.', $segments);
+        $signingMaterial = implode('.', $segments);
 
         $signature = self::sign($signingMaterial, $key, $algorithm);
 
         $segments[] = self::safeBase64Encode($signature);
 
-        return \implode('.', $segments);
+        return implode('.', $segments);
     }
 
     /**
@@ -65,7 +65,7 @@ class JWT
             case 'openssl':
                 $signature = '';
 
-                $success = \openssl_sign($data, $signature, $key, $algorithm);
+                $success = openssl_sign($data, $signature, $key, $algorithm);
 
                 if (!$success) {
                     throw new \Exception('OpenSSL sign failed for JWT');
@@ -85,7 +85,7 @@ class JWT
 
                 return $signature;
             case 'hash_hmac':
-                return \hash_hmac($algorithm, $data, $key, true);
+                return hash_hmac((string) $algorithm, $data, $key, true);
             default:
                 throw new \Exception('Algorithm not supported');
         }
@@ -105,14 +105,14 @@ class JWT
         [$_, $s] = self::readDER($der, $offset);
 
         // Convert r-value and s-value from signed two's compliment to unsigned big-endian integers
-        $r = \ltrim($r, "\x00");
-        $s = \ltrim($s, "\x00");
+        $r = ltrim((string) $r, "\x00");
+        $s = ltrim((string) $s, "\x00");
 
         // Pad out r and s so that they are $keySize bits long
-        $r = \str_pad($r, $keySize / 8, "\x00", STR_PAD_LEFT);
-        $s = \str_pad($s, $keySize / 8, "\x00", STR_PAD_LEFT);
+        $r = str_pad($r, $keySize / 8, "\x00", STR_PAD_LEFT);
+        $s = str_pad($s, $keySize / 8, "\x00", STR_PAD_LEFT);
 
-        return $r.$s;
+        return $r . $s;
     }
 
     /**
@@ -131,7 +131,7 @@ class JWT
 
         // Length
         $len = \ord($der[$pos++]);
-        if ($len & 0x80) {
+        if (($len & 0x80) !== 0) {
             $n = $len & 0x1F;
             $len = 0;
             while ($n-- && $pos < $size) {
@@ -142,10 +142,10 @@ class JWT
         // Value
         if ($type === 0x03) {
             $pos++; // Skip the first contents octet (padding indicator)
-            $data = \substr($der, $pos, $len - 1);
+            $data = substr($der, $pos, $len - 1);
             $pos += $len - 1;
-        } elseif (!$constructed) {
-            $data = \substr($der, $pos, $len);
+        } elseif ($constructed === 0) {
+            $data = substr($der, $pos, $len);
             $pos += $len;
         } else {
             $data = null;
@@ -159,6 +159,6 @@ class JWT
      */
     private static function safeBase64Encode(string $input): string
     {
-        return \str_replace(['+', '/', '='], ['-', '_', ''], \base64_encode($input));
+        return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($input));
     }
 }

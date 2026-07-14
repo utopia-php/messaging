@@ -24,16 +24,16 @@ class SMTP extends EmailAdapter
      * @param int $timelimit SMTP command timelimit in seconds.
      */
     public function __construct(
-        private string $host,
-        private int $port = 25,
-        private string $username = '',
-        private string $password = '',
-        private string $smtpSecure = '',
-        private bool $smtpAutoTLS = false,
-        private string $xMailer = '',
-        private int $timeout = 30,
-        private bool $keepAlive = false,
-        private int $timelimit = 30,
+        private readonly string $host,
+        private readonly int $port = 25,
+        private readonly string $username = '',
+        private readonly string $password = '',
+        private readonly string $smtpSecure = '',
+        private readonly bool $smtpAutoTLS = false,
+        private readonly string $xMailer = '',
+        private readonly int $timeout = 30,
+        private readonly bool $keepAlive = false,
+        private readonly int $timelimit = 30,
     ) {
         parent::__construct();
         if (!\in_array($this->smtpSecure, ['', 'ssl', 'tls'])) {
@@ -60,7 +60,7 @@ class SMTP extends EmailAdapter
     {
         $response = new Response($this->getType());
 
-        if ($this->keepAlive && $this->mail !== null) {
+        if ($this->keepAlive && $this->mail instanceof \PHPMailer\PHPMailer\PHPMailer) {
             $mail = $this->mail;
             $mail->clearAllRecipients();
             $mail->clearReplyTos();
@@ -70,7 +70,7 @@ class SMTP extends EmailAdapter
             $mail->isSMTP();
             $mail->Host = $this->host;
             $mail->Port = $this->port;
-            $mail->SMTPAuth = !empty($this->username) && !empty($this->password);
+            $mail->SMTPAuth = $this->username !== '' && $this->username !== '0' && ($this->password !== '' && $this->password !== '0');
             $mail->Username = $this->username;
             $mail->Password = $this->password;
             $mail->SMTPSecure = $this->smtpSecure;
@@ -93,34 +93,34 @@ class SMTP extends EmailAdapter
         $mail->isHTML($message->isHtml());
 
         // Strip tags misses style tags, so we use regex to remove them
-        $mail->AltBody = \preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $mail->Body);
-        $mail->AltBody = \strip_tags($mail->AltBody);
-        $mail->AltBody = \trim($mail->AltBody);
+        $mail->AltBody = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $mail->Body);
+        $mail->AltBody = strip_tags($mail->AltBody);
+        $mail->AltBody = trim($mail->AltBody);
 
         foreach ($message->getTo() as $to) {
             $mail->addAddress($to['email'], $to['name'] ?? '');
         }
 
-        if (!empty($message->getCC())) {
+        if (!\in_array($message->getCC(), [null, []], true)) {
             foreach ($message->getCC() as $cc) {
                 $mail->addCC($cc['email'], $cc['name'] ?? '');
             }
         }
 
-        if (!empty($message->getBCC())) {
+        if (!\in_array($message->getBCC(), [null, []], true)) {
             foreach ($message->getBCC() as $bcc) {
                 $mail->addBCC($bcc['email'], $bcc['name'] ?? '');
             }
         }
 
-        if (!empty($message->getAttachments())) {
+        if (!\in_array($message->getAttachments(), [null, []], true)) {
             $size = 0;
 
             foreach ($message->getAttachments() as $attachment) {
                 if ($attachment->getContent() !== null) {
                     $size += \strlen($attachment->getContent());
                 } else {
-                    $size += \filesize($attachment->getPath());
+                    $size += filesize($attachment->getPath());
                 }
             }
 
@@ -134,14 +134,14 @@ class SMTP extends EmailAdapter
                         string: $attachment->getContent(),
                         filename: $attachment->getName(),
                         encoding: PHPMailer::ENCODING_BASE64,
-                        type: $attachment->getType()
+                        type: $attachment->getType(),
                     );
                 } else {
                     $mail->addStringAttachment(
-                        string: \file_get_contents($attachment->getPath()),
+                        string: file_get_contents($attachment->getPath()),
                         filename: $attachment->getName(),
                         encoding: PHPMailer::ENCODING_BASE64,
-                        type: $attachment->getType()
+                        type: $attachment->getType(),
                     );
                 }
             }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests\Adapter\SMS;
 
 use Utopia\Messaging\Adapter\SMS as SMSAdapter;
@@ -8,11 +10,11 @@ use Utopia\Messaging\Adapter\SMS\GEOSMS\CallingCode;
 use Utopia\Messaging\Messages\SMS;
 use Utopia\Tests\Adapter\Base;
 
-class GEOSMSTest extends Base
+final class GEOSMSTest extends Base
 {
     public function testSendSMSUsingDefaultAdapter(): void
     {
-        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock = $this->createStub(SMSAdapter::class);
         $defaultAdapterMock->method('getName')->willReturn('default');
         $defaultAdapterMock->method('send')->willReturn(['results' => [['status' => 'success']]]);
 
@@ -24,19 +26,19 @@ class GEOSMSTest extends Base
         $message = new SMS(
             to: $to,
             content: 'Test Content',
-            from: $from
+            from: $from,
         );
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(1, count($result));
+        $this->assertCount(1, $result);
         $this->assertEquals('success', $result['default']['results'][0]['status']);
     }
 
     public function testSendSMSUsingLocalAdapter(): void
     {
-        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
-        $localAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock = $this->createStub(SMSAdapter::class);
+        $localAdapterMock = $this->createStub(SMSAdapter::class);
         $localAdapterMock->method('getName')->willReturn('local');
         $localAdapterMock->method('send')->willReturn(['results' => [['status' => 'success']]]);
 
@@ -49,21 +51,21 @@ class GEOSMSTest extends Base
         $message = new SMS(
             to: $to,
             content: 'Test Content',
-            from: $from
+            from: $from,
         );
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(1, count($result));
+        $this->assertCount(1, $result);
         $this->assertEquals('success', $result['local']['results'][0]['status']);
     }
 
     public function testSendSMSUsingLocalAdapterAndDefault(): void
     {
-        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock = $this->createStub(SMSAdapter::class);
         $defaultAdapterMock->method('getName')->willReturn('default');
         $defaultAdapterMock->method('send')->willReturn(['results' => [['status' => 'success']]]);
-        $localAdapterMock = $this->createMock(SMSAdapter::class);
+        $localAdapterMock = $this->createStub(SMSAdapter::class);
         $localAdapterMock->method('getName')->willReturn('local');
         $localAdapterMock->method('send')->willReturn(['results' => [['status' => 'success']]]);
 
@@ -76,20 +78,20 @@ class GEOSMSTest extends Base
         $message = new SMS(
             to: $to,
             content: 'Test Content',
-            from: $from
+            from: $from,
         );
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(2, count($result));
+        $this->assertCount(2, $result);
         $this->assertEquals('success', $result['local']['results'][0]['status']);
         $this->assertEquals('success', $result['default']['results'][0]['status']);
     }
 
     public function testSendSMSUsingGroupedLocalAdapter(): void
     {
-        $defaultAdapterMock = $this->createMock(SMSAdapter::class);
-        $localAdapterMock = $this->createMock(SMSAdapter::class);
+        $defaultAdapterMock = $this->createStub(SMSAdapter::class);
+        $localAdapterMock = $this->createStub(SMSAdapter::class);
         $localAdapterMock->method('getName')->willReturn('local');
         $localAdapterMock->method('send')->willReturn(['results' => [['status' => 'success']]]);
 
@@ -103,12 +105,12 @@ class GEOSMSTest extends Base
         $message = new SMS(
             to: $to,
             content: 'Test Content',
-            from: $from
+            from: $from,
         );
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(1, count($result));
+        $this->assertCount(1, $result);
         $this->assertEquals('success', $result['local']['results'][0]['status']);
     }
 
@@ -125,22 +127,22 @@ class GEOSMSTest extends Base
         $defaultAdapterMock
             ->expects($this->once())
             ->method('send')
-            ->with($this->callback(function (SMS $message) use ($metadata): bool {
-                return $message->getMetadata() === $metadata;
-            }))
-            ->willReturn(['results' => [['status' => 'success']]]);
+            ->willReturnCallback(function (SMS $message) use ($metadata): array {
+                $this->assertSame($metadata, $message->getMetadata());
+                return ['results' => [['status' => 'success']]];
+            });
 
         $adapter = new GEOSMS($defaultAdapterMock);
 
         $message = new SMS(
             to: ['+11234567890'],
             content: 'Test Content',
-            metadata: $metadata
+            metadata: $metadata,
         );
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(1, count($result));
+        $this->assertCount(1, $result);
         $this->assertEquals('success', $result['default']['results'][0]['status']);
 
         $defaultMetadata = [
@@ -160,20 +162,20 @@ class GEOSMSTest extends Base
         $defaultAdapterMock
             ->expects($this->once())
             ->method('send')
-            ->with($this->callback(function (SMS $message) use ($defaultMetadata): bool {
-                return $message->getMetadata() === $defaultMetadata;
-            }))
-            ->willReturn(['results' => [['status' => 'success']]]);
+            ->willReturnCallback(function (SMS $message) use ($defaultMetadata): array {
+                $this->assertSame($defaultMetadata, $message->getMetadata());
+                return ['results' => [['status' => 'success']]];
+            });
 
         $localAdapterMock = $this->createMock(SMSAdapter::class);
         $localAdapterMock->method('getName')->willReturn('local');
         $localAdapterMock
             ->expects($this->once())
             ->method('send')
-            ->with($this->callback(function (SMS $message) use ($localMetadata): bool {
-                return $message->getMetadata() === $localMetadata;
-            }))
-            ->willReturn(['results' => [['status' => 'success']]]);
+            ->willReturnCallback(function (SMS $message) use ($localMetadata): array {
+                $this->assertSame($localMetadata, $message->getMetadata());
+                return ['results' => [['status' => 'success']]];
+            });
 
         $adapter = new GEOSMS($defaultAdapterMock);
         $adapter->setLocal(CallingCode::INDIA, $localAdapterMock);
@@ -181,12 +183,12 @@ class GEOSMSTest extends Base
         $message = new SMS(
             to: ['+911234567890', '+11234567890'],
             content: 'Test Content',
-            metadata: $metadata
+            metadata: $metadata,
         );
 
         $result = $adapter->send($message);
 
-        $this->assertEquals(2, count($result));
+        $this->assertCount(2, $result);
         $this->assertEquals('success', $result['local']['results'][0]['status']);
         $this->assertEquals('success', $result['default']['results'][0]['status']);
 
@@ -197,7 +199,7 @@ class GEOSMSTest extends Base
         $message = new SMS(
             to: ['+911234567890', '+11234567890'],
             content: 'Test Content',
-            metadata: $invalidMetadata
+            metadata: $invalidMetadata,
         );
 
         try {
@@ -212,7 +214,7 @@ class GEOSMSTest extends Base
             content: 'Test Content',
             metadata: [
                 'CRQID' => '',
-            ]
+            ],
         );
 
         try {

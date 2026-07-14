@@ -98,10 +98,10 @@ class SES extends EmailAdapter
      * @param  string|null  $sessionToken  Optional session token for temporary credentials.
      */
     public function __construct(
-        private string $accessKey,
-        private string $secretKey,
-        private string $region,
-        private ?string $sessionToken = null,
+        private readonly string $accessKey,
+        private readonly string $secretKey,
+        private readonly string $region,
+        private readonly ?string $sessionToken = null,
     ) {
         parent::__construct();
     }
@@ -123,7 +123,7 @@ class SES extends EmailAdapter
     {
         $response = new Response($this->getType());
 
-        $hasAttachments = ! \is_null($message->getAttachments()) && ! empty($message->getAttachments());
+        $hasAttachments = ! \is_null($message->getAttachments()) && $message->getAttachments() !== [];
 
         if ($hasAttachments) {
             return $this->sendRaw($message, $response);
@@ -143,23 +143,23 @@ class SES extends EmailAdapter
     {
         $templateName = $this->templateName($message);
 
-        $cc = \array_map(
-            fn ($recipient) => $this->formatAddress($recipient['email'], $recipient['name'] ?? null),
-            $message->getCC() ?? []
+        $cc = array_map(
+            fn(array $recipient): string => $this->formatAddress($recipient['email'], $recipient['name'] ?? null),
+            $message->getCC() ?? [],
         );
-        $bcc = \array_map(
-            fn ($recipient) => $this->formatAddress($recipient['email'], $recipient['name'] ?? null),
-            $message->getBCC() ?? []
+        $bcc = array_map(
+            fn(array $recipient): string => $this->formatAddress($recipient['email'], $recipient['name'] ?? null),
+            $message->getBCC() ?? [],
         );
 
-        $entries = \array_map(
-            function ($to) use ($cc, $bcc) {
+        $entries = array_map(
+            function (array $to) use ($cc, $bcc): array {
                 $destination = ['ToAddresses' => [$to['email']]];
 
-                if (! empty($cc)) {
+                if ($cc !== []) {
                     $destination['CcAddresses'] = $cc;
                 }
-                if (! empty($bcc)) {
+                if ($bcc !== []) {
                     $destination['BccAddresses'] = $bcc;
                 }
 
@@ -172,7 +172,7 @@ class SES extends EmailAdapter
                     ],
                 ];
             },
-            $message->getTo()
+            $message->getTo(),
         );
 
         $body = [
@@ -186,7 +186,7 @@ class SES extends EmailAdapter
             'BulkEmailEntries' => $entries,
         ];
 
-        if (! empty($message->getReplyToEmail())) {
+        if (!\in_array($message->getReplyToEmail(), ['', '0'], true)) {
             $body['ReplyToAddresses'] = [
                 $this->formatAddress($message->getReplyToEmail(), $message->getReplyToName()),
             ];
@@ -222,7 +222,7 @@ class SES extends EmailAdapter
             $mime = $this->buildMime($message, $to);
 
             if (\strlen($mime) > self::MAX_ATTACHMENT_BYTES) {
-                throw new \Exception('MIME message size exceeds SES limit of '.self::MAX_ATTACHMENT_BYTES.' bytes');
+                throw new \Exception('MIME message size exceeds SES limit of ' . self::MAX_ATTACHMENT_BYTES . ' bytes');
             }
 
             $body = [
@@ -232,12 +232,12 @@ class SES extends EmailAdapter
                 ],
                 'Content' => [
                     'Raw' => [
-                        'Data' => \base64_encode($mime),
+                        'Data' => base64_encode($mime),
                     ],
                 ],
             ];
 
-            if (! empty($message->getReplyToEmail())) {
+            if (!\in_array($message->getReplyToEmail(), ['', '0'], true)) {
                 $body['ReplyToAddresses'] = [
                     $this->formatAddress($message->getReplyToEmail(), $message->getReplyToName()),
                 ];
@@ -348,7 +348,7 @@ class SES extends EmailAdapter
         $alreadyExists = $this->errorType($result) === 'AlreadyExistsException';
 
         if (! $created && ! $alreadyExists) {
-            throw new \Exception('SES failed to create email template: '.$this->errorMessage($result));
+            throw new \Exception('SES failed to create email template: ' . $this->errorMessage($result));
         }
 
         $this->ensuredTemplates[$templateName] = true;
@@ -369,7 +369,7 @@ class SES extends EmailAdapter
      */
     private function templateName(EmailMessage $message): string
     {
-        $hash = \hash('sha256', \implode("\0", [
+        $hash = hash('sha256', implode("\0", [
             $message->getSubject(),
             $message->getContent(),
             $message->isHtml() ? '1' : '0',
@@ -377,7 +377,7 @@ class SES extends EmailAdapter
 
         $hashLength = self::TEMPLATE_NAME_MAX_LENGTH - \strlen(self::TEMPLATE_NAME_PREFIX);
 
-        return self::TEMPLATE_NAME_PREFIX.\substr($hash, 0, $hashLength);
+        return self::TEMPLATE_NAME_PREFIX . substr($hash, 0, $hashLength);
     }
 
     /**
@@ -393,10 +393,10 @@ class SES extends EmailAdapter
             // BadRequestException is generic, so confirm the message is about a
             // missing template rather than another template error (e.g. invalid
             // template content).
-            $message = \strtolower($this->errorMessage($result));
+            $message = strtolower($this->errorMessage($result));
             if (
-                \str_contains($message, 'template')
-                && (\str_contains($message, 'does not exist') || \str_contains($message, 'not found'))
+                str_contains($message, 'template')
+                && (str_contains($message, 'does not exist') || str_contains($message, 'not found'))
             ) {
                 return true;
             }
@@ -437,8 +437,8 @@ class SES extends EmailAdapter
         $mail->isHTML($message->isHtml());
 
         if ($message->isHtml()) {
-            $alt = \preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $message->getContent());
-            $mail->AltBody = \trim(\strip_tags($alt ?? ''));
+            $alt = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $message->getContent());
+            $mail->AltBody = trim(strip_tags($alt ?? ''));
         }
 
         $mail->addAddress($to['email'], $to['name'] ?? '');
@@ -454,9 +454,9 @@ class SES extends EmailAdapter
         foreach ($message->getAttachments() ?? [] as $attachment) {
             $content = $attachment->getContent();
             if ($content === null) {
-                $data = \file_get_contents($attachment->getPath());
+                $data = file_get_contents($attachment->getPath());
                 if ($data === false) {
-                    throw new \Exception('Failed to read attachment file: '.$attachment->getPath());
+                    throw new \Exception('Failed to read attachment file: ' . $attachment->getPath());
                 }
                 $content = $data;
             }
@@ -470,7 +470,7 @@ class SES extends EmailAdapter
         }
 
         if (! $mail->preSend()) {
-            throw new \Exception('Failed to build MIME message: '.$mail->ErrorInfo);
+            throw new \Exception('Failed to build MIME message: ' . $mail->ErrorInfo);
         }
 
         return $mail->getSentMIMEMessage();
@@ -489,16 +489,16 @@ class SES extends EmailAdapter
             if ($attachment->getContent() !== null) {
                 $size += \strlen($attachment->getContent());
             } else {
-                $fileSize = \filesize($attachment->getPath());
+                $fileSize = filesize($attachment->getPath());
                 if ($fileSize === false) {
-                    throw new \Exception('Failed to read attachment file: '.$attachment->getPath());
+                    throw new \Exception('Failed to read attachment file: ' . $attachment->getPath());
                 }
                 $size += $fileSize;
             }
         }
 
         if ($size > self::MAX_ATTACHMENT_BYTES) {
-            throw new \Exception('Total attachment size exceeds '.self::MAX_ATTACHMENT_BYTES.' bytes');
+            throw new \Exception('Total attachment size exceeds ' . self::MAX_ATTACHMENT_BYTES . ' bytes');
         }
     }
 
@@ -512,12 +512,12 @@ class SES extends EmailAdapter
      */
     private function formatAddress(string $email, ?string $name): string
     {
-        if (empty($name)) {
+        if (\in_array($name, [null, '', '0'], true)) {
             return $email;
         }
 
-        if (\preg_match('/[,;:@<>()\[\]\\\\".]/', $name)) {
-            $name = '"'.\addcslashes($name, '"\\').'"';
+        if (preg_match('/[,;:@<>()\[\]\\\\".]/', $name)) {
+            $name = '"' . addcslashes($name, '"\\') . '"';
         }
 
         return "{$name} <{$email}>";
@@ -534,15 +534,15 @@ class SES extends EmailAdapter
      */
     private function dispatch(string $method, string $path, array $body): array
     {
-        $host = 'email.'.$this->region.'.amazonaws.com';
-        $payload = \json_encode($body, JSON_THROW_ON_ERROR);
+        $host = 'email.' . $this->region . '.amazonaws.com';
+        $payload = json_encode($body, JSON_THROW_ON_ERROR);
 
         $headers = $this->signature($method, $host, $path, $payload);
         $headers[] = 'Content-Type: application/json';
 
         return $this->request(
             method: $method,
-            url: 'https://'.$host.$path,
+            url: 'https://' . $host . $path,
             headers: $headers,
             body: $body,
         );
@@ -563,7 +563,7 @@ class SES extends EmailAdapter
      */
     private function signature(string $method, string $host, string $path, string $payload): array
     {
-        $amzDate = \gmdate('Ymd\THis\Z');
+        $amzDate = gmdate('Ymd\THis\Z');
 
         $signed = [
             'content-type' => 'application/json',
@@ -571,20 +571,20 @@ class SES extends EmailAdapter
             'x-amz-date' => $amzDate,
         ];
 
-        if (! empty($this->sessionToken)) {
+        if (!\in_array($this->sessionToken, [null, '', '0'], true)) {
             $signed['x-amz-security-token'] = $this->sessionToken;
         }
 
         $authorization = $this->sign($method, $path, $payload, $signed, $amzDate);
 
         $headers = [
-            'Host: '.$host,
-            'X-Amz-Date: '.$amzDate,
-            'Authorization: '.$authorization,
+            'Host: ' . $host,
+            'X-Amz-Date: ' . $amzDate,
+            'Authorization: ' . $authorization,
         ];
 
-        if (! empty($this->sessionToken)) {
-            $headers[] = 'X-Amz-Security-Token: '.$this->sessionToken;
+        if (!\in_array($this->sessionToken, [null, '', '0'], true)) {
+            $headers[] = 'X-Amz-Security-Token: ' . $this->sessionToken;
         }
 
         return $headers;
@@ -607,40 +607,40 @@ class SES extends EmailAdapter
      */
     protected function sign(string $method, string $path, string $payload, array $signedHeaders, string $amzDate): string
     {
-        \ksort($signedHeaders);
+        ksort($signedHeaders);
 
         $canonicalHeaders = '';
         foreach ($signedHeaders as $name => $value) {
-            $canonicalHeaders .= $name.':'.\trim($value)."\n";
+            $canonicalHeaders .= $name . ':' . trim($value) . "\n";
         }
-        $signedHeaderList = \implode(';', \array_keys($signedHeaders));
+        $signedHeaderList = implode(';', array_keys($signedHeaders));
 
-        $canonicalRequest = \implode("\n", [
+        $canonicalRequest = implode("\n", [
             $method,
             $path,
             '',
             $canonicalHeaders,
             $signedHeaderList,
-            \hash('sha256', $payload),
+            hash('sha256', $payload),
         ]);
 
-        $dateStamp = \substr($amzDate, 0, 8);
-        $credentialScope = $dateStamp.'/'.$this->region.'/'.$this->service.'/aws4_request';
+        $dateStamp = substr($amzDate, 0, 8);
+        $credentialScope = $dateStamp . '/' . $this->region . '/' . $this->service . '/aws4_request';
 
-        $stringToSign = \implode("\n", [
+        $stringToSign = implode("\n", [
             self::ALGORITHM,
             $amzDate,
             $credentialScope,
-            \hash('sha256', $canonicalRequest),
+            hash('sha256', $canonicalRequest),
         ]);
 
         $signingKey = $this->signingKey($dateStamp);
-        $signature = \hash_hmac('sha256', $stringToSign, $signingKey);
+        $signature = hash_hmac('sha256', $stringToSign, $signingKey);
 
         return self::ALGORITHM
-            .' Credential='.$this->accessKey.'/'.$credentialScope
-            .', SignedHeaders='.$signedHeaderList
-            .', Signature='.$signature;
+            . ' Credential=' . $this->accessKey . '/' . $credentialScope
+            . ', SignedHeaders=' . $signedHeaderList
+            . ', Signature=' . $signature;
     }
 
     /**
@@ -649,11 +649,11 @@ class SES extends EmailAdapter
      */
     private function signingKey(string $dateStamp): string
     {
-        $kDate = \hash_hmac('sha256', $dateStamp, 'AWS4'.$this->secretKey, true);
-        $kRegion = \hash_hmac('sha256', $this->region, $kDate, true);
-        $kService = \hash_hmac('sha256', $this->service, $kRegion, true);
+        $kDate = hash_hmac('sha256', $dateStamp, 'AWS4' . $this->secretKey, true);
+        $kRegion = hash_hmac('sha256', $this->region, $kDate, true);
+        $kService = hash_hmac('sha256', $this->service, $kRegion, true);
 
-        return \hash_hmac('sha256', 'aws4_request', $kService, true);
+        return hash_hmac('sha256', 'aws4_request', $kService, true);
     }
 
     /**
@@ -701,7 +701,7 @@ class SES extends EmailAdapter
     {
         $header = $result['headers']['x-amzn-errortype'] ?? null;
         if (\is_string($header) && $header !== '') {
-            return \trim(\explode(':', $header)[0]);
+            return trim(explode(':', $header)[0]);
         }
 
         $body = $result['response'];
@@ -709,9 +709,9 @@ class SES extends EmailAdapter
             $type = $body['__type'] ?? $body['code'] ?? null;
             if (\is_string($type)) {
                 // __type can be "prefix#AlreadyExistsException"; keep the suffix.
-                $parts = \explode('#', $type);
+                $parts = explode('#', $type);
 
-                return \end($parts);
+                return end($parts);
             }
         }
 

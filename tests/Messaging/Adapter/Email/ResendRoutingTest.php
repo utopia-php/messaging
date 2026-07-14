@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests\Adapter\Email;
 
 use PHPUnit\Framework\TestCase;
@@ -7,7 +9,7 @@ use Utopia\Messaging\Adapter\Email\Resend;
 use Utopia\Messaging\Messages\Email;
 use Utopia\Messaging\Messages\Email\Attachment;
 
-class ResendRoutingTest extends TestCase
+final class ResendRoutingTest extends TestCase
 {
     public function testWithoutAttachmentsUsesBatchEndpoint(): void
     {
@@ -61,7 +63,7 @@ class ResendRoutingTest extends TestCase
             $this->assertCount(1, $request['body']['attachments']);
             $this->assertEquals('note.txt', $request['body']['attachments'][0]['filename']);
             $this->assertEquals('text/plain', $request['body']['attachments'][0]['content_type']);
-            $this->assertEquals(\base64_encode('hello'), $request['body']['attachments'][0]['content']);
+            $this->assertEquals(base64_encode('hello'), $request['body']['attachments'][0]['content']);
         }
 
         $this->assertEquals(2, $response['deliveredTo']);
@@ -112,7 +114,7 @@ class ResendRoutingTest extends TestCase
                 name: 'large.bin',
                 path: '',
                 type: 'application/octet-stream',
-                content: \str_repeat('x', 40 * 1024 * 1024 + 1),
+                content: str_repeat('x', 40 * 1024 * 1024 + 1),
             )],
         );
 
@@ -137,13 +139,14 @@ class ResendStub extends Resend
      * @param  array<string, mixed>|null  $body
      * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null, errorCode: int}
      */
+    #[\Override]
     protected function request(
         string $method,
         string $url,
         array $headers = [],
         ?array $body = null,
         int $timeout = 30,
-        int $connectTimeout = 10
+        int $connectTimeout = 10,
     ): array {
         $this->capturedRequests[] = [
             'method' => $method,
@@ -152,7 +155,7 @@ class ResendStub extends Resend
             'body' => $body,
         ];
 
-        $stub = \array_shift($this->stubResponses) ?? ['statusCode' => 200, 'response' => []];
+        $stub = array_shift($this->stubResponses) ?? ['statusCode' => 200, 'response' => []];
 
         return [
             'url' => $url,
