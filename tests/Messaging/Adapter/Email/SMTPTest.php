@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests\Adapter\Email;
 
 use Utopia\Messaging\Adapter\Email\SMTP;
@@ -7,13 +9,13 @@ use Utopia\Messaging\Messages\Email;
 use Utopia\Messaging\Messages\Email\Attachment;
 use Utopia\Tests\Adapter\Base;
 
-class SMTPTest extends Base
+final class SMTPTest extends Base
 {
     public function testSendEmail(): void
     {
         $sender = new SMTP(
-            host: 'maildev',
-            port: 1025,
+            host: '127.0.0.1',
+            port: 11025,
         );
 
         $to = 'tester@localhost.test';
@@ -38,14 +40,14 @@ class SMTPTest extends Base
         $this->assertEquals($to, $lastEmail['to'][0]['address']);
         $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
         $this->assertEquals($subject, $lastEmail['subject']);
-        $this->assertEquals($content, \trim($lastEmail['text']));
+        $this->assertSame($content, trim((string) $lastEmail['text']));
     }
 
     public function testSendEmailWithAttachment(): void
     {
         $sender = new SMTP(
-            host: 'maildev',
-            port: 1025,
+            host: '127.0.0.1',
+            port: 11025,
         );
 
         $to = 'tester@localhost.test';
@@ -63,7 +65,7 @@ class SMTPTest extends Base
             attachments: [new Attachment(
                 name: 'image.png',
                 path: __DIR__ . '/../../../assets/image.png',
-                type: 'image/png'
+                type: 'image/png',
             )],
         );
 
@@ -75,14 +77,14 @@ class SMTPTest extends Base
         $this->assertEquals($to, $lastEmail['to'][0]['address']);
         $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
         $this->assertEquals($subject, $lastEmail['subject']);
-        $this->assertEquals($content, \trim($lastEmail['text']));
+        $this->assertSame($content, trim((string) $lastEmail['text']));
     }
 
     public function testSendEmailOnlyBCC(): void
     {
         $sender = new SMTP(
-            host: 'maildev',
-            port: 1025,
+            host: '127.0.0.1',
+            port: 11025,
         );
 
         $subject = 'Test Subject';
@@ -112,7 +114,7 @@ class SMTPTest extends Base
         $this->assertResponse($response);
         $this->assertEquals($fromEmail, $lastEmail['from'][0]['address']);
         $this->assertEquals($subject, $lastEmail['subject']);
-        $this->assertEquals($content, \trim($lastEmail['text']));
+        $this->assertSame($content, trim((string) $lastEmail['text']));
     }
 
     public function testAttachmentWithStringContent(): void
@@ -125,10 +127,10 @@ class SMTPTest extends Base
             content: $content,
         );
 
-        $this->assertEquals('readme.txt', $attachment->getName());
-        $this->assertEquals('', $attachment->getPath());
-        $this->assertEquals('text/plain', $attachment->getType());
-        $this->assertEquals($content, $attachment->getContent());
+        $this->assertSame('readme.txt', $attachment->getName());
+        $this->assertSame('', $attachment->getPath());
+        $this->assertSame('text/plain', $attachment->getType());
+        $this->assertSame($content, $attachment->getContent());
     }
 
     public function testAttachmentWithoutStringContentDefaultsToNull(): void
@@ -145,22 +147,22 @@ class SMTPTest extends Base
     public function testSMTPConstructorWithKeepAliveAndTimelimit(): void
     {
         $sender = new SMTP(
-            host: 'maildev',
-            port: 1025,
+            host: '127.0.0.1',
+            port: 11025,
             keepAlive: true,
             timelimit: 60,
         );
 
         $this->assertInstanceOf(SMTP::class, $sender);
-        $this->assertEquals('SMTP', $sender->getName());
+        $this->assertSame('SMTP', $sender->getName());
     }
 
     public function testSMTPConstructorDefaultsAreBackwardsCompatible(): void
     {
         // Existing call signature still works without new params
         $sender = new SMTP(
-            host: 'maildev',
-            port: 1025,
+            host: '127.0.0.1',
+            port: 11025,
         );
 
         $this->assertInstanceOf(SMTP::class, $sender);
@@ -169,8 +171,8 @@ class SMTPTest extends Base
     public function testSendEmailWithStringAttachment(): void
     {
         $sender = new SMTP(
-            host: 'maildev',
-            port: 1025,
+            host: '127.0.0.1',
+            port: 11025,
         );
 
         $to = 'tester@localhost.test';
@@ -205,8 +207,8 @@ class SMTPTest extends Base
     public function testSendEmailWithKeepAlive(): void
     {
         $sender = new SMTP(
-            host: 'maildev',
-            port: 1025,
+            host: '127.0.0.1',
+            port: 11025,
             keepAlive: true,
             timelimit: 15,
         );

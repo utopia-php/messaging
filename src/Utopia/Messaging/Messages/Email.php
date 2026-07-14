@@ -12,17 +12,17 @@ class Email implements Message
     /**
      * @var array<array<string,string>>
      */
-    private array $to;
+    private readonly array $to;
 
     /**
      * @var array<array<string,string>>|null
      */
-    private ?array $cc;
+    private readonly ?array $cc;
 
     /**
      * @var array<array<string,string>>|null
      */
-    private ?array $bcc;
+    private readonly ?array $bcc;
 
     /**
      * @param  array<string|array<string,string>>  $to The recipients of the email. Each entry can be an email string or an associative array with 'email' and optional 'name' keys.
@@ -39,20 +39,20 @@ class Email implements Message
      */
     public function __construct(
         array $to,
-        private string $subject,
-        private string $content,
-        private string $fromName,
-        private string $fromEmail,
+        private readonly string $subject,
+        private readonly string $content,
+        private readonly string $fromName,
+        private readonly string $fromEmail,
         private ?string $replyToName = null,
         private ?string $replyToEmail = null,
         ?array $cc = null,
         ?array $bcc = null,
-        private ?array $attachments = null,
-        private bool $html = false,
+        private readonly ?array $attachments = null,
+        private readonly bool $html = false,
     ) {
-        $this->to = \array_map(self::normalizeRecipient(...), $to);
-        $this->cc = !\is_null($cc) ? \array_map(self::normalizeRecipient(...), $cc) : null;
-        $this->bcc = !\is_null($bcc) ? \array_map(self::normalizeRecipient(...), $bcc) : null;
+        $this->to = array_map($this->normalizeRecipient(...), $to);
+        $this->cc = \is_null($cc) ? null : array_map($this->normalizeRecipient(...), $cc);
+        $this->bcc = \is_null($bcc) ? null : array_map($this->normalizeRecipient(...), $bcc);
 
         if (\is_null($this->replyToName)) {
             $this->replyToName = $this->fromName;
@@ -69,7 +69,7 @@ class Email implements Message
      * @param  string|array<string,string>  $value
      * @return array<string,string>
      */
-    private static function normalizeRecipient(string|array $value): array
+    private function normalizeRecipient(string|array $value): array
     {
         if (\is_string($value)) {
             if ($value === '') {

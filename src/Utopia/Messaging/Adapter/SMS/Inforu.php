@@ -17,8 +17,8 @@ class Inforu extends SMSAdapter
      * @param string $senderId Sender ID
      */
     public function __construct(
-        private string $senderId,
-        private string $apiToken,
+        private readonly string $senderId,
+        private readonly string $apiToken,
     ) {
         parent::__construct();
     }
@@ -43,8 +43,8 @@ class Inforu extends SMSAdapter
         $response = new Response($this->getType());
 
         $recipients = array_map(
-            fn ($number) => ['Phone' => ltrim($number, '+')],
-            $message->getTo()
+            fn(string $number): array => ['Phone' => ltrim($number, '+')],
+            $message->getTo(),
         );
 
         $result = $this->request(
@@ -66,7 +66,7 @@ class Inforu extends SMSAdapter
         );
 
         if ($result['statusCode'] === 200 && ($result['response']['StatusId'] ?? 0) === 1) {
-            $response->setDeliveredTo(count($message->getTo()));
+            $response->setDeliveredTo(\count($message->getTo()));
             foreach ($message->getTo() as $to) {
                 $response->addResult($to);
             }

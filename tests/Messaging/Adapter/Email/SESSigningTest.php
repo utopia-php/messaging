@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests\Adapter\Email;
 
 use PHPUnit\Framework\TestCase;
@@ -22,13 +24,13 @@ use Utopia\Messaging\Adapter\Email\SES;
  *
  * @link https://docs.aws.amazon.com/IAM/latest/UserGuide/create-signed-request.html
  */
-class SESSigningTest extends TestCase
+final class SESSigningTest extends TestCase
 {
-    private const ACCESS_KEY = 'AKIDEXAMPLE';
+    private const string ACCESS_KEY = 'AKIDEXAMPLE';
 
-    private const SECRET_KEY = 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY';
+    private const string SECRET_KEY = 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY';
 
-    private const EXPECTED_SIGNATURE = '5fa00fa31553b73ebf1942676e86291e8372ff2a2260956d9b8aae1d763fbf31';
+    private const string EXPECTED_SIGNATURE = '5fa00fa31553b73ebf1942676e86291e8372ff2a2260956d9b8aae1d763fbf31';
 
     public function testSignatureMatchesAwsGetVanillaVector(): void
     {
@@ -46,9 +48,9 @@ class SESSigningTest extends TestCase
         );
 
         $expected = 'AWS4-HMAC-SHA256 '
-            .'Credential='.self::ACCESS_KEY.'/20150830/us-east-1/service/aws4_request, '
-            .'SignedHeaders=host;x-amz-date, '
-            .'Signature='.self::EXPECTED_SIGNATURE;
+            . 'Credential=' . self::ACCESS_KEY . '/20150830/us-east-1/service/aws4_request, '
+            . 'SignedHeaders=host;x-amz-date, '
+            . 'Signature=' . self::EXPECTED_SIGNATURE;
 
         $this->assertSame($expected, $authorization);
     }
@@ -68,7 +70,7 @@ class SESSigningTest extends TestCase
             amzDate: '20150830T123600Z',
         );
 
-        $this->assertStringContainsString('Signature='.self::EXPECTED_SIGNATURE, $authorization);
+        $this->assertStringContainsString('Signature=' . self::EXPECTED_SIGNATURE, $authorization);
     }
 
     public function testHeadersAreSortedRegardlessOfInputOrder(): void
@@ -88,7 +90,7 @@ class SESSigningTest extends TestCase
         );
 
         $this->assertStringContainsString('SignedHeaders=host;x-amz-date', $authorization);
-        $this->assertStringContainsString('Signature='.self::EXPECTED_SIGNATURE, $authorization);
+        $this->assertStringContainsString('Signature=' . self::EXPECTED_SIGNATURE, $authorization);
     }
 
     public function testDifferentPayloadProducesDifferentSignature(): void

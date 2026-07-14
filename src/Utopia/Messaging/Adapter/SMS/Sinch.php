@@ -17,9 +17,9 @@ class Sinch extends SMSAdapter
      * @param  string  $apiToken Sinch API token
      */
     public function __construct(
-        private string $servicePlanId,
-        private string $apiToken,
-        private ?string $from = null
+        private readonly string $servicePlanId,
+        private readonly string $apiToken,
+        private readonly ?string $from = null,
     ) {
         parent::__construct();
     }
@@ -41,7 +41,7 @@ class Sinch extends SMSAdapter
      */
     protected function process(SMSMessage $message): array
     {
-        $to = \array_map(fn ($number) => \ltrim($number, '+'), $message->getTo());
+        $to = array_map(fn(string $number): string => ltrim($number, '+'), $message->getTo());
 
         $response = new Response($this->getType());
 
@@ -50,7 +50,7 @@ class Sinch extends SMSAdapter
             url: "https://sms.api.sinch.com/xms/v1/{$this->servicePlanId}/batches",
             headers: [
                 'Content-Type: application/json',
-                'Authorization: Bearer '.$this->apiToken,
+                'Authorization: Bearer ' . $this->apiToken,
             ],
             body: [
                 'from' => $this->from ?? $message->getFrom(),

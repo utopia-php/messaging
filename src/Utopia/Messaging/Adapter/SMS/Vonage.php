@@ -18,9 +18,9 @@ class Vonage extends SMSAdapter
      * @param  string  $apiSecret Vonage API Secret
      */
     public function __construct(
-        private string $apiKey,
-        private string $apiSecret,
-        private ?string $from = null
+        private readonly string $apiKey,
+        private readonly string $apiSecret,
+        private readonly ?string $from = null,
     ) {
         parent::__construct();
     }
@@ -40,9 +40,9 @@ class Vonage extends SMSAdapter
      */
     protected function process(SMS $message): array
     {
-        $to = \array_map(
-            fn ($to) => \ltrim($to, '+'),
-            $message->getTo()
+        $to = array_map(
+            fn(string $to): string => ltrim($to, '+'),
+            $message->getTo(),
         );
 
         $response = new Response($this->getType());
@@ -64,12 +64,10 @@ class Vonage extends SMSAdapter
         if (($result['response']['messages'][0]['status'] ?? null) === 0) {
             $response->setDeliveredTo(1);
             $response->addResult($result['response']['messages'][0]['to']);
+        } elseif (!\is_null($result['response']['messages'][0]['error-text'] ?? null)) {
+            $response->addResult($message->getTo()[0], $result['response']['messages'][0]['error-text']);
         } else {
-            if (!\is_null($result['response']['messages'][0]['error-text'] ?? null)) {
-                $response->addResult($message->getTo()[0], $result['response']['messages'][0]['error-text']);
-            } else {
-                $response->addResult($message->getTo()[0], 'Unknown error');
-            }
+            $response->addResult($message->getTo()[0], 'Unknown error');
         }
 
         return $response->toArray();

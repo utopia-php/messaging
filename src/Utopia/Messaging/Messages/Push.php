@@ -26,20 +26,20 @@ class Push implements Message
      * @param  Priority|null  $priority The priority of the message. Valid values are "normal" and "high". On iOS, these correspond to APNs priority 5 and 10.<br><br>By default, notification messages are sent with high priority, and data messages are sent with normal priority.
      */
     public function __construct(
-        private array $to,
-        private ?string $title = null,
-        private ?string $body = null,
-        private ?array $data = null,
-        private ?string $action = null,
-        private ?string $sound = null,
-        private ?string $image = null,
-        private ?string $icon = null,
-        private ?string $color = null,
-        private ?string $tag = null,
-        private ?int $badge = null,
-        private ?bool $contentAvailable = null,
-        private ?bool $critical = null,
-        private ?Priority $priority = null,
+        private readonly array $to,
+        private readonly ?string $title = null,
+        private readonly ?string $body = null,
+        private readonly ?array $data = null,
+        private readonly ?string $action = null,
+        private readonly ?string $sound = null,
+        private readonly ?string $image = null,
+        private readonly ?string $icon = null,
+        private readonly ?string $color = null,
+        private readonly ?string $tag = null,
+        private readonly ?int $badge = null,
+        private readonly ?bool $contentAvailable = null,
+        private readonly ?bool $critical = null,
+        private readonly ?Priority $priority = null,
     ) {
         if (
             $title === null

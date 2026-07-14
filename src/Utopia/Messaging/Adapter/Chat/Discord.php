@@ -2,10 +2,10 @@
 
 namespace Utopia\Messaging\Adapter\Chat;
 
+use InvalidArgumentException;
 use Utopia\Messaging\Adapter;
 use Utopia\Messaging\Messages\Discord as DiscordMessage;
 use Utopia\Messaging\Response;
-use InvalidArgumentException;
 
 class Discord extends Adapter
 {
@@ -19,7 +19,7 @@ class Discord extends Adapter
      * @throws InvalidArgumentException When webhook URL is invalid
      */
     public function __construct(
-        private string $webhookURL
+        private readonly string $webhookURL,
     ) {
         parent::__construct();
         // Validate URL format
@@ -40,11 +40,11 @@ class Discord extends Adapter
 
         // Extract and validate webhook ID
         $parts = explode('/webhooks/', $urlParts['path']);
-        if (count($parts) >= 2) {
+        if (\count($parts) >= 2) {
             $webhookParts = explode('/', $parts[1]);
             $this->webhookId = $webhookParts[0];
         }
-        if (empty($this->webhookId)) {
+        if ($this->webhookId === '' || $this->webhookId === '0') {
             throw new InvalidArgumentException('Discord webhook ID cannot be empty.');
         }
     }
@@ -85,13 +85,7 @@ class Discord extends Adapter
             $query['thread_id'] = $message->getThreadId();
         }
 
-        $queryString = '';
-        foreach ($query as $key => $value) {
-            if (empty($queryString)) {
-                $queryString .= '?';
-            }
-            $queryString .= $key.'='.$value;
-        }
+        $queryString = $query === [] ? '' : '?' . http_build_query($query);
 
         $response = new Response($this->getType());
         $result = $this->request(

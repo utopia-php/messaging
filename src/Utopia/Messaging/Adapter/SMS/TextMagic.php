@@ -18,9 +18,9 @@ class TextMagic extends SMSAdapter
      * @param  string  $apiKey Textmagic account API key
      */
     public function __construct(
-        private string $username,
-        private string $apiKey,
-        private ?string $from = null
+        private readonly string $username,
+        private readonly string $apiKey,
+        private readonly ?string $from = null,
     ) {
         parent::__construct();
     }
@@ -42,9 +42,9 @@ class TextMagic extends SMSAdapter
      */
     protected function process(SMSMessage $message): array
     {
-        $to = \array_map(
-            fn ($to) => \ltrim($to, '+'),
-            $message->getTo()
+        $to = array_map(
+            fn(string $to): string => ltrim($to, '+'),
+            $message->getTo(),
         );
 
         $response = new Response($this->getType());
@@ -54,12 +54,12 @@ class TextMagic extends SMSAdapter
             headers: [
                 'Content-Type: application/x-www-form-urlencoded',
                 'X-TM-Username: ' . $this->username,
-                'X-TM-Key: '. $this->apiKey,
+                'X-TM-Key: ' . $this->apiKey,
             ],
             body: [
                 'text' => $message->getContent(),
-                'from' => \ltrim($this->from ?? $message->getFrom(), '+'),
-                'phones' => \implode(',', $to),
+                'from' => ltrim((string) ($this->from ?? $message->getFrom()), '+'),
+                'phones' => implode(',', $to),
             ],
         );
 

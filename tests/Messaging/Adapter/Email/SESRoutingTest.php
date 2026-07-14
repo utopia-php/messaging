@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests\Adapter\Email;
 
 use PHPUnit\Framework\TestCase;
@@ -12,7 +14,7 @@ use Utopia\Messaging\Messages\Email\Attachment;
  * the SendBulkEmail primary path, the auto-created template lifecycle, result
  * parsing, and the SendEmail (Content.Raw) attachment fallback.
  */
-class SESRoutingTest extends TestCase
+final class SESRoutingTest extends TestCase
 {
     public function testMaxMessagesPerRequestIsFifty(): void
     {
@@ -69,7 +71,7 @@ class SESRoutingTest extends TestCase
         $stub->stubResponses[] = ['statusCode' => 200, 'response' => ['BulkEmailEntryResults' => [['Status' => 'SUCCESS']]]];
         $stub->stubResponses[] = ['statusCode' => 200, 'response' => ['BulkEmailEntryResults' => [['Status' => 'SUCCESS']]]];
 
-        $build = fn () => new Email(
+        $build = fn(): \Utopia\Messaging\Messages\Email => new Email(
             to: [['email' => 'a@example.com']],
             subject: 'Same Subject',
             content: 'Same Body',
@@ -399,11 +401,11 @@ class SESRoutingTest extends TestCase
             $this->assertStringEndsWith('/v2/email/outbound-emails', $request['url']);
             $this->assertArrayHasKey('Raw', $request['body']['Content']);
 
-            $mime = \base64_decode($request['body']['Content']['Raw']['Data']);
+            $mime = base64_decode((string) $request['body']['Content']['Raw']['Data']);
             $this->assertStringContainsString('Subject: Subject', $mime);
             $this->assertStringContainsString('note.txt', $mime);
             // The attachment content is base64-encoded inside the MIME body.
-            $this->assertStringContainsString(\base64_encode('hello attachment'), $mime);
+            $this->assertStringContainsString(base64_encode('hello attachment'), $mime);
         }
 
         $this->assertSame(2, $response['deliveredTo']);
@@ -454,7 +456,7 @@ class SESRoutingTest extends TestCase
                 name: 'large.bin',
                 path: '',
                 type: 'application/octet-stream',
-                content: \str_repeat('x', 25 * 1024 * 1024 + 1),
+                content: str_repeat('x', 25 * 1024 * 1024 + 1),
             )],
         );
 
@@ -480,7 +482,7 @@ class SESRoutingTest extends TestCase
         $stub->send($message);
 
         $headers = $stub->capturedRequests[0]['headers'];
-        $joined = \implode("\n", $headers);
+        $joined = implode("\n", $headers);
 
         $this->assertStringContainsString('X-Amz-Security-Token: session-token-value', $joined);
         // The signed headers list in the Authorization header must include it.
@@ -559,7 +561,7 @@ class SESRoutingTest extends TestCase
         // A name containing RFC 5322 specials must be quoted or SES rejects it.
         $this->assertSame(
             '"Acme, Inc." <from@example.com>',
-            $stub->capturedRequests[0]['body']['FromEmailAddress']
+            $stub->capturedRequests[0]['body']['FromEmailAddress'],
         );
     }
 
@@ -573,8 +575,8 @@ class SESRoutingTest extends TestCase
 
         $message = new Email(
             to: [['email' => 'a@example.com']],
-            subject: \str_repeat('long subject ', 64),
-            content: \str_repeat('long body ', 64),
+            subject: str_repeat('long subject ', 64),
+            content: str_repeat('long body ', 64),
             fromName: 'Sender',
             fromEmail: 'from@example.com',
         );
@@ -583,7 +585,7 @@ class SESRoutingTest extends TestCase
 
         $templateName = $stub->capturedRequests[0]['body']['DefaultContent']['Template']['TemplateName'];
 
-        $this->assertLessThanOrEqual(64, \strlen($templateName));
+        $this->assertLessThanOrEqual(64, \strlen((string) $templateName));
         $this->assertStringStartsWith('utopia-', $templateName);
     }
 
@@ -630,7 +632,7 @@ class SESRoutingTest extends TestCase
                 name: 'big.bin',
                 path: '',
                 type: 'application/octet-stream',
-                content: \str_repeat('x', 8 * 1024 * 1024),
+                content: str_repeat('x', 8 * 1024 * 1024),
             )],
         );
 
@@ -659,13 +661,14 @@ class SESStub extends SES
      * @param  array<string, mixed>|null  $body
      * @return array{url: string, statusCode: int, response: array<string, mixed>|string|null, headers: array<string, string>, error: string|null, errorCode: int}
      */
+    #[\Override]
     protected function request(
         string $method,
         string $url,
         array $headers = [],
         ?array $body = null,
         int $timeout = 30,
-        int $connectTimeout = 10
+        int $connectTimeout = 10,
     ): array {
         $this->capturedRequests[] = [
             'method' => $method,
@@ -674,7 +677,7 @@ class SESStub extends SES
             'body' => $body,
         ];
 
-        $stub = \array_shift($this->stubResponses) ?? ['statusCode' => 200, 'response' => []];
+        $stub = array_shift($this->stubResponses) ?? ['statusCode' => 200, 'response' => []];
 
         return [
             'url' => $url,

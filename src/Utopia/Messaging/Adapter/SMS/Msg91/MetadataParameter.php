@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Messaging\Adapter\SMS\Msg91;
 
 enum MetadataParameter: string

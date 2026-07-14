@@ -30,18 +30,16 @@ class Fast2SMS extends SMSAdapter
      * @see https://docs.fast2sms.com/#quick-sms
      */
     public function __construct(
-        private string $apiKey,
-        private string $senderId = '',
-        private string $messageId = '',
-        private bool $useDLT = false
+        private readonly string $apiKey,
+        private readonly string $senderId = '',
+        private readonly string $messageId = '',
+        private readonly bool $useDLT = false,
     ) {
         parent::__construct();
     }
 
     /**
      * Get the name of the SMS adapter
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -50,8 +48,6 @@ class Fast2SMS extends SMSAdapter
 
     /**
      * Get maximum number of messages that can be sent in a single request
-     *
-     * @return int
      */
     public function getMaxMessagesPerRequest(): int
     {
@@ -67,8 +63,8 @@ class Fast2SMS extends SMSAdapter
     protected function process(SMSMessage $message): array
     {
         $numbers = array_map(
-            fn ($number) => $this->removeCountryCode($number),
-            $message->getTo()
+            $this->removeCountryCode(...),
+            $message->getTo(),
         );
         $numbers = implode(',', $numbers);
 
@@ -96,7 +92,7 @@ class Fast2SMS extends SMSAdapter
                 'Content-Type: application/json',
                 'Accept: application/json',
             ],
-            body: $payload
+            body: $payload,
         );
 
         $res = $result['response'];
@@ -129,7 +125,7 @@ class Fast2SMS extends SMSAdapter
 
         $code = CallingCode::fromPhoneNumber($number);
         if ($code !== null) {
-            return substr($digits, strlen($code));
+            return substr((string) $digits, \strlen($code));
         }
 
         return $digits;

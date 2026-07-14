@@ -19,7 +19,7 @@ class FCM extends PushAdapter
      * @param string $serviceAccountJSON Service account JSON file contents
      */
     public function __construct(
-        private string $serviceAccountJSON,
+        private readonly string $serviceAccountJSON,
     ) {
         parent::__construct();
     }
@@ -45,9 +45,9 @@ class FCM extends PushAdapter
      */
     protected function process(PushMessage $message): array
     {
-        $credentials = \json_decode($this->serviceAccountJSON, true);
+        $credentials = json_decode($this->serviceAccountJSON, true);
 
-        $now = \time();
+        $now = time();
 
         $signingKey = $credentials['private_key'];
         $signingAlgorithm = 'RS256';
@@ -66,9 +66,6 @@ class FCM extends PushAdapter
             $signingAlgorithm,
         );
 
-        $signingKey = null;
-        $payload = null;
-
         $token = $this->request(
             method: 'POST',
             url: self::GOOGLE_TOKEN_URL,
@@ -78,8 +75,12 @@ class FCM extends PushAdapter
             body: [
                 'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                 'assertion' => $jwt,
-            ]
+            ],
         );
+
+        if ($token['statusCode'] !== 200 || !\is_array($token['response']) || !isset($token['response']['access_token'])) {
+            throw new \Exception('Failed to obtain FCM access token: ' . ($token['error'] !== '' ? $token['error'] : 'HTTP ' . $token['statusCode']));
+        }
 
         $accessToken = $token['response']['access_token'];
 
@@ -128,7 +129,7 @@ class FCM extends PushAdapter
             $shared['message']['apns']['payload']['aps']['badge'] = $message->getBadge();
         }
         if (!\is_null($message->getContentAvailable())) {
-            $shared['message']['apns']['payload']['aps']['content-available'] = (int)$message->getContentAvailable();
+            $shared['message']['apns']['payload']['aps']['content-available'] = (int) $message->getContentAvailable();
         }
         if (!\is_null($message->getPriority())) {
             $shared['message']['android']['priority'] = match ($message->getPriority()) {
@@ -156,7 +157,7 @@ class FCM extends PushAdapter
                 'Content-Type: application/json',
                 "Authorization: Bearer {$accessToken}",
             ],
-            bodies: $bodies
+            bodies: $bodies,
         );
 
         $response = new Response($this->getType());

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Messaging\Messages\Email;
 
 class Attachment
@@ -11,12 +13,11 @@ class Attachment
      * @param ?string $content  Raw string content of the file (used instead of path when non-null).
      */
     public function __construct(
-        private string $name,
-        private string $path,
-        private string $type,
-        private ?string $content = null,
-    ) {
-    }
+        private readonly string $name,
+        private readonly string $path,
+        private readonly string $type,
+        private readonly ?string $content = null,
+    ) {}
 
     public function getName(): string
     {

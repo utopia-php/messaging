@@ -11,6 +11,13 @@ class Mock extends EmailAdapter
 {
     protected const NAME = 'Mock';
 
+    public function __construct(
+        private readonly string $host = 'maildev',
+        private readonly int $port = 1025,
+    ) {
+        parent::__construct();
+    }
+
     public function getName(): string
     {
         return static::NAME;
@@ -31,8 +38,8 @@ class Mock extends EmailAdapter
         $mail = new PHPMailer();
         $mail->isSMTP();
         $mail->XMailer = 'Utopia Mailer';
-        $mail->Host = 'maildev';
-        $mail->Port = 1025;
+        $mail->Host = $this->host;
+        $mail->Port = $this->port;
         $mail->SMTPAuth = false;
         $mail->Username = '';
         $mail->Password = '';
@@ -41,7 +48,7 @@ class Mock extends EmailAdapter
         $mail->CharSet = 'UTF-8';
         $mail->Subject = $message->getSubject();
         $mail->Body = $message->getContent();
-        $mail->AltBody = \strip_tags($message->getContent());
+        $mail->AltBody = strip_tags($message->getContent());
         $mail->setFrom($message->getFromEmail(), $message->getFromName());
         $mail->addReplyTo($message->getReplyToEmail(), $message->getReplyToName());
         $mail->isHTML($message->isHtml());
@@ -50,13 +57,13 @@ class Mock extends EmailAdapter
             $mail->addAddress($to['email'], $to['name'] ?? '');
         }
 
-        if (!empty($message->getCC())) {
+        if (!\in_array($message->getCC(), [null, []], true)) {
             foreach ($message->getCC() as $cc) {
                 $mail->addCC($cc['email'], $cc['name'] ?? '');
             }
         }
 
-        if (!empty($message->getBCC())) {
+        if (!\in_array($message->getBCC(), [null, []], true)) {
             foreach ($message->getBCC() as $bcc) {
                 $mail->addBCC($bcc['email'], $bcc['name'] ?? '');
             }

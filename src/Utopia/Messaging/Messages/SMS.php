@@ -14,13 +14,12 @@ class SMS implements Message
      * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
-        private array $to,
-        private string $content,
-        private ?string $from = null,
-        private ?array $attachments = null,
+        private readonly array $to,
+        private readonly string $content,
+        private readonly ?string $from = null,
+        private readonly ?array $attachments = null,
         private ?array $metadata = null,
-    ) {
-    }
+    ) {}
 
     /**
      * @return array<string>

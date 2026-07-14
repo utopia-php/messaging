@@ -16,7 +16,7 @@ class Resend extends EmailAdapter
      * @param  string  $apiKey  Your Resend API key to authenticate with the API.
      */
     public function __construct(
-        private string $apiKey
+        private readonly string $apiKey,
     ) {
         parent::__construct();
     }
@@ -38,33 +38,33 @@ class Resend extends EmailAdapter
     protected function process(EmailMessage $message): array
     {
         $attachments = [];
-        if (! \is_null($message->getAttachments()) && ! empty($message->getAttachments())) {
+        if (! \is_null($message->getAttachments()) && $message->getAttachments() !== []) {
             $size = 0;
             foreach ($message->getAttachments() as $attachment) {
                 if ($attachment->getContent() !== null) {
                     $size += \strlen($attachment->getContent());
                 } else {
-                    $fileSize = \filesize($attachment->getPath());
+                    $fileSize = filesize($attachment->getPath());
                     if ($fileSize === false) {
-                        throw new \Exception('Failed to read attachment file: '.$attachment->getPath());
+                        throw new \Exception('Failed to read attachment file: ' . $attachment->getPath());
                     }
                     $size += $fileSize;
                 }
             }
 
             if ($size > self::MAX_ATTACHMENT_BYTES) {
-                throw new \Exception('Total attachment size exceeds '.self::MAX_ATTACHMENT_BYTES.' bytes');
+                throw new \Exception('Total attachment size exceeds ' . self::MAX_ATTACHMENT_BYTES . ' bytes');
             }
 
             foreach ($message->getAttachments() as $attachment) {
                 if ($attachment->getContent() !== null) {
-                    $content = \base64_encode($attachment->getContent());
+                    $content = base64_encode($attachment->getContent());
                 } else {
-                    $data = \file_get_contents($attachment->getPath());
+                    $data = file_get_contents($attachment->getPath());
                     if ($data === false) {
-                        throw new \Exception('Failed to read attachment file: '.$attachment->getPath());
+                        throw new \Exception('Failed to read attachment file: ' . $attachment->getPath());
                     }
-                    $content = \base64_encode($data);
+                    $content = base64_encode($data);
                 }
 
                 $attachments[] = [
@@ -79,12 +79,12 @@ class Resend extends EmailAdapter
 
         $emails = [];
         foreach ($message->getTo() as $to) {
-            $toFormatted = ! empty($to['name'])
-                ? "{$to['name']} <{$to['email']}>"
-                : $to['email'];
+            $toFormatted = empty($to['name'])
+                ? $to['email']
+                : "{$to['name']} <{$to['email']}>";
 
             $email = [
-                'from' => $message->getFromName()
+                'from' => $message->getFromName() !== '' && $message->getFromName() !== '0'
                     ? "{$message->getFromName()} <{$message->getFromEmail()}>"
                     : $message->getFromEmail(),
                 'to' => [$toFormatted],
@@ -97,32 +97,32 @@ class Resend extends EmailAdapter
                 $email['text'] = $message->getContent();
             }
 
-            if (! empty($message->getReplyToEmail())) {
-                $email['reply_to'] = $message->getReplyToName()
+            if (!\in_array($message->getReplyToEmail(), ['', '0'], true)) {
+                $email['reply_to'] = $message->getReplyToName() !== '' && $message->getReplyToName() !== '0'
                     ? ["{$message->getReplyToName()} <{$message->getReplyToEmail()}>"]
                     : [$message->getReplyToEmail()];
             }
 
-            if (! \is_null($message->getCC()) && ! empty($message->getCC())) {
-                $ccList = \array_map(
-                    fn ($cc) => ! empty($cc['name'])
-                        ? "{$cc['name']} <{$cc['email']}>"
-                        : $cc['email'],
-                    $message->getCC()
+            if (! \is_null($message->getCC()) && $message->getCC() !== []) {
+                $ccList = array_map(
+                    fn(array $cc) => empty($cc['name'])
+                        ? $cc['email']
+                        : "{$cc['name']} <{$cc['email']}>",
+                    $message->getCC(),
                 );
                 $email['cc'] = $ccList;
             }
 
-            if (! empty($attachments)) {
+            if ($attachments !== []) {
                 $email['attachments'] = $attachments;
             }
 
-            if (! \is_null($message->getBCC()) && ! empty($message->getBCC())) {
-                $bccList = \array_map(
-                    fn ($bcc) => ! empty($bcc['name'])
-                        ? "{$bcc['name']} <{$bcc['email']}>"
-                        : $bcc['email'],
-                    $message->getBCC()
+            if (! \is_null($message->getBCC()) && $message->getBCC() !== []) {
+                $bccList = array_map(
+                    fn(array $bcc) => empty($bcc['name'])
+                        ? $bcc['email']
+                        : "{$bcc['name']} <{$bcc['email']}>",
+                    $message->getBCC(),
                 );
                 $email['bcc'] = $bccList;
             }
@@ -131,11 +131,11 @@ class Resend extends EmailAdapter
         }
 
         $headers = [
-            'Authorization: Bearer '.$this->apiKey,
+            'Authorization: Bearer ' . $this->apiKey,
             'Content-Type: application/json',
         ];
 
-        if (! empty($attachments)) {
+        if ($attachments !== []) {
             return $this->sendIndividually($message, $emails, $headers, $response);
         }
 

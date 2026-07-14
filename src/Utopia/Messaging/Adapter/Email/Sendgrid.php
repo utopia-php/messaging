@@ -12,9 +12,8 @@ class Sendgrid extends EmailAdapter
 
     /**
      * @param  string  $apiKey Your Sendgrid API key to authenticate with the API.
-     * @return void
      */
-    public function __construct(private string $apiKey)
+    public function __construct(private readonly string $apiKey)
     {
         parent::__construct();
     }
@@ -44,17 +43,17 @@ class Sendgrid extends EmailAdapter
     */
     protected function process(EmailMessage $message): array
     {
-        $personalizations = \array_map(
-            fn ($to) => [
-                'to' => [!empty($to['name'])
-                    ? ['email' => $to['email'], 'name' => $to['name']]
-                    : ['email' => $to['email']]],
+        $personalizations = array_map(
+            fn(array $to): array => [
+                'to' => [empty($to['name'])
+                    ? ['email' => $to['email']]
+                    : ['email' => $to['email'], 'name' => $to['name']]],
                 'subject' => $message->getSubject(),
             ],
-            $message->getTo()
+            $message->getTo(),
         );
 
-        if (!empty($message->getCC())) {
+        if (!\in_array($message->getCC(), [null, []], true)) {
             foreach ($personalizations as &$personalization) {
                 foreach ($message->getCC() as $cc) {
                     $entry = ['email' => $cc['email']];
@@ -67,7 +66,7 @@ class Sendgrid extends EmailAdapter
             unset($personalization);
         }
 
-        if (!empty($message->getBCC())) {
+        if (!\in_array($message->getBCC(), [null, []], true)) {
             foreach ($personalizations as &$personalization) {
                 foreach ($message->getBCC() as $bcc) {
                     $entry = ['email' => $bcc['email']];
@@ -86,7 +85,7 @@ class Sendgrid extends EmailAdapter
             $size = 0;
 
             foreach ($message->getAttachments() as $attachment) {
-                $size += \filesize($attachment->getPath());
+                $size += filesize($attachment->getPath());
             }
 
             if ($size > self::MAX_ATTACHMENT_BYTES) {
@@ -95,7 +94,7 @@ class Sendgrid extends EmailAdapter
 
             foreach ($message->getAttachments() as $attachment) {
                 $attachments[] = [
-                    'content' => \base64_encode(\file_get_contents($attachment->getPath())),
+                    'content' => base64_encode(file_get_contents($attachment->getPath())),
                     'filename' => $attachment->getName(),
                     'type' => $attachment->getType(),
                     'disposition' => 'attachment',
@@ -121,7 +120,7 @@ class Sendgrid extends EmailAdapter
             ],
         ];
 
-        if (!empty($attachments)) {
+        if ($attachments !== []) {
             $body['attachments'] = $attachments;
         }
 
@@ -130,7 +129,7 @@ class Sendgrid extends EmailAdapter
             method: 'POST',
             url: 'https://api.sendgrid.com/v3/mail/send',
             headers: [
-                'Authorization: Bearer '.$this->apiKey,
+                'Authorization: Bearer ' . $this->apiKey,
                 'Content-Type: application/json',
             ],
             body: $body,
