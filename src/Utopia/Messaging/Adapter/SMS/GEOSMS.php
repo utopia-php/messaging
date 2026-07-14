@@ -96,7 +96,6 @@ class GEOSMS extends SMSAdapter
         } while (count($recipients) > 0);
 
         foreach ($batches as $index => $batch) {
-            /** @var array<string, mixed>|null $metadata */
             $metadata = $message->getMetadata();
             if (\count($batches) > 1 && $metadata !== null) {
                 foreach ([MetadataParameter::CRQID, MetadataParameter::UUID] as $parameter) {

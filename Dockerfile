@@ -15,7 +15,7 @@ RUN composer install \
     --no-scripts \
     --prefer-dist
 
-FROM php:8.3.11-cli-alpine3.20
+FROM appwrite/utopia-base:php-8.5-2.1.0
 
 WORKDIR /usr/local/src/
 
