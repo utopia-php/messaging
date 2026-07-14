@@ -285,14 +285,18 @@ abstract class Adapter
                 Coroutine::create(function () use ($pool, $request, $index, &$results, $group): void {
                     try {
                         $results[$index] = $pool->use(fn (ClientInterface $client): array => $this->buildResult($client->sendRequest($request), (string)$request->getUri()));
-                    } catch (ClientExceptionInterface $error) {
+                    } catch (\Throwable $error) {
+                        // Throwable rather than the PSR client exception: pool
+                        // acquisition and factory failures must also land in
+                        // this slot's result — an uncaught throwable in a
+                        // coroutine is fatal and would drop the slot entirely.
                         $results[$index] = [
                             'url' => (string)$request->getUri(),
                             'statusCode' => 0,
                             'response' => null,
                             'headers' => [],
                             'error' => $error->getMessage(),
-                            'errorCode' => $error->getCode(),
+                            'errorCode' => (int)$error->getCode(),
                         ];
                     } finally {
                         $group->done();
