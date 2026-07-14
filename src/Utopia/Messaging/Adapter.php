@@ -117,17 +117,6 @@ abstract class Adapter
         $this->sendCounter = $telemetry->createCounter('messaging.send');
     }
 
-    /**
-     * Set the factory producing the PSR-18 clients used for HTTP requests.
-     * See the constructor doc for the requirements a factory must meet.
-     *
-     * @param  Closure(): ClientInterface  $clientFactory
-     */
-    public function setClientFactory(Closure $clientFactory): void
-    {
-        $this->clientFactory = $clientFactory;
-    }
-
     private function recordSend(Message $message, int $recipients, int $delivered): void
     {
         if ($delivered > 0) {
