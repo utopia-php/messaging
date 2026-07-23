@@ -9,9 +9,9 @@ use Utopia\Messaging\Adapter\SMS as SMSAdapter;
 use Utopia\Messaging\Messages\SMS;
 use Utopia\Messaging\Response;
 
-class Vonage extends SMSAdapter
+class VonageLegacy extends SMSAdapter
 {
-    protected const NAME = 'Vonage';
+    protected const NAME = 'Vonage Legacy';
 
     /**
      * @param  string  $apiKey Vonage API Key
