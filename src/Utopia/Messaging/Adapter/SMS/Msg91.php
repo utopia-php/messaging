@@ -100,8 +100,18 @@ class Msg91 extends SMSAdapter
                 $response->addResult($to);
             }
         } else {
+            $errorMessage = 'Unknown error';
+            if (isset($result['response']['message'])) {
+                $errorMessage = \is_string($result['response']['message'])
+                    ? $result['response']['message']
+                    : \json_encode($result['response']['message']);
+            } elseif (isset($result['response']['error'])) {
+                $errorMessage = \is_string($result['response']['error'])
+                    ? $result['response']['error']
+                    : \json_encode($result['response']['error']);
+            }
             foreach ($message->getTo() as $to) {
-                $response->addResult($to, 'Unknown error');
+                $response->addResult($to, $errorMessage);
             }
         }
 
