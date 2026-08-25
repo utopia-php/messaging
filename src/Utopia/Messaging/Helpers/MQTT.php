@@ -97,6 +97,9 @@ class MQTT
         if (isset($properties['authenticationData'])) {
             $props .= \chr(self::PROPERTY_AUTHENTICATION_DATA) . self::encodeBinary((string)$properties['authenticationData']);
         }
+        foreach ($properties['userProperties'] ?? [] as $key => $value) {
+            $props .= \chr(self::PROPERTY_USER_PROPERTY) . self::encodeString((string)$key) . self::encodeString((string)$value);
+        }
 
         $variable .= self::encodeVariableByteInteger(\strlen($props)) . $props;
 

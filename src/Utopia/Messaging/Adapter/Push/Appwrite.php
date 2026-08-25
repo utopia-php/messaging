@@ -3,7 +3,6 @@
 namespace Utopia\Messaging\Adapter\Push;
 
 use Utopia\Messaging\Adapter\Push as PushAdapter;
-use Utopia\Messaging\Helpers\JWT;
 use Utopia\Messaging\Helpers\MQTT;
 use Utopia\Messaging\Messages\Push as PushMessage;
 use Utopia\Messaging\Priority;
@@ -15,18 +14,16 @@ use Utopia\Messaging\Response;
  * Publishes notifications to Appwrite's MQTT broker, which then fans them out
  * to subscribed devices over a single persistent connection per device.
  *
- * Connects to the broker over TLS as a server-scoped client, authenticates
- * with a short-lived HMAC-signed JWT, then PUBLISHes one message per device
- * token onto the device-specific topic.
+ * Speaks the same CONNECT dialect as the broker's device clients: MQTT 5
+ * enhanced authentication carrying the credential (Authentication Method +
+ * Data) and the project as a `projectId` User Property. The broker scopes
+ * every topic by that project, so publishes use the bare device topic.
  */
 class Appwrite extends PushAdapter
 {
     protected const NAME = 'Appwrite';
     protected const TOPIC_PREFIX = 'appwrite/push';
-    protected const SERVER_CLIENT_PREFIX = 'appwrite-server';
-    protected const JWT_ALGORITHM = 'HS256';
-    protected const JWT_SCOPE = 'server';
-    protected const JWT_TTL = 60;
+    protected const CLIENT_PREFIX = 'appwrite-server';
     protected const CONNECT_TIMEOUT = 5;
     protected const READ_TIMEOUT = 10;
     protected const KEEP_ALIVE = 30;
@@ -48,15 +45,23 @@ class Appwrite extends PushAdapter
      */
     private int $receiveMaximum = 256;
 
+    /**
+     * @param string $endpoint    Broker host[:port] (or a URL); scheme/port derived from $tls.
+     * @param string $projectId   Project the publish is scoped to (broker prefixes every topic with it).
+     * @param string $credential  Auth credential the broker verifies (a JWT, or a session secret).
+     * @param string $authMethod  Broker auth method: 'appwrite-jwt' or 'appwrite-session'.
+     */
     public function __construct(
         private string $endpoint,
-        private string $signingKey,
+        private string $projectId,
+        private string $credential,
+        private string $authMethod = 'appwrite-jwt',
         private bool $tls = true,
         private int $messageExpiry = self::DEFAULT_MESSAGE_EXPIRY,
-        private string $serverId = '',
+        private string $clientId = '',
     ) {
-        if ($this->serverId === '') {
-            $this->serverId = self::SERVER_CLIENT_PREFIX . '-' . \bin2hex(\random_bytes(6));
+        if ($this->clientId === '') {
+            $this->clientId = self::CLIENT_PREFIX . '-' . \bin2hex(\random_bytes(6));
         }
     }
 
@@ -327,15 +332,17 @@ class Appwrite extends PushAdapter
      */
     private function handshake($socket): void
     {
-        $token = $this->issueServerJwt();
+        // Enhanced-auth CONNECT: the broker reads the credential from Authentication
+        // Method/Data and the project from a `projectId` User Property. Send only the
+        // properties it parses — it rejects any it does not recognise.
         $packet = MQTT::encodeConnect(
-            clientId: $this->serverId,
-            username: 'server',
-            password: $token,
+            clientId: $this->clientId,
             keepAlive: self::KEEP_ALIVE,
             cleanStart: true,
             properties: [
-                'sessionExpiryInterval' => 0,
+                'authenticationMethod' => $this->authMethod,
+                'authenticationData' => $this->credential,
+                'userProperties' => ['projectId' => $this->projectId],
             ],
         );
 
@@ -355,20 +362,6 @@ class Appwrite extends PushAdapter
         if ($brokerLimit > 0) {
             $this->receiveMaximum = \min($this->receiveMaximum, $brokerLimit);
         }
-    }
-
-    private function issueServerJwt(): string
-    {
-        $now = \time();
-        $claims = [
-            'iss' => 'appwrite',
-            'sub' => $this->serverId,
-            'iat' => $now,
-            'exp' => $now + self::JWT_TTL,
-            'scope' => self::JWT_SCOPE,
-        ];
-
-        return JWT::encode($claims, $this->signingKey, self::JWT_ALGORITHM);
     }
 
     /**
