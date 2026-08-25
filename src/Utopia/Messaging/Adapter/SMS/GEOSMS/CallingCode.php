@@ -584,7 +584,7 @@ class CallingCode
         // Prefixes can be 3, 2, or 1 digits long
         // Attempt to match the longest first
         foreach ([3, 2, 1] as $length) {
-            $code = substr($digits, 0, $length);
+            $code = substr((string) $digits, 0, $length);
             if (isset(self::CODES[$code])) {
                 return $code;
             }

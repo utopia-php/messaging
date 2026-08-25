@@ -1,5 +1,8 @@
 # Utopia Messaging
 
+> [!IMPORTANT]
+> This repository is a read-only mirror of the [utopia-php monorepo](https://github.com/utopia-php/monorepo). Development happens in [`packages/messaging`](https://github.com/utopia-php/monorepo/tree/main/packages/messaging) — please open issues and pull requests there.
+
 [![Build Status](https://travis-ci.org/utopia-php/abuse.svg?branch=master)](https://travis-ci.com/utopia-php/database)
 ![Total Downloads](https://img.shields.io/packagist/dt/utopia-php/messaging.svg)
 [![Discord](https://img.shields.io/discord/564160730845151244?label=discord)](https://appwrite.io/discord)
@@ -8,9 +11,9 @@ Utopia Messaging library is simple and lite library for sending messages using m
 
 Although this library is part of the [Utopia Framework](https://github.com/utopia-php/framework) project it is dependency free, and can be used as standalone with any other PHP project or framework.
 
-## Getting Started
+## Getting started
 
-Install using composer:
+Install using Composer:
 ```bash
 composer require utopia-php/messaging
 ```
@@ -24,6 +27,7 @@ use \Utopia\Messaging\Messages\Email;
 use \Utopia\Messaging\Adapter\Email\SendGrid;
 use \Utopia\Messaging\Adapter\Email\Mailgun;
 use \Utopia\Messaging\Adapter\Email\Resend;
+use \Utopia\Messaging\Adapter\Email\SES;
 
 $message = new Email(
     to: ['team@appwrite.io'],
@@ -38,6 +42,9 @@ $messaging = new Mailgun('YOUR_API_KEY', 'YOUR_DOMAIN');
 $messaging->send($message);
 
 $messaging = new Resend('YOUR_API_KEY');
+$messaging->send($message);
+
+$messaging = new SES('YOUR_ACCESS_KEY', 'YOUR_SECRET_KEY', 'YOUR_REGION');
 $messaging->send($message);
 ```
 
@@ -81,7 +88,7 @@ $messaging->send($message);
 
 ## Adapters
 
-> Want to implement any of the missing adapters or have an idea for another? We would love to hear from you! Please check out our [contribution guide](./CONTRIBUTING.md) and [new adapter guide](./docs/add-new-adapter.md) for more information.
+> Want to implement any of the missing adapters or have an idea for another? We would love to hear from you! Please check out our [contribution guide](https://github.com/utopia-php/monorepo/blob/main/CONTRIBUTING.md) and [new adapter guide](./docs/add-new-adapter.md) for more information.
 
 ### Email
 - [x] [SendGrid](https://sendgrid.com/)
@@ -94,7 +101,7 @@ $messaging->send($message);
 - [ ] [SendinBlue](https://www.sendinblue.com/)
 - [ ] [MailSlurp](https://www.mailslurp.com/)
 - [ ] [ElasticEmail](https://elasticemail.com/)
-- [ ] [SES](https://aws.amazon.com/ses/)
+- [x] [SES](https://aws.amazon.com/ses/)
 
 ### SMS
 - [x] [Twilio](https://www.twilio.com/)
@@ -123,7 +130,7 @@ $messaging->send($message);
 - [ ] [PushBullet](https://www.pushbullet.com/)
 - [ ] [Pushy](https://pushy.me/)
 
-## System Requirements
+## System requirements
 
 Utopia Messaging requires PHP 8.0 or later. We recommend using the latest PHP version whenever possible.
 

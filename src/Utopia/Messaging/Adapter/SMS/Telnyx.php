@@ -14,9 +14,10 @@ class Telnyx extends SMSAdapter
      * @param  string  $apiKey Telnyx APIv2 Key
      */
     public function __construct(
-        private string $apiKey,
-        private ?string $from = null
+        private readonly string $apiKey,
+        private readonly ?string $from = null,
     ) {
+        parent::__construct();
     }
 
     public function getName(): string
@@ -43,7 +44,7 @@ class Telnyx extends SMSAdapter
             url: 'https://api.telnyx.com/v2/messages',
             headers: [
                 'Content-Type: application/json',
-                'Authorization: Bearer '.$this->apiKey,
+                'Authorization: Bearer ' . $this->apiKey,
             ],
             body: [
                 'text' => $message->getContent(),

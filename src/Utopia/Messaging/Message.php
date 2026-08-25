@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Messaging;
 
 /**
@@ -7,4 +9,7 @@ namespace Utopia\Messaging;
  */
 interface Message
 {
+    public function setOrigin(?string $origin): self;
+
+    public function getOrigin(): ?string;
 }

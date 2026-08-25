@@ -1,24 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Messaging;
 
 class Response
 {
-    private int $deliveredTo;
-
-    private string $type;
+    private int $deliveredTo = 0;
 
     /**
      * @var array<array<string, string>>
      */
-    private array $results;
+    private array $results = [];
 
-    public function __construct(string $type)
-    {
-        $this->type = $type;
-        $this->deliveredTo = 0;
-        $this->results = [];
-    }
+    public function __construct(private string $type) {}
 
     public function setDeliveredTo(int $deliveredTo): void
     {
@@ -57,7 +52,7 @@ class Response
     {
         $this->results[] = [
             'recipient' => $recipient,
-            'status' => empty($error) ? 'success' : 'failure',
+            'status' => $error === '' || $error === '0' ? 'success' : 'failure',
             'error' => $error,
         ];
     }

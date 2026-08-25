@@ -17,10 +17,11 @@ class Infobip extends SMSAdapter
      * @param  string  $apiKey Infobip API Key
      */
     public function __construct(
-        private string $apiBaseUrl,
-        private string $apiKey,
-        private ?string $from = null
+        private readonly string $apiBaseUrl,
+        private readonly string $apiKey,
+        private readonly ?string $from = null,
     ) {
+        parent::__construct();
     }
 
     public function getName(): string
@@ -40,7 +41,7 @@ class Infobip extends SMSAdapter
      */
     protected function process(SMSMessage $message): array
     {
-        $to = \array_map(fn ($number) => ['to' => \ltrim($number, '+')], $message->getTo());
+        $to = array_map(fn(string $number): array => ['to' => ltrim($number, '+')], $message->getTo());
 
         $response = new Response($this->getType());
 
@@ -49,7 +50,7 @@ class Infobip extends SMSAdapter
             url: "https://{$this->apiBaseUrl}/sms/2/text/advanced",
             headers: [
                 'Content-Type: application/json',
-                'Authorization: App '.$this->apiKey,
+                'Authorization: App ' . $this->apiKey,
             ],
             body: [
                 'messages' => [

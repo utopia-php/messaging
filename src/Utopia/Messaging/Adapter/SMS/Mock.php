@@ -17,9 +17,10 @@ class Mock extends SMSAdapter
      * @param  string  $secret User secret
      */
     public function __construct(
-        private string $user,
-        private string $secret
+        private readonly string $user,
+        private readonly string $secret,
     ) {
+        parent::__construct();
     }
 
     public function getName(): string
@@ -65,7 +66,7 @@ class Mock extends SMSAdapter
             body: [
                 'message' => $message->getContent(),
                 'from' => $message->getFrom(),
-                'to' => \implode(',', $message->getTo()),
+                'to' => implode(',', $message->getTo()),
             ],
         );
 

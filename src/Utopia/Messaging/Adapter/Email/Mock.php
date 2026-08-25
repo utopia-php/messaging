@@ -1,78 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Messaging\Adapter\Email;
 
-use PHPMailer\PHPMailer\PHPMailer;
-use Utopia\Messaging\Adapter\Email as EmailAdapter;
-use Utopia\Messaging\Messages\Email as EmailMessage;
-use Utopia\Messaging\Response;
-
-class Mock extends EmailAdapter
+/**
+ * The SMTP adapter pointed at a catcher: no credentials, no encryption, and a
+ * default host that matches the compose service.
+ *
+ * It was a second copy of the same conversation before, which is one more copy
+ * than the protocol deserves.
+ */
+class Mock extends SMTP
 {
     protected const NAME = 'Mock';
 
-    public function getName(): string
+    public function __construct(string $host = 'maildev', int $port = 1025)
     {
-        return static::NAME;
-    }
-
-    public function getMaxMessagesPerRequest(): int
-    {
-        // TODO: Find real value for this
-        return 1000;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function process(EmailMessage $message): array
-    {
-        $response = new Response($this->getType());
-        $mail = new PHPMailer();
-        $mail->isSMTP();
-        $mail->XMailer = 'Utopia Mailer';
-        $mail->Host = 'maildev';
-        $mail->Port = 1025;
-        $mail->SMTPAuth = false;
-        $mail->Username = '';
-        $mail->Password = '';
-        $mail->SMTPSecure = '';
-        $mail->SMTPAutoTLS = false;
-        $mail->CharSet = 'UTF-8';
-        $mail->Subject = $message->getSubject();
-        $mail->Body = $message->getContent();
-        $mail->AltBody = \strip_tags($message->getContent());
-        $mail->setFrom($message->getFromEmail(), $message->getFromName());
-        $mail->addReplyTo($message->getReplyToEmail(), $message->getReplyToName());
-        $mail->isHTML($message->isHtml());
-
-        foreach ($message->getTo() as $to) {
-            $mail->addAddress($to['email'], $to['name'] ?? '');
-        }
-
-        if (!empty($message->getCC())) {
-            foreach ($message->getCC() as $cc) {
-                $mail->addCC($cc['email'], $cc['name'] ?? '');
-            }
-        }
-
-        if (!empty($message->getBCC())) {
-            foreach ($message->getBCC() as $bcc) {
-                $mail->addBCC($bcc['email'], $bcc['name'] ?? '');
-            }
-        }
-
-        if (!$mail->send()) {
-            foreach ($message->getTo() as $to) {
-                $response->addResult($to['email'], $mail->ErrorInfo);
-            }
-        } else {
-            $response->setDeliveredTo(\count($message->getTo()));
-            foreach ($message->getTo() as $to) {
-                $response->addResult($to['email']);
-            }
-        }
-
-        return $response->toArray();
+        parent::__construct(host: $host, port: $port, xMailer: 'Utopia Mailer');
     }
 }

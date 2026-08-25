@@ -19,8 +19,9 @@ class FCM extends PushAdapter
      * @param string $serviceAccountJSON Service account JSON file contents
      */
     public function __construct(
-        private string $serviceAccountJSON,
+        private readonly string $serviceAccountJSON,
     ) {
+        parent::__construct();
     }
 
     /**
@@ -44,9 +45,9 @@ class FCM extends PushAdapter
      */
     protected function process(PushMessage $message): array
     {
-        $credentials = \json_decode($this->serviceAccountJSON, true);
+        $credentials = json_decode($this->serviceAccountJSON, true);
 
-        $now = \time();
+        $now = time();
 
         $signingKey = $credentials['private_key'];
         $signingAlgorithm = 'RS256';
@@ -65,9 +66,6 @@ class FCM extends PushAdapter
             $signingAlgorithm,
         );
 
-        $signingKey = null;
-        $payload = null;
-
         $token = $this->request(
             method: 'POST',
             url: self::GOOGLE_TOKEN_URL,
@@ -77,8 +75,12 @@ class FCM extends PushAdapter
             body: [
                 'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                 'assertion' => $jwt,
-            ]
+            ],
         );
+
+        if ($token['statusCode'] !== 200 || !\is_array($token['response']) || !isset($token['response']['access_token'])) {
+            throw new \Exception('Failed to obtain FCM access token: ' . ($token['error'] !== '' ? $token['error'] : 'HTTP ' . $token['statusCode']));
+        }
 
         $accessToken = $token['response']['access_token'];
 
@@ -127,7 +129,7 @@ class FCM extends PushAdapter
             $shared['message']['apns']['payload']['aps']['badge'] = $message->getBadge();
         }
         if (!\is_null($message->getContentAvailable())) {
-            $shared['message']['apns']['payload']['aps']['content-available'] = (int)$message->getContentAvailable();
+            $shared['message']['apns']['payload']['aps']['content-available'] = (int) $message->getContentAvailable();
         }
         if (!\is_null($message->getPriority())) {
             $shared['message']['android']['priority'] = match ($message->getPriority()) {
@@ -155,7 +157,7 @@ class FCM extends PushAdapter
                 'Content-Type: application/json',
                 "Authorization: Bearer {$accessToken}",
             ],
-            bodies: $bodies
+            bodies: $bodies,
         );
 
         $response = new Response($this->getType());
@@ -165,16 +167,40 @@ class FCM extends PushAdapter
                 $response->incrementDeliveredTo();
                 $response->addResult($message->getTo()[$result['index']]);
             } else {
-                $error =
-                    ($result['response']['error']['status'] ?? null) === 'UNREGISTERED'
-                    || ($result['response']['error']['status'] ?? null) === 'NOT_FOUND'
-                        ? $this->getExpiredErrorMessage()
-                        : $result['response']['error']['message'] ?? 'Unknown error';
-
-                $response->addResult($message->getTo()[$result['index']], $error);
+                $response->addResult($message->getTo()[$result['index']], $this->getError($result));
             }
         }
 
         return $response->toArray();
+    }
+
+    /**
+     * @param array{
+     *     statusCode: int,
+     *     response: array<string, mixed>|string|null,
+     *     error: string|null,
+     *     errorCode: int
+     * } $result
+     */
+    protected function getError(array $result): string
+    {
+        $response = \is_array($result['response']) ? $result['response'] : [];
+        $error = \is_array($response['error'] ?? null) ? $response['error'] : [];
+
+        if (\in_array($error['status'] ?? null, ['UNREGISTERED', 'NOT_FOUND'], true)) {
+            return $this->getExpiredErrorMessage();
+        }
+
+        $message = $error['message'] ?? null;
+        if (\is_string($message) && $message !== '') {
+            return $message;
+        }
+
+        $transportError = $result['error'] ?? null;
+        $details = "HTTP status {$result['statusCode']}; cURL error code {$result['errorCode']}";
+
+        return \is_string($transportError) && $transportError !== ''
+            ? "{$transportError} ({$details})"
+            : "Request failed ({$details})";
     }
 }

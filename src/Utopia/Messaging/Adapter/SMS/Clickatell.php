@@ -16,9 +16,10 @@ class Clickatell extends SMSAdapter
      * @param  string  $apiKey Clickatell API Key
      */
     public function __construct(
-        private string $apiKey,
-        private ?string $from = null
+        private readonly string $apiKey,
+        private readonly ?string $from = null,
     ) {
+        parent::__construct();
     }
 
     public function getName(): string
@@ -45,7 +46,7 @@ class Clickatell extends SMSAdapter
             url: 'https://platform.clickatell.com/messages',
             headers: [
                 'Content-Type: application/json',
-                'Authorization: '.$this->apiKey,
+                'Authorization: ' . $this->apiKey,
             ],
             body: [
                 'content' => $message->getContent(),
