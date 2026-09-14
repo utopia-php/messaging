@@ -69,6 +69,30 @@ $messaging = new Telesign('YOUR_USERNAME', 'YOUR_PASSWORD');
 $messaging->send($message);
 ```
 
+### One-time codes over WhatsApp
+
+The WhatsApp adapter sends codes through a Meta Cloud API authentication template. Meta fixes the template text, so the message content is the code itself: up to 15 letters and digits, no free text. Create the template once per language, then send with the same `SMS` message type.
+
+```php
+<?php
+
+use \Utopia\Messaging\Messages\SMS;
+use \Utopia\Messaging\Adapter\SMS\WhatsApp;
+use \Utopia\Messaging\Adapter\SMS\WhatsApp\MetadataParameter;
+
+$messaging = new WhatsApp('YOUR_ACCESS_TOKEN', 'YOUR_PHONE_NUMBER_ID', 'login_code');
+
+$messaging->upsertTemplate('YOUR_BUSINESS_ACCOUNT_ID', ['en_US', 'fr'], expirationMinutes: 10);
+
+$message = new SMS(
+    to: ['+12025550139'],
+    content: '482913'
+);
+$message->setMetadata([MetadataParameter::LANGUAGE->value => 'fr']);
+
+$messaging->send($message);
+```
+
 ## Push
 
 ```php
@@ -118,6 +142,7 @@ $messaging->send($message);
 - [x] [Seven](https://www.seven.io/)
 - [ ] [SmsGlobal](https://www.smsglobal.com/)
 - [x] [Inforu](https://www.inforu.co.il/)
+- [x] [WhatsApp](https://developers.facebook.com/docs/whatsapp/cloud-api) (one-time codes through authentication templates)
 
 ### Push
 - [x] [FCM](https://firebase.google.com/docs/cloud-messaging)
