@@ -41,6 +41,18 @@ class WhatsApp extends SMSAdapter
      */
     public const int EXPIRATION_MAX_MINUTES = 90;
 
+    /**
+     * Shortest and longest time an undelivered message may wait, in seconds.
+     */
+    public const int TIME_TO_LIVE_MIN_SECONDS = 60;
+
+    public const int TIME_TO_LIVE_MAX_SECONDS = 600;
+
+    /**
+     * Sentinel asking Meta to keep an undelivered message for a full day.
+     */
+    public const int TIME_TO_LIVE_DAY = -1;
+
     private const string ENDPOINT = 'https://graph.facebook.com';
 
     private const string PRODUCT = 'whatsapp';
@@ -97,7 +109,7 @@ class WhatsApp extends SMSAdapter
      * @param  int|null  $timeToLive Seconds after which an undelivered message is dropped, between 60 and 600, or -1 for 24 hours.
      * @return array<string, mixed> Decoded Graph API response.
      *
-     * @throws \InvalidArgumentException If the footer validity is out of range.
+     * @throws \InvalidArgumentException If the footer validity or time to live is out of range.
      * @throws \RuntimeException If the Graph API rejects the request.
      */
     public function upsertTemplate(
@@ -109,6 +121,10 @@ class WhatsApp extends SMSAdapter
     ): array {
         if ($expirationMinutes !== null && ($expirationMinutes < 1 || $expirationMinutes > self::EXPIRATION_MAX_MINUTES)) {
             throw new \InvalidArgumentException('WhatsApp code expiration must be between 1 and ' . self::EXPIRATION_MAX_MINUTES . ' minutes.');
+        }
+
+        if ($timeToLive !== null && $timeToLive !== self::TIME_TO_LIVE_DAY && ($timeToLive < self::TIME_TO_LIVE_MIN_SECONDS || $timeToLive > self::TIME_TO_LIVE_MAX_SECONDS)) {
+            throw new \InvalidArgumentException('WhatsApp time to live must be between ' . self::TIME_TO_LIVE_MIN_SECONDS . ' and ' . self::TIME_TO_LIVE_MAX_SECONDS . ' seconds, or ' . self::TIME_TO_LIVE_DAY . ' for 24 hours.');
         }
 
         $components = [
@@ -180,7 +196,11 @@ class WhatsApp extends SMSAdapter
             throw new \InvalidArgumentException('WhatsApp language metadata must be a non-empty string.');
         }
 
-        $to = $message->getTo()[0];
+        $to = $message->getTo()[0] ?? null;
+
+        if (!\is_string($to) || $to === '') {
+            throw new \InvalidArgumentException('WhatsApp requires exactly one recipient phone number.');
+        }
 
         $result = $this->request(
             method: 'POST',

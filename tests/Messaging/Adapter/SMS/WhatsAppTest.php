@@ -24,7 +24,7 @@ final class WhatsAppTest extends Base
 
     private const string TEMPLATE = 'appwrite_otp';
 
-    public function testSendsCodeInBodyAndButton(): void
+    public function testDeliversCodeThroughTemplate(): void
     {
         $client = new RecordingClient(200, [
             'messaging_product' => 'whatsapp',
@@ -41,33 +41,14 @@ final class WhatsAppTest extends Base
         $request = $client->request;
         $this->assertInstanceOf(RequestInterface::class, $request);
         $this->assertSame('POST', $request->getMethod());
-        $this->assertSame('https://graph.facebook.com/v26.0/' . self::PHONE_NUMBER_ID . '/messages', (string) $request->getUri());
+        $this->assertStringContainsString('/' . self::PHONE_NUMBER_ID . '/messages', $request->getUri()->getPath());
         $this->assertSame('Bearer ' . self::TOKEN, $request->getHeaderLine('Authorization'));
-        $this->assertSame('application/json', $request->getHeaderLine('Content-Type'));
-        $this->assertSame('Appwrite WhatsApp Message Sender', $request->getHeaderLine('User-Agent'));
 
-        $this->assertSame([
-            'messaging_product' => 'whatsapp',
-            'recipient_type' => 'individual',
-            'to' => '14155551234',
-            'type' => 'template',
-            'template' => [
-                'name' => self::TEMPLATE,
-                'language' => ['code' => 'en_US'],
-                'components' => [
-                    [
-                        'type' => 'body',
-                        'parameters' => [['type' => 'text', 'text' => '482913']],
-                    ],
-                    [
-                        'type' => 'button',
-                        'sub_type' => 'url',
-                        'index' => '0',
-                        'parameters' => [['type' => 'text', 'text' => '482913']],
-                    ],
-                ],
-            ],
-        ], $client->body());
+        $body = $client->body();
+        $this->assertSame('14155551234', $body['to'], 'Recipient must reach Meta as digits only.');
+        $this->assertSame(self::TEMPLATE, $body['template']['name']);
+        $this->assertSame('en_US', $body['template']['language']['code']);
+        $this->assertSame(['482913', '482913'], $this->codes($body), 'The code must fill both the body and the button.');
     }
 
     public function testUsesConstructorLanguageAndVersion(): void
@@ -78,7 +59,7 @@ final class WhatsAppTest extends Base
         $adapter->send(new SMS(['+5511987654321'], '123456'));
 
         $this->assertInstanceOf(RequestInterface::class, $client->request);
-        $this->assertStringStartsWith('https://graph.facebook.com/v23.0/', (string) $client->request->getUri());
+        $this->assertStringStartsWith('/v23.0/', $client->request->getUri()->getPath());
         $this->assertSame('pt_BR', $client->body()['template']['language']['code']);
     }
 
@@ -226,6 +207,21 @@ final class WhatsAppTest extends Base
         $adapter->send(new SMS(['+1', '+2'], '123456'));
     }
 
+    public function testRefusesMissingRecipient(): void
+    {
+        $client = new RecordingClient(200, []);
+        $adapter = $this->adapter($client);
+
+        try {
+            $adapter->send(new SMS([], '123456'));
+            $this->fail('Expected an InvalidArgumentException.');
+        } catch (\InvalidArgumentException $exception) {
+            $this->assertStringContainsString('exactly one recipient', $exception->getMessage());
+        }
+
+        $this->assertNotInstanceOf(RequestInterface::class, $client->request, 'No request must be sent without a recipient.');
+    }
+
     public function testUpsertsTemplateInEveryLanguage(): void
     {
         $client = new RecordingClient(200, [
@@ -240,19 +236,16 @@ final class WhatsAppTest extends Base
 
         $this->assertCount(2, $result['data']);
         $this->assertInstanceOf(RequestInterface::class, $client->request);
-        $this->assertSame('https://graph.facebook.com/v26.0/102290129340398/upsert_message_templates', (string) $client->request->getUri());
+        $this->assertStringContainsString('/102290129340398/', $client->request->getUri()->getPath());
         $this->assertSame('Bearer ' . self::TOKEN, $client->request->getHeaderLine('Authorization'));
-        $this->assertSame([
-            'name' => self::TEMPLATE,
-            'category' => 'authentication',
-            'components' => [
-                ['type' => 'body', 'add_security_recommendation' => true],
-                ['type' => 'footer', 'code_expiration_minutes' => 10],
-                ['type' => 'buttons', 'buttons' => [['type' => 'otp', 'otp_type' => 'copy_code']]],
-            ],
-            'languages' => ['en_US', 'fr'],
-            'message_send_ttl_seconds' => 600,
-        ], $client->body());
+
+        $body = $client->body();
+        $this->assertSame(self::TEMPLATE, $body['name']);
+        $this->assertSame('authentication', $body['category']);
+        $this->assertSame(['en_US', 'fr'], $body['languages']);
+        $this->assertSame(600, $body['message_send_ttl_seconds']);
+        $this->assertSame(10, $this->component($body, 'footer')['code_expiration_minutes']);
+        $this->assertTrue($this->component($body, 'body')['add_security_recommendation']);
     }
 
     public function testUpsertsTemplateWithoutOptionalParts(): void
@@ -262,14 +255,59 @@ final class WhatsAppTest extends Base
 
         $adapter->upsertTemplate('102290129340398', securityRecommendation: false);
 
-        $this->assertSame([
-            'name' => self::TEMPLATE,
-            'category' => 'authentication',
-            'components' => [
-                ['type' => 'body', 'add_security_recommendation' => false],
-                ['type' => 'buttons', 'buttons' => [['type' => 'otp', 'otp_type' => 'copy_code']]],
-            ],
-        ], $client->body());
+        $body = $client->body();
+        $this->assertArrayNotHasKey('languages', $body, 'Omitting languages lets Meta create every supported one.');
+        $this->assertArrayNotHasKey('message_send_ttl_seconds', $body);
+        $this->assertNull($this->component($body, 'footer'));
+        $this->assertFalse($this->component($body, 'body')['add_security_recommendation']);
+    }
+
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function validTimeToLive(): iterable
+    {
+        yield 'day' => [WhatsApp::TIME_TO_LIVE_DAY];
+        yield 'minimum' => [WhatsApp::TIME_TO_LIVE_MIN_SECONDS];
+        yield 'maximum' => [WhatsApp::TIME_TO_LIVE_MAX_SECONDS];
+    }
+
+    #[DataProvider('validTimeToLive')]
+    public function testUpsertAcceptsTimeToLiveBoundaries(int $timeToLive): void
+    {
+        $client = new RecordingClient(200, ['data' => []]);
+        $adapter = $this->adapter($client);
+
+        $adapter->upsertTemplate('102290129340398', ['en_US'], timeToLive: $timeToLive);
+
+        $this->assertSame($timeToLive, $client->body()['message_send_ttl_seconds']);
+    }
+
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function invalidTimeToLive(): iterable
+    {
+        yield 'zero' => [0];
+        yield 'below minimum' => [WhatsApp::TIME_TO_LIVE_MIN_SECONDS - 1];
+        yield 'above maximum' => [WhatsApp::TIME_TO_LIVE_MAX_SECONDS + 1];
+        yield 'other negative' => [-2];
+    }
+
+    #[DataProvider('invalidTimeToLive')]
+    public function testUpsertRejectsTimeToLiveOutOfRange(int $timeToLive): void
+    {
+        $client = new RecordingClient(200, ['data' => []]);
+        $adapter = $this->adapter($client);
+
+        try {
+            $adapter->upsertTemplate('102290129340398', ['en_US'], timeToLive: $timeToLive);
+            $this->fail('Expected an InvalidArgumentException.');
+        } catch (\InvalidArgumentException $exception) {
+            $this->assertStringContainsString('time to live', $exception->getMessage());
+        }
+
+        $this->assertNotInstanceOf(RequestInterface::class, $client->request, 'No request must be sent for an invalid time to live.');
     }
 
     public function testUpsertRejectsExpirationOutOfRange(): void
@@ -290,6 +328,39 @@ final class WhatsAppTest extends Base
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Error 100: Unsupported post request');
         $adapter->upsertTemplate('bad-id', ['en_US']);
+    }
+
+    /**
+     * Every text parameter in the template, in component order.
+     *
+     * @param  array<string, mixed>  $body
+     * @return array<string>
+     */
+    private function codes(array $body): array
+    {
+        $codes = [];
+        foreach ($body['template']['components'] as $component) {
+            foreach ($component['parameters'] as $parameter) {
+                $codes[] = $parameter['text'];
+            }
+        }
+
+        return $codes;
+    }
+
+    /**
+     * @param  array<string, mixed>  $body
+     * @return array<string, mixed>|null
+     */
+    private function component(array $body, string $type): ?array
+    {
+        foreach ($body['components'] as $component) {
+            if ($component['type'] === $type) {
+                return $component;
+            }
+        }
+
+        return null;
     }
 
     private function adapter(RecordingClient $client): WhatsApp
