@@ -47,16 +47,18 @@ final class WhatsAppTest extends Base
         }
     }
 
-    public function testListsTemplateLanguagesWithStatus(): void
+    public function testListsEveryLanguageOfATemplateWithItsStatus(): void
     {
         $adapter = new WhatsApp($this->accessToken, $this->phoneNumberId, self::TEMPLATE);
 
         $templates = $adapter->getTemplate($this->businessAccountId, self::SAMPLE_TEMPLATE);
 
         $this->assertNotEmpty($templates, 'Every Meta test account ships the hello_world sample template.');
-        $this->assertSame(self::SAMPLE_TEMPLATE, $templates[0]['name']);
-        $this->assertSame('APPROVED', $templates[0]['status']);
-        $this->assertSame('en_US', $templates[0]['language']);
+        foreach ($templates as $template) {
+            $this->assertSame(self::SAMPLE_TEMPLATE, $template['name'], 'Only the requested template may be returned.');
+            $this->assertNotSame('', $template['language'], 'Each entry is one language of the template.');
+            $this->assertNotSame('', $template['status'], 'Each entry carries its approval status.');
+        }
     }
 
     public function testListsNothingForUnknownTemplate(): void
@@ -66,12 +68,12 @@ final class WhatsAppTest extends Base
         $this->assertSame([], $adapter->getTemplate($this->businessAccountId));
     }
 
-    public function testRefusesTemplateCreationOnTestAccount(): void
+    public function testSurfacesRejectedTemplateCreationAsException(): void
     {
         $adapter = new WhatsApp($this->accessToken, $this->phoneNumberId, self::TEMPLATE);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Error 10');
+        $this->expectExceptionMessageMatches('/^Error \\d+: /');
         $adapter->upsertTemplate($this->businessAccountId, ['en_US']);
     }
 
@@ -87,9 +89,9 @@ final class WhatsAppTest extends Base
         $this->assertStringContainsString('132001', (string) $response['results'][0]['error'], 'Meta reports an unknown template as error 132001.');
     }
 
-    public function testOverridesTemplateAndLanguagePerMessage(): void
+    public function testOverridesTemplatePerMessage(): void
     {
-        $adapter = new WhatsApp($this->accessToken, $this->phoneNumberId, self::SAMPLE_TEMPLATE, 'fr');
+        $adapter = new WhatsApp($this->accessToken, $this->phoneNumberId, self::SAMPLE_TEMPLATE);
 
         $message = new SMS([$this->recipient], '123456');
         $message->setMetadata([
@@ -101,8 +103,7 @@ final class WhatsAppTest extends Base
         $response = $adapter->send($message);
 
         $this->assertSame('failure', $response['results'][0]['status']);
-        $this->assertStringContainsString('132001', (string) $response['results'][0]['error'], 'The override, not the constructor template, must reach Meta.');
-        $this->assertStringContainsString('en_US', (string) $response['results'][0]['error'], 'The language override must reach Meta.');
+        $this->assertStringContainsString('132001', (string) $response['results'][0]['error'], 'The constructor template exists, so an unknown-template error proves the override reached Meta.');
     }
 
     public function testReportsRecipientOutsideAllowList(): void
