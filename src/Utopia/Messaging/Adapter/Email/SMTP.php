@@ -112,7 +112,6 @@ class SMTP extends EmailAdapter
         } finally {
             if (!$this->keepAlive) {
                 $client->close();
-                $this->hold(null);
             }
         }
 
