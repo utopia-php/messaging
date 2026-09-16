@@ -2,14 +2,9 @@
 
 namespace Utopia\Messaging\Adapter\Email;
 
-use Swoole\Coroutine;
 use Utopia\Messaging\Adapter\Email as EmailAdapter;
 use Utopia\Messaging\Messages\Email as EmailMessage;
 use Utopia\Messaging\Response;
-use Utopia\Pools\Adapter\Stack;
-use Utopia\Pools\Adapter\Swoole as SwoolePoolAdapter;
-use Utopia\Pools\Connection;
-use Utopia\Pools\Pool;
 use Utopia\SMTP\Auth\Login;
 use Utopia\SMTP\Auth\Plain;
 use Utopia\SMTP\Client;
@@ -25,17 +20,9 @@ class SMTP extends EmailAdapter
     protected const NAME = 'SMTP';
 
     /**
-     * @var Pool<Client>|null
+     * The session kept open between sends when keepAlive is on.
      */
-    private ?Pool $pool = null;
-
-    /**
-     * Every session the pool has dialled, so disconnect() can say goodbye to
-     * the idle ones the pool does not hand back.
-     *
-     * @var list<Client>
-     */
-    private array $clients = [];
+    private ?Client $client = null;
 
     /**
      * @param string $host SMTP hosts. Either a single hostname or multiple semicolon-delimited hostnames. A port may follow a hostname after a colon (e.g. "smtp1.example.com:25;smtp2.example.com"), and an address literal is bracketed to keep its own colons apart from it (e.g. "[::1]:587"). An encryption prefix may lead each entry (e.g. "tls://smtp1.example.com:587;ssl://smtp2.example.com:465"). Hosts are tried in order.
@@ -50,7 +37,6 @@ class SMTP extends EmailAdapter
      * @param int $timelimit SMTP command timelimit in seconds.
      * @param int $pingThreshold Seconds a kept session may sit idle before it is probed ahead of the next message.
      * @param int $restartThreshold Messages a kept session carries before it is replaced. 0 disables.
-     * @param int $connections Sessions kept open at most when keepAlive is on. Each send owns one, and a send past this many waits up to $timeout for one to come back.
      */
     public function __construct(
         private readonly string $host,
@@ -65,7 +51,6 @@ class SMTP extends EmailAdapter
         private readonly int $timelimit = 30,
         private readonly int $pingThreshold = 30,
         private readonly int $restartThreshold = 100,
-        private readonly int $connections = 10,
     ) {
         parent::__construct();
         if (!\in_array($this->smtpSecure, ['', 'ssl', 'tls'])) {
@@ -92,9 +77,8 @@ class SMTP extends EmailAdapter
         $recipients = $this->recipients($message);
 
         try {
-            $connection = $this->keepAlive ? $this->connection() : null;
-            $client = $connection instanceof Connection ? $connection->resource : $this->dial();
-        } catch (\Exception $exception) {
+            $client = $this->keepAlive ? $this->client() : $this->dial();
+        } catch (SmtpException $exception) {
             foreach ($recipients as $email) {
                 $response->addResult($email, $exception->getMessage());
             }
@@ -102,7 +86,7 @@ class SMTP extends EmailAdapter
             return $response->toArray();
         }
 
-        $keep = $connection instanceof Connection;
+        $keep = $this->keepAlive;
 
         try {
             $result = $client->send($this->build($message));
@@ -123,19 +107,21 @@ class SMTP extends EmailAdapter
             foreach ($recipients as $email) {
                 $response->addResult($email, (string) $exception->reply);
             }
+
+            // A 421 during RCPT refuses the transaction and ends the session
+            // with it, and a session with no socket has nothing left to keep.
+            $keep = $keep && is_finite($client->idle());
         } catch (SmtpException $exception) {
             foreach ($recipients as $email) {
                 $response->addResult($email, $exception->getMessage());
             }
 
+            // The server closed the session mid-send, so the next message
+            // dials a fresh one rather than failing the same way.
             $keep = false;
         } finally {
-            if ($keep) {
-                $connection->reclaim();
-            } elseif ($connection instanceof Connection) {
-                $this->drop($connection);
-            } else {
-                $client->close();
+            if (!$keep) {
+                $this->drop($client);
             }
         }
 
@@ -143,71 +129,40 @@ class SMTP extends EmailAdapter
     }
 
     /**
-     * Close a connection held open between sends. Doing nothing is safe.
+     * Say goodbye to the kept session. For teardown, once the last send has
+     * returned: closing under a send in flight desynchronises it.
      */
     public function disconnect(): void
     {
-        foreach ($this->clients as $client) {
-            $client->close();
-        }
-
-        $this->clients = [];
-        $this->pool = null;
+        $this->client?->close();
+        $this->client = null;
     }
 
     /**
-     * A pooled session this send owns until it is reclaimed or dropped.
-     *
-     * @return Connection<Client>
+     * The kept session, replaced when it has carried enough messages or the
+     * server closed it during a quiet stretch. The client cannot see a dead
+     * socket until the next command fails, and that command would be MAIL
+     * FROM, so an idle session is probed before it carries a message.
      */
-    private function connection(): Connection
+    private function client(): Client
     {
-        // Every idle session may have been closed during the same quiet stretch,
-        // so keep dropping dead ones until a live session comes back. Once the
-        // idle set is spent, pop() dials a fresh one, which is always reusable.
-        while (true) {
-            $connection = $this->pool()->pop();
-
-            if ($this->reusable($connection->resource)) {
-                return $connection;
-            }
-
-            $this->drop($connection);
+        if ($this->client instanceof Client && $this->reusable($this->client)) {
+            return $this->client;
         }
+
+        $this->client?->close();
+        $this->client = null;
+
+        return $this->client = $this->dial();
     }
 
-    /**
-     * @param  Connection<Client>  $connection
-     */
-    private function drop(Connection $connection): void
+    private function drop(Client $client): void
     {
-        $client = $connection->resource;
+        if ($this->client === $client) {
+            $this->client = null;
+        }
 
-        // Untrack before the QUIT: close() yields, and a concurrent drop that
-        // ran in the gap would otherwise filter a stale copy and lose the other
-        // coroutine's removal. Every mutation of shared state happens first.
-        $this->clients = array_values(array_filter($this->clients, fn(Client $tracked): bool => $tracked !== $client));
-        $connection->destroy();
         $client->close();
-    }
-
-    /**
-     * @return Pool<Client>
-     */
-    private function pool(): Pool
-    {
-        return $this->pool ??= new Pool(
-            adapter: $this->coroutine() ? new SwoolePoolAdapter() : new Stack(),
-            name: 'smtp',
-            size: $this->connections,
-            init: function (): Client {
-                $client = $this->dial();
-                $this->clients[] = $client;
-
-                return $client;
-            },
-            timeout: (float) $this->timeout,
-        );
     }
 
     /**
@@ -261,11 +216,6 @@ class SMTP extends EmailAdapter
         }
 
         return $client->ping();
-    }
-
-    private function coroutine(): bool
-    {
-        return \extension_loaded('swoole') && Coroutine::getCid() > 0;
     }
 
     /**
