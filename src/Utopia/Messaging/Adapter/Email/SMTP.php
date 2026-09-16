@@ -14,15 +14,11 @@ use Utopia\SMTP\Exception\TransactionException;
 use Utopia\SMTP\Message as SmtpMessage;
 use Utopia\SMTP\Timeouts;
 use Utopia\SMTP\Transport\Native;
-use Utopia\SMTP\Transport\Transport;
 
 class SMTP extends EmailAdapter
 {
     protected const NAME = 'SMTP';
 
-    /**
-     * RFC 5321 section 4.2.3: service not available, closing transmission channel.
-     */
     private const int CLOSING = 421;
 
     private ?Client $client = null;
@@ -105,9 +101,6 @@ class SMTP extends EmailAdapter
                 $response->addResult($email, (string) $exception->reply);
             }
 
-            // 421 is the server closing the channel, so the session is gone
-            // whatever the client thinks; anything else is an answer and the
-            // session goes on.
             if ($exception->reply->code === self::CLOSING) {
                 $this->disconnect();
             }
@@ -116,8 +109,6 @@ class SMTP extends EmailAdapter
                 $response->addResult($email, $exception->getMessage());
             }
 
-            // The client has already dropped a stream it cannot trust; let
-            // the next send start from a host choice rather than this one.
             $this->disconnect();
         } finally {
             if (!$this->keepAlive) {
@@ -144,9 +135,7 @@ class SMTP extends EmailAdapter
     private function client(): Client
     {
         if ($this->client instanceof Client) {
-            // A server drops a session that sits idle, and the socket says
-            // nothing about it until the next command fails — which would be
-            // MAIL FROM, and the message with it. Ask something harmless first.
+            // An idle session the server has closed only shows on the next command.
             try {
                 $this->client->noop();
 
@@ -166,7 +155,7 @@ class SMTP extends EmailAdapter
 
         foreach ($this->hosts() as [$host, $port, $encryption]) {
             $client = new Client(
-                $this->transport($host, $port),
+                new Native($host, $port),
                 gethostname() ?: 'localhost',
                 $this->authenticators(),
                 $encryption,
@@ -193,14 +182,6 @@ class SMTP extends EmailAdapter
         throw new \Utopia\SMTP\Exception\ConnectionException(
             'No SMTP host answered: ' . implode('; ', $failures),
         );
-    }
-
-    /**
-     * The bytes under a session. One call is one connection.
-     */
-    protected function transport(string $host, int $port): Transport
-    {
-        return new Native($host, $port);
     }
 
     /**
