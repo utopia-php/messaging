@@ -19,9 +19,6 @@ class SMTP extends EmailAdapter
 {
     protected const NAME = 'SMTP';
 
-    /**
-     * The session kept open between sends when keepAlive is on.
-     */
     private ?Client $client = null;
 
     /**
@@ -108,16 +105,13 @@ class SMTP extends EmailAdapter
                 $response->addResult($email, (string) $exception->reply);
             }
 
-            // A 421 during RCPT refuses the transaction and ends the session
-            // with it, and a session with no socket has nothing left to keep.
+            // A 421 during RCPT ends the session with the transaction.
             $keep = $keep && is_finite($client->idle());
         } catch (SmtpException $exception) {
             foreach ($recipients as $email) {
                 $response->addResult($email, $exception->getMessage());
             }
 
-            // The server closed the session mid-send, so the next message
-            // dials a fresh one rather than failing the same way.
             $keep = false;
         } finally {
             if (!$keep) {
@@ -129,8 +123,7 @@ class SMTP extends EmailAdapter
     }
 
     /**
-     * Say goodbye to the kept session. For teardown, once the last send has
-     * returned: closing under a send in flight desynchronises it.
+     * Teardown only: closing under a send in flight desynchronises it.
      */
     public function disconnect(): void
     {
@@ -139,10 +132,7 @@ class SMTP extends EmailAdapter
     }
 
     /**
-     * The kept session, replaced when it has carried enough messages or the
-     * server closed it during a quiet stretch. The client cannot see a dead
-     * socket until the next command fails, and that command would be MAIL
-     * FROM, so an idle session is probed before it carries a message.
+     * The kept session, or a fresh one when it is spent or the server closed it.
      */
     private function client(): Client
     {
