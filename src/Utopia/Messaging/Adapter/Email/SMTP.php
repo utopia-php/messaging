@@ -184,7 +184,7 @@ class SMTP extends EmailAdapter
 
     private function reusable(Client $client): bool
     {
-        if ($this->restartThreshold > 0 && $client->transactions() >= $this->restartThreshold) {
+        if ($this->restartThreshold > 0 && $client->transactions >= $this->restartThreshold) {
             return false;
         }
 
