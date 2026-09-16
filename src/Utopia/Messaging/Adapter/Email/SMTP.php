@@ -20,11 +20,6 @@ class SMTP extends EmailAdapter
 {
     protected const NAME = 'SMTP';
 
-    /**
-     * The session held between sends outside a coroutine. Inside one it
-     * lives in the coroutine's context instead, so concurrent requests in a
-     * Swoole worker never read each other's replies off one socket.
-     */
     private ?Client $client = null;
 
     /**
@@ -38,8 +33,8 @@ class SMTP extends EmailAdapter
      * @param int $timeout SMTP timeout in seconds.
      * @param bool $keepAlive Whether to reuse the SMTP connection across process() calls.
      * @param int $timelimit SMTP command timelimit in seconds.
-     * @param int $pingThreshold Seconds a kept session may sit idle before it is probed ahead of the next message and replaced if the server has closed it in the meantime. Keep this well above a few seconds: a server may drop a session that sends too many commands carrying no mail.
-     * @param int $restartThreshold Messages a kept session carries before it is closed and a fresh one opened. 0 keeps the session for as long as the server does.
+     * @param int $pingThreshold Seconds a kept session may sit idle before it is probed ahead of the next message.
+     * @param int $restartThreshold Messages a kept session carries before it is replaced. 0 disables.
      */
     public function __construct(
         private readonly string $host,
@@ -105,8 +100,6 @@ class SMTP extends EmailAdapter
                 $response->addResult($email, (string) $reply);
             }
         } catch (TransactionException $exception) {
-            // A refusal is an answer and the session goes on. A 421 is the
-            // server hanging up, and the client has already dropped it.
             foreach ($recipients as $email) {
                 $response->addResult($email, (string) $exception->reply);
             }
@@ -115,8 +108,6 @@ class SMTP extends EmailAdapter
                 $response->addResult($email, $exception->getMessage());
             }
 
-            // The client has dropped a stream it cannot trust; let the next
-            // send start from a host choice rather than this one.
             $this->disconnect();
         } finally {
             if (!$this->keepAlive) {
@@ -192,18 +183,17 @@ class SMTP extends EmailAdapter
         );
     }
 
-    /**
-     * Whether a held session is worth handing another message. A long-lived
-     * one is rotated the way a relay expects, and an idle one is asked
-     * whether it is still there before it is trusted with MAIL FROM.
-     */
     private function reusable(Client $client): bool
     {
         if ($this->restartThreshold > 0 && $client->transactions() >= $this->restartThreshold) {
             return false;
         }
 
-        return $client->idle() <= $this->pingThreshold || $client->ping();
+        if ($client->idle() <= $this->pingThreshold) {
+            return true;
+        }
+
+        return $client->ping();
     }
 
     private function held(): ?Client
