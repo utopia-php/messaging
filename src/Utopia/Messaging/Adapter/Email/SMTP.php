@@ -2,6 +2,7 @@
 
 namespace Utopia\Messaging\Adapter\Email;
 
+use Swoole\Coroutine;
 use Utopia\Messaging\Adapter\Email as EmailAdapter;
 use Utopia\Messaging\Messages\Email as EmailMessage;
 use Utopia\Messaging\Response;
@@ -19,8 +20,11 @@ class SMTP extends EmailAdapter
 {
     protected const NAME = 'SMTP';
 
-    private const int CLOSING = 421;
-
+    /**
+     * The session held between sends outside a coroutine. Inside one it
+     * lives in the coroutine's context instead, so concurrent requests in a
+     * Swoole worker never read each other's replies off one socket.
+     */
     private ?Client $client = null;
 
     /**
@@ -32,8 +36,10 @@ class SMTP extends EmailAdapter
      * @param bool $smtpAutoTLS Enable/disable SMTP AutoTLS feature. Defaults to false.
      * @param string $xMailer The value to use for the X-Mailer header.
      * @param int $timeout SMTP timeout in seconds.
-     * @param bool $keepAlive Whether to reuse the SMTP connection across process() calls. A kept session is probed before each reuse and replaced when the server has closed it in the meantime.
+     * @param bool $keepAlive Whether to reuse the SMTP connection across process() calls.
      * @param int $timelimit SMTP command timelimit in seconds.
+     * @param int $pingThreshold Seconds a kept session may sit idle before it is probed ahead of the next message and replaced if the server has closed it in the meantime. Keep this well above a few seconds: a server may drop a session that sends too many commands carrying no mail.
+     * @param int $restartThreshold Messages a kept session carries before it is closed and a fresh one opened. 0 keeps the session for as long as the server does.
      */
     public function __construct(
         private readonly string $host,
@@ -46,6 +52,8 @@ class SMTP extends EmailAdapter
         private readonly int $timeout = 30,
         private readonly bool $keepAlive = false,
         private readonly int $timelimit = 30,
+        private readonly int $pingThreshold = 100,
+        private readonly int $restartThreshold = 100,
     ) {
         parent::__construct();
         if (!\in_array($this->smtpSecure, ['', 'ssl', 'tls'])) {
@@ -97,23 +105,23 @@ class SMTP extends EmailAdapter
                 $response->addResult($email, (string) $reply);
             }
         } catch (TransactionException $exception) {
+            // A refusal is an answer and the session goes on. A 421 is the
+            // server hanging up, and the client has already dropped it.
             foreach ($recipients as $email) {
                 $response->addResult($email, (string) $exception->reply);
-            }
-
-            if ($exception->reply->code === self::CLOSING) {
-                $this->disconnect();
             }
         } catch (SmtpException $exception) {
             foreach ($recipients as $email) {
                 $response->addResult($email, $exception->getMessage());
             }
 
+            // The client has dropped a stream it cannot trust; let the next
+            // send start from a host choice rather than this one.
             $this->disconnect();
         } finally {
             if (!$this->keepAlive) {
                 $client->close();
-                $this->client = null;
+                $this->hold(null);
             }
         }
 
@@ -125,8 +133,8 @@ class SMTP extends EmailAdapter
      */
     public function disconnect(): void
     {
-        $this->client?->close();
-        $this->client = null;
+        $this->held()?->close();
+        $this->hold(null);
     }
 
     /**
@@ -134,15 +142,15 @@ class SMTP extends EmailAdapter
      */
     private function client(): Client
     {
-        if ($this->client instanceof Client) {
-            // An idle session the server has closed only shows on the next command.
-            try {
-                $this->client->noop();
+        $held = $this->held();
 
-                return $this->client;
-            } catch (SmtpException) {
-                $this->disconnect();
+        if ($held instanceof Client) {
+            if ($this->reusable($held)) {
+                return $held;
             }
+
+            $held->close();
+            $this->hold(null);
         }
 
         $timeouts = new Timeouts(
@@ -173,7 +181,7 @@ class SMTP extends EmailAdapter
             }
 
             if ($this->keepAlive) {
-                $this->client = $client;
+                $this->hold($client);
             }
 
             return $client;
@@ -182,6 +190,47 @@ class SMTP extends EmailAdapter
         throw new \Utopia\SMTP\Exception\ConnectionException(
             'No SMTP host answered: ' . implode('; ', $failures),
         );
+    }
+
+    /**
+     * Whether a held session is worth handing another message. A long-lived
+     * one is rotated the way a relay expects, and an idle one is asked
+     * whether it is still there before it is trusted with MAIL FROM.
+     */
+    private function reusable(Client $client): bool
+    {
+        if ($this->restartThreshold > 0 && $client->transactions() >= $this->restartThreshold) {
+            return false;
+        }
+
+        return $client->idle() <= $this->pingThreshold || $client->ping();
+    }
+
+    private function held(): ?Client
+    {
+        if ($this->coroutine()) {
+            $client = Coroutine::getContext()[self::class] ?? null;
+
+            return $client instanceof Client ? $client : null;
+        }
+
+        return $this->client;
+    }
+
+    private function hold(?Client $client): void
+    {
+        if ($this->coroutine()) {
+            Coroutine::getContext()[self::class] = $client;
+
+            return;
+        }
+
+        $this->client = $client;
+    }
+
+    private function coroutine(): bool
+    {
+        return \extension_loaded('swoole') && Coroutine::getCid() > 0;
     }
 
     /**
