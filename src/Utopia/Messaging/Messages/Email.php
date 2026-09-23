@@ -153,6 +153,11 @@ class Email implements Message
         if (!\is_string($value) || preg_match('/[\r\n\x00]/', $value) === 1) {
             throw new InvalidArgumentException(InvalidArgumentException::HEADER_MALFORMED, "Header \"{$name}\" must be a single-line string.", $name);
         }
+
+        // The MIME writer drops empty fields while the API adapters send them, so one value would vary by adapter.
+        if (trim($value) === '') {
+            throw new InvalidArgumentException(InvalidArgumentException::HEADER_MALFORMED, "Header \"{$name}\" must not be empty.", $name);
+        }
     }
 
     /**

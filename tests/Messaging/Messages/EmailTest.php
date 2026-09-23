@@ -149,6 +149,27 @@ final class EmailTest extends TestCase
         }
     }
 
+    #[DataProvider('emptyHeaderValues')]
+    public function testEmptyHeaderValueIsRefused(string $value): void
+    {
+        try {
+            $this->message(to: ['john@appwrite.io'], headers: ['X-Tag' => $value]);
+            $this->fail('Expected header failure');
+        } catch (InvalidArgumentException $exception) {
+            $this->assertSame(InvalidArgumentException::HEADER_MALFORMED, $exception->getType());
+            $this->assertSame('X-Tag', $exception->getValue());
+        }
+    }
+
+    /**
+     * @return \Iterator<string, array{string}>
+     */
+    public static function emptyHeaderValues(): \Iterator
+    {
+        yield 'empty' => [''];
+        yield 'whitespace only' => ['  '];
+    }
+
     public function testDuplicateHeaderNameByCaseIsRefused(): void
     {
         try {
