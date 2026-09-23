@@ -154,4 +154,16 @@ final class MimeTest extends TestCase
         $this->assertStringContainsString("List-Unsubscribe: <https://example.test/u?token=abc>\r\n", $rendered);
         $this->assertStringContainsString("List-Unsubscribe-Post: List-Unsubscribe=One-Click\r\n", $rendered);
     }
+
+    public function testAdapterHeadersWinOverMessageHeadersInAnyCase(): void
+    {
+        $rendered = (string) Mime::message(
+            $this->email(headers: ['x-mailer' => 'Caller']),
+            [['email' => 'john@example.test']],
+            headers: ['X-Mailer' => 'Adapter'],
+        );
+
+        $this->assertStringContainsString("X-Mailer: Adapter\r\n", $rendered);
+        $this->assertStringNotContainsString('Caller', $rendered);
+    }
 }
