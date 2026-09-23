@@ -130,6 +130,39 @@ final class EmailTest extends TestCase
     }
 
     /**
+     * @return \Iterator<string, array{string}>
+     */
+    public static function reservedHeaderNames(): \Iterator
+    {
+        yield 'sender-owned header' => ['From'];
+        yield 'reserved name in another case' => ['subject'];
+    }
+
+    #[DataProvider('reservedHeaderNames')]
+    public function testReservedHeaderNameIsRefused(string $name): void
+    {
+        try {
+            $this->message(to: ['john@appwrite.io'], headers: [$name => 'value']);
+            $this->fail('Expected header failure');
+        } catch (InvalidArgumentException $exception) {
+            $this->assertSame(InvalidArgumentException::HEADER_MALFORMED, $exception->getType());
+        }
+    }
+
+    public function testDuplicateHeaderNameByCaseIsRefused(): void
+    {
+        try {
+            $this->message(to: ['john@appwrite.io'], headers: [
+                'List-Unsubscribe' => '<https://example.test/u?token=abc>',
+                'list-unsubscribe' => '<https://example.test/u?token=def>',
+            ]);
+            $this->fail('Expected header failure');
+        } catch (InvalidArgumentException $exception) {
+            $this->assertSame(InvalidArgumentException::HEADER_MALFORMED, $exception->getType());
+        }
+    }
+
+    /**
      * @param  array<string|array<string, string>>  $to
      * @param  array<string|array<string, string>>|null  $bcc
      * @param  array<string, string>  $headers

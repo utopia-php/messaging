@@ -8,6 +8,13 @@ use Utopia\Messaging\Messages\Email\Attachment;
 
 class Email implements Message
 {
+    /** Headers the message already writes itself; a caller value would collide at send time. */
+    private const array RESERVED_HEADERS = [
+        'date', 'from', 'to', 'cc', 'bcc', 'reply-to',
+        'subject', 'message-id', 'mime-version',
+        'content-type', 'content-transfer-encoding',
+    ];
+
     private ?string $origin = null;
 
     /**
@@ -37,7 +44,7 @@ class Email implements Message
      * @param  array<string|array<string,string>>|null  $bcc The BCC recipients of the email. Same format as $to.
      * @param  array<Attachment>|null  $attachments The attachments of the email.
      * @param  bool  $html Whether the message is HTML or not.
-     * @param  array<string, string>  $headers Extra headers written as given, e.g. List-Unsubscribe.
+     * @param  array<string, string>  $headers Extra headers written as given, e.g. List-Unsubscribe. Sent to every recipient of this message; a per-recipient value needs one Email per recipient.
      */
     public function __construct(
         array $to,
@@ -74,8 +81,16 @@ class Email implements Message
             $this->assertAddress($this->replyToEmail, InvalidArgumentException::SENDER_MALFORMED);
         }
 
+        $seenHeaders = [];
         foreach ($this->headers as $name => $value) {
             $this->assertHeader($name, $value);
+
+            // Two spellings of the same header would silently pick whichever the adapter sends last.
+            $key = strtolower((string) $name);
+            if (isset($seenHeaders[$key])) {
+                throw new InvalidArgumentException(InvalidArgumentException::HEADER_MALFORMED, "Header \"{$name}\" duplicates \"{$seenHeaders[$key]}\" by case.", (string) $name);
+            }
+            $seenHeaders[$key] = $name;
         }
     }
 
@@ -129,6 +144,10 @@ class Email implements Message
     {
         if (!\is_string($name) || preg_match('/^[!-9;-~]+$/', $name) !== 1) {
             throw new InvalidArgumentException(InvalidArgumentException::HEADER_MALFORMED, 'Header name must be printable ASCII without spaces or colons.', \is_string($name) ? $name : null);
+        }
+
+        if (\in_array(strtolower($name), self::RESERVED_HEADERS, true)) {
+            throw new InvalidArgumentException(InvalidArgumentException::HEADER_MALFORMED, "The message already owns the \"{$name}\" header.", $name);
         }
 
         if (!\is_string($value) || preg_match('/[\r\n\x00]/', $value) === 1) {
